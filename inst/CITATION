@@ -1,0 +1,11 @@
+citHeader("To cite DeCovarT in publications use:")
+
+citEntry("DeCovarT2023",
+  entry    = "Article",
+  title    = "{DeCovarT}, a {R} package for the robust deconvolution of cell mixtures in
+transcriptomic samples",
+  author   = "Bastien Chassagnol and Yufei Luo and Grégory Nuel and Etienne Becht",
+  journal  = "NA",
+  year     = "2023",
+  url      = "https://github.com/bastienchassagnol/DeCovarT",
+)

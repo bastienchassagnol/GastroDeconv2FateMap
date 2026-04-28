@@ -58,3 +58,6 @@ data/raw-data/*
 !data/raw-data/**/*.dvc
 docs
 **/.quarto/
+
+
+dvc remote add -d mmg_cluster ssh://mmg-sb-05:/mnt/DATA_11TB/projects/dtoo_project/GastroDeconv2FateMap

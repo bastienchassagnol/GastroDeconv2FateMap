@@ -3,5 +3,17 @@
   "r.bracketedPaste": true,
   "r.sessionWatcher": true,
   "r.plot.useHttpgd": true,
-  "r.lsp.diagnostics": false
+  "r.lsp.diagnostics": false,
+  "r.rterm.linux": "radian",
+  "r.rpath.linux": "R",
+  "r.rterm.option": [
+    "--no-save",
+    "--no-restore"
+  ],
+  "terminal.integrated.profiles.linux": {
+    "radian": {
+      "path": "radian"
+    }
+  }
 }
+

@@ -2,3 +2,4 @@
     remote = mmg_cluster
 ['remote "mmg_cluster"']
     url = ssh://mmg-sb-05:/mnt/DATA_11TB/projects/dtoo_project/dvc-remotes/GastroDeconv2FateMap
+    keyfile = /home/bastienc/.ssh/id_ed25519

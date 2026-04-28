@@ -55,8 +55,6 @@ rsconnect/
 slides/
 # Keep raw data files ignored, but allow DVC pointer files.
 data/raw-data/*
-!data/raw-data/*.dvc
+!data/raw-data/**/*.dvc
 docs
 **/.quarto/
-
-

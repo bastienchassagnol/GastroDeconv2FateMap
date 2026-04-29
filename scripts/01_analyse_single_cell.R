@@ -68,11 +68,11 @@ for (tp in time_points) {
       title = paste("Time point:", tp)
     ) &
     ggplot2::theme(legend.position = "bottom")
-  plot_list[[tp]] <- combined_plot
+  plot_list[[tp]] <- patchwork::patchworkGrob(combined_plot)
 }
 
 all_timepoints_pages <- gridExtra::marrangeGrob(
-  plot_list,
+  grobs = plot_list,
   nrow = 1,
   ncol = 1,
   top = NULL
@@ -85,7 +85,7 @@ ggplot2::ggsave(
   width = 14,
   height = 7,
   units = "in",
-  dpi = 600
+  dpi = 300
 )
 
 

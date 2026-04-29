@@ -4,7 +4,7 @@
   "r.sessionWatcher": true,
   "r.plot.useHttpgd": true,
   "r.lsp.diagnostics": false,
-  "r.rterm.linux": "radian",
+  "r.rterm.linux": "R",
   "r.rpath.linux": "R",
   "r.rterm.option": [
     "--no-save",
@@ -16,4 +16,3 @@
     }
   }
 }
-

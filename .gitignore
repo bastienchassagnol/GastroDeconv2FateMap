@@ -54,13 +54,13 @@ rsconnect/
 # my folders
 slides/
 # Keep raw data files ignored, but allow DVC pointer files.
-data/raw*
-!data/raw/**/*.dvc
-data/intermediate*
-!data/intermediate/**/*.dvc
+# Note: use /** (not *) so the directory itself is not ignored;
+# git cannot un-ignore files inside an ignored directory.
+data/raw/**
+!data/raw/*.dvc
+!data/raw/.gitignore
+data/intermediate/**
+!data/intermediate/*.dvc
+!data/intermediate/.gitignore
 docs
 **/.quarto/
-
-
-dvc add data/intermediate/suppinger_bulk_summarized_experiment_2026-04-30.rds \
-        data/intermediate/suppinger_single_cell_2026-04-30.rds

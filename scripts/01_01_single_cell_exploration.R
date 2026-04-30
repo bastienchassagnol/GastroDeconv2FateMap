@@ -1,12 +1,13 @@
+
+# ==========================================================================
+# 0. Libraries and Filename settings ----
+# ==========================================================================
+
 library(Seurat)
 library(tinytable)
 library(patchwork)
 library(ggplot2)
 library(gridExtra)
-
-# ==========================================================================
-# 0. Plotting and output settings ----
-# ==========================================================================
 
 study <- "suppinger"
 today <- format(Sys.Date(), "%Y-%m-%d")
@@ -22,11 +23,31 @@ if (!dir.exists(output_dir)) {
 # ==========================================================================
 
 GSE229513_gastruloids_seurat <- readRDS(
-  "./data/raw-data/GSE229513_gastruloidsobject.rds"
+  "./data/raw/GSE229513_gastruloidsobject.rds"
 )
 
 dim(GSE229513_gastruloids_seurat)
 table(Seurat::Idents(GSE229513_gastruloids_seurat))
+
+
+raw_counts <- SeuratObject::GetAssayData(
+  object = GSE229513_gastruloids_seurat,
+  assay = "RNA",
+  layer = "counts"
+)
+
+# Quick inspection of counts matrix (first genes x first cells)
+
+# Retrieve feature (gene) information from RNA assay
+feature_info <- GSE229513_gastruloids_seurat@assays$RNA@meta.features
+feature_info$gene <- rownames(feature_info)
+
+if (ncol(feature_info) == 1) {
+  message("No extra feature metadata found; showing gene names only.")
+}
+
+print(utils::head(feature_info))
+print(colnames(raw_counts))
 
 
 # ==========================================================================
@@ -49,18 +70,20 @@ for (tp in time_points) {
   Seurat::Idents(tp_object) <- "celltypeannotation"
 
   pca_plot <- Seurat::DimPlot(
-    object    = tp_object,
+    object = tp_object,
     reduction = "pca",
-    group.by  = "celltypeannotation",
-    pt.size   = 0.6
-  ) + ggplot2::ggtitle("PCA")
+    group.by = "celltypeannotation",
+    pt.size = 0.6
+  ) +
+    ggplot2::ggtitle("PCA")
 
   umap_plot <- Seurat::DimPlot(
-    object    = tp_object,
+    object = tp_object,
     reduction = "umap",
-    group.by  = "celltypeannotation",
-    pt.size   = 0.6
-  ) + ggplot2::ggtitle("UMAP")
+    group.by = "celltypeannotation",
+    pt.size = 0.6
+  ) +
+    ggplot2::ggtitle("UMAP")
 
   combined_plot <- (pca_plot | umap_plot) +
     patchwork::plot_layout(guides = "collect") +
@@ -89,7 +112,6 @@ ggplot2::ggsave(
 )
 
 
-
 # ==========================================================================
 # 5. Identify cell-type marker genes (phenotype features)
 # ==========================================================================
@@ -98,11 +120,11 @@ ggplot2::ggsave(
 SeuratObject::DefaultAssay(GSE229513_120h) <- "SCT"
 
 all_markers <- Seurat::FindAllMarkers(
-  object          = GSE229513_120h,
-  only.pos        = TRUE,
-  min.pct         = 0.25,
+  object = GSE229513_120h,
+  only.pos = TRUE,
+  min.pct = 0.25,
   logfc.threshold = 0.25,
-  test.use        = "wilcox"
+  test.use = "wilcox"
 )
 
 # --- 5a. Top 10 markers per cell type ------------------------------------
@@ -111,17 +133,14 @@ top_markers <- all_markers |>
   dplyr::slice_max(order_by = avg_log2FC, n = 20) |>
   dplyr::ungroup()
 
-
-# ==========================================================================
-# 6. Summary table with tinytable
-# ==========================================================================
+# --- 5b. Summary table with tinytable ------------------------------------
 
 marker_summary <- top_markers |>
   dplyr::select(
-    `Cell type`  = cluster,
-    Gene         = gene,
-    `Log2 FC`    = avg_log2FC,
-    `Adj. p`     = p_val_adj,
+    `Cell type` = cluster,
+    Gene = gene,
+    `Log2 FC` = avg_log2FC,
+    `Adj. p` = p_val_adj,
     `% Expressed (in)` = pct.1,
     `% Expressed (out)` = pct.2
   )
@@ -132,14 +151,18 @@ marker_table <- tinytable::tt(
 ) |>
   tinytable::format_tt(
     j = "Log2 FC",
-    fn = function(mean_signature_matrix) formatC(mean_signature_matrix, digits = 2, format = "f")
+    fn = function(mean_signature_matrix) {
+      formatC(mean_signature_matrix, digits = 2, format = "f")
+    }
   ) |>
   tinytable::format_tt(
     j = "Adj. p",
-    fn = function(mean_signature_matrix) formatC(mean_signature_matrix, digits = 2, format = "e")
+    fn = function(mean_signature_matrix) {
+      formatC(mean_signature_matrix, digits = 2, format = "e")
+    }
   ) |>
   tinytable::style_tt(
-    i    = which(marker_summary$`Adj. p` < 0.01),
+    i = which(marker_summary$`Adj. p` < 0.01),
     bold = TRUE
   )
 

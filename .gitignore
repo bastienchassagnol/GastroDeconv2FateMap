@@ -54,10 +54,13 @@ rsconnect/
 # my folders
 slides/
 # Keep raw data files ignored, but allow DVC pointer files.
-data/raw-data/*
-!data/raw-data/**/*.dvc
+data/raw*
+!data/raw/**/*.dvc
+data/intermediate*
+!data/intermediate/**/*.dvc
 docs
 **/.quarto/
 
 
-dvc remote add -d mmg_cluster ssh://mmg-sb-05:/mnt/DATA_11TB/projects/dtoo_project/GastroDeconv2FateMap
+dvc add data/intermediate/suppinger_bulk_summarized_experiment_2026-04-30.rds \
+        data/intermediate/suppinger_single_cell_2026-04-30.rds

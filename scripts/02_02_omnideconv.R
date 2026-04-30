@@ -1,20 +1,21 @@
 library(omnideconv)
 
+omnideconv::bseqsc_config(file = "./R/CIBERSORT.R", error = TRUE)
+
 # ==========================================================================
 # 0. Settings ----
 # ==========================================================================
 
 study <- "suppinger"
 today <- format(Sys.Date(), "%Y-%m-%d")
+scaden_model_path <- normalizePath(
+  paste0("./.models/scaden_model_", study),
+  mustWork = FALSE
+)
 
 deconv_methods <- c(
   "bayesprism",
-  "bisque",
-  "bseqsc",
-  "cdseq",
   "dwls",
-  "music",
-  "scaden",
   "scdc"
 )
 
@@ -70,35 +71,31 @@ for (tp in shared_timepoints) {
   tp_results <- vector(mode = "list", length = length(deconv_methods))
   names(tp_results) <- deconv_methods
 
+  batch_ids <- rep_len(c("1", "2"), ncol(sc_tp))
+
   for (method in deconv_methods) {
     message("  Running: ", method)
 
+    if (!dir.exists(dirname(scaden_model_path))) {
+      dir.create(dirname(scaden_model_path), recursive = TRUE)
+    }
+
     tp_results[[method]] <- tryCatch(
-      omnideconv:::deconvolute(
+      test <- omnideconv:::deconvolute(
         bulk_gene_expression = bulk_matrix,
-        method = method,
-        single_cell_object = sc_tp[,1:200
+        method = "scdc",
+        single_cell_object = sc_tp[, 1:200],
         cell_type_column_name = "celltypeannotation",
         assay_name = "counts",
         normalize_results = TRUE,
-        verbose = TRUE
+        verbose = TRUE,
+        batch_ids = batch_ids[1:200]
       ),
       error = function(e) {
         message("  ERROR in ", method, " at ", tp, ": ", conditionMessage(e))
         NULL
       }
     )
-
-    test <- omnideconv:::deconvolute(
-        bulk_gene_expression = bulk_matrix,
-        method = method,
-        single_cell_object = sc_tp[,1:200],
-        cell_type_column_name = "celltypeannotation",
-        assay_name = "counts",
-        normalize_results = TRUE,
-        verbose = TRUE
-      )
-
   }
 
   deconv_results[[tp]] <- tp_results
@@ -118,3 +115,31 @@ saveRDS(
     ".rds"
   )
 )
+
+# scaden model building and deconvolution
+# scaden_model_path_second <- omnideconv::build_model_scaden(
+#   single_cell_object = as.matrix(SummarizedExperiment::assay(
+#     sc_tp[, 1:200],
+#     "counts"
+#   )),
+#   cell_type_annotations = SummarizedExperiment::colData(
+#     sc_tp
+#   )$celltypeannotation[1:200],
+#   bulk_gene_expression = bulk_matrix,
+#   model_path = scaden_model_path,
+#   temp_dir = tempdir(),
+#   batch_size = 128,
+#   learning_rate = 1e-04,
+#   steps = 500,
+#   var_cutoff = 1,
+#   cells = 50,
+#   samples = 1000,
+#   dataset_name = paste0("scaden_", study),
+#   verbose = TRUE
+# )
+
+# test_scaden <- omnideconv::deconvolute_scaden(
+#   signature = scaden_model_path_second,
+#   bulk_gene_expression = bulk_matrix,
+#   verbose = TRUE
+# )

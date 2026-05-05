@@ -4,8 +4,9 @@
   "r.sessionWatcher": true,
   "r.plot.useHttpgd": true,
   "r.lsp.diagnostics": false,
-  "r.rterm.linux": "R",
-  "r.rpath.linux": "R",
+  "r.rterm.linux": "/usr/bin/R",
+  "r.rpath.linux": "/usr/bin/R",
+  "r.debugger.timeouts.startup": 10000,
   "r.rterm.option": [
     "--no-save",
     "--no-restore"

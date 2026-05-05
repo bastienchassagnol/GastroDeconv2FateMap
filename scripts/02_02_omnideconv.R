@@ -68,39 +68,25 @@ for (tp in shared_timepoints) {
   ]
 
   # --- 3c. Run each deconvolution method ---------------------------------
-  tp_results <- vector(mode = "list", length = length(deconv_methods))
-  names(tp_results) <- deconv_methods
-
-  batch_ids <- rep_len(c("1", "2"), ncol(sc_tp))
-
-  for (method in deconv_methods) {
-    message("  Running: ", method)
-
-    if (!dir.exists(dirname(scaden_model_path))) {
-      dir.create(dirname(scaden_model_path), recursive = TRUE)
-    }
-
-    tp_results[[method]] <- tryCatch(
-      test <- omnideconv:::deconvolute(
+  # batch_ids <- rep_len(c("1", "2"), ncol(sc_tp))
+  for (method in deconv_methods[2:3]) {
+    message("\n── With the following deconvolution algorithm: ", method, " ──")
+    deconv_results[[tp]][[method]] <- tryCatch(
+      omnideconv:::deconvolute(
         bulk_gene_expression = bulk_matrix,
-        method = "scdc",
-        single_cell_object = sc_tp[, 1:200],
+        method = method,
+        single_cell_object = sc_tp[,1:200],
         cell_type_column_name = "celltypeannotation",
         assay_name = "counts",
         normalize_results = TRUE,
-        verbose = TRUE,
-        batch_ids = batch_ids[1:200]
-      ),
+        verbose = TRUE
+      ), 
       error = function(e) {
         message("  ERROR in ", method, " at ", tp, ": ", conditionMessage(e))
-        NULL
       }
     )
   }
-
-  deconv_results[[tp]] <- tp_results
 }
-
 # ==========================================================================
 # 4. Save results ----
 # ==========================================================================
@@ -116,7 +102,12 @@ saveRDS(
   )
 )
 
+
+
 # scaden model building and deconvolution
+# if (!dir.exists(dirname(scaden_model_path))) {
+#   dir.create(dirname(scaden_model_path), recursive = TRUE)
+# }
 # scaden_model_path_second <- omnideconv::build_model_scaden(
 #   single_cell_object = as.matrix(SummarizedExperiment::assay(
 #     sc_tp[, 1:200],

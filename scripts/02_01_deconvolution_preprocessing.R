@@ -6,6 +6,9 @@ library(Seurat)
 library(patchwork)
 library(ggplot2)
 
+# useful scripts
+source("./R/01_03_gene_feature_annotation.R")
+
 study <- "suppinger"
 today <- format(Sys.Date(), "%Y-%m-%d")
 output_dir <- "data/intermediate"
@@ -122,6 +125,43 @@ print(paste(
 ))
 
 
+test_annotation <- annotate_genes(
+  genes = c("Gnai3", "Pbsn", "Cdc45", "H19", "Scml2", "Apoh"),
+  dataset = "mmusculus_gene_ensembl",
+  mirror = "www",
+  verbose = TRUE
+)
+
+
+
+  mart <- biomaRt::useEnsembl(
+    biomart = "genes",
+    dataset = "mmusculus_gene_ensembl"
+  )
+
+  # Attributes to retrieve
+  attributes <- c(
+    "external_gene_name", # gene symbol
+    "ensembl_gene_id", # Ensembl ID
+    "description", # biological function
+    "gene_biotype", # gene type
+    "chromosome_name",
+    "start_position",
+    "end_position"
+  )
+
+  # Query biomart
+  if (verbose) {
+    message("Querying biomart...")
+  }
+  bm <- biomaRt::getBM(
+    attributes = attributes,
+    filters = "external_gene_name",
+    values = c("Gnai3", "Pbsn"),
+    mart = mart
+  )
+
+
 # ==========================================================================
 # 3. Build SummarizedExperiment for the bulk RNA-seq data ----
 # ==========================================================================
@@ -230,7 +270,20 @@ sc_filtered <- subset(
 
 sc_filtered@meta.data$timepoints <- factor(
   sc_filtered@meta.data$timepoints,
-  levels = c("0h","24h","36h","48h","52h","56h","60h","72h","84h","96h","108h","120h"),
+  levels = c(
+    "0h",
+    "24h",
+    "36h",
+    "48h",
+    "52h",
+    "56h",
+    "60h",
+    "72h",
+    "84h",
+    "96h",
+    "108h",
+    "120h"
+  ),
   ordered = TRUE
 )
 
@@ -247,12 +300,27 @@ tinytable::tt(
   caption = "Cell-level metadata (single-cell RNA-seq)"
 )
 
+skimr::skim(sc_filtered@meta.data)
+
+tinytable::tt(
+  sc_filtered@meta.data |>
+    head(),
+  caption = "Cell-level metadata (single-cell RNA-seq)"
+)
+
+
+tinytable::tt(
+  sc_filtered@meta.features |>
+    head(),
+  caption = "Feature metadata (single-cell RNA-seq)"
+)
+
 tinytable::tt(
   sc_filtered@meta.data |>
     dplyr::distinct(
       celltypeannotation,
       timepoints
-    )  |> 
+    ) |>
     dplyr::arrange(timepoints, celltypeannotation),
   caption = "Cell types per time point"
 )

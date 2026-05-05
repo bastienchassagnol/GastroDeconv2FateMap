@@ -7,6 +7,9 @@
   "r.rterm.linux": "/usr/bin/R",
   "r.rpath.linux": "/usr/bin/R",
   "r.debugger.timeouts.startup": 10000,
+  "r.debugger.timeouts.terminate": 2000,
+  "r.debugger.timeouts.prompt": 500,
+  "r.debugger.checkVersion": "recommended",
   "r.rterm.option": [
     "--no-save",
     "--no-restore"

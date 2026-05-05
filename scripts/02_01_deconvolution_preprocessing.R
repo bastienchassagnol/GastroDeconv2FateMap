@@ -7,7 +7,17 @@ library(patchwork)
 library(ggplot2)
 
 # useful scripts
-source("./R/01_03_gene_feature_annotation.R")
+source("./R/annotate_genes.R")
+
+test_annotation <- annotate_genes_mouse(
+  genes = c("Gnai3", "Pbsn", "Cdc45", "H19", "Scml2", "Apoh")
+)
+
+tinytable::tt(
+  test_annotation |>
+    head(),
+  caption = "Test annotation"
+)
 
 study <- "suppinger"
 today <- format(Sys.Date(), "%Y-%m-%d")
@@ -125,41 +135,11 @@ print(paste(
 ))
 
 
-test_annotation <- annotate_genes(
-  genes = c("Gnai3", "Pbsn", "Cdc45", "H19", "Scml2", "Apoh"),
-  dataset = "mmusculus_gene_ensembl",
-  mirror = "www",
-  verbose = TRUE
-)
 
 
 
-  mart <- biomaRt::useEnsembl(
-    biomart = "genes",
-    dataset = "mmusculus_gene_ensembl"
-  )
 
-  # Attributes to retrieve
-  attributes <- c(
-    "external_gene_name", # gene symbol
-    "ensembl_gene_id", # Ensembl ID
-    "description", # biological function
-    "gene_biotype", # gene type
-    "chromosome_name",
-    "start_position",
-    "end_position"
-  )
 
-  # Query biomart
-  if (verbose) {
-    message("Querying biomart...")
-  }
-  bm <- biomaRt::getBM(
-    attributes = attributes,
-    filters = "external_gene_name",
-    values = c("Gnai3", "Pbsn"),
-    mart = mart
-  )
 
 
 # ==========================================================================

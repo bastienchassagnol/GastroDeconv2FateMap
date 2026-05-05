@@ -4,13 +4,18 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
-    
     {
       "type": "R-Debugger",
       "name": "Launch R-Workspace",
       "request": "launch",
       "debugMode": "workspace",
-      "workingDirectory": "${workspaceFolder}"
+      "workingDirectory": "${workspaceFolder}",
+      "rPath": "/usr/bin/R",
+      "allowGlobalDebugging": true,
+      "includePackageScopes": true,
+      "overwriteSource": true,
+      "overwritePrint": true,
+      "overwriteMessage": true
     },
     {
       "type": "R-Debugger",
@@ -18,7 +23,13 @@
       "request": "launch",
       "debugMode": "file",
       "workingDirectory": "${workspaceFolder}",
-      "file": "${file}"
+      "file": "${file}",
+      "rPath": "/usr/bin/R",
+      "allowGlobalDebugging": false,
+      "includePackageScopes": false,
+      "overwriteSource": true,
+      "overwritePrint": true,
+      "overwriteMessage": true
     },
     {
       "type": "R-Debugger",
@@ -28,7 +39,12 @@
       "workingDirectory": "${workspaceFolder}",
       "file": "${file}",
       "mainFunction": "main",
-      "allowGlobalDebugging": false
+      "allowGlobalDebugging": false,
+      "rPath": "/usr/bin/R",
+      "includePackageScopes": true,
+      "overwriteSource": true,
+      "overwritePrint": true,
+      "overwriteMessage": true
     },
     {
       "type": "R-Debugger",
@@ -36,7 +52,11 @@
       "request": "launch",
       "debugMode": "workspace",
       "workingDirectory": "${workspaceFolder}",
+      "rPath": "/usr/bin/R",
       "includePackageScopes": true,
+      "overwriteSource": true,
+      "overwritePrint": true,
+      "overwriteMessage": true,
       "loadPackages": [
         "."
       ]

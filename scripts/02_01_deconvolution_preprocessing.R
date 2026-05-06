@@ -16,7 +16,7 @@ test_annotation <- annotate_genes_mouse(
 tinytable::tt(
   test_annotation |>
     head(),
-  caption = "Test annotation"
+  caption = "Gene annotation on a representative subset of genes"
 )
 
 study <- "suppinger"
@@ -135,13 +135,6 @@ print(paste(
 ))
 
 
-
-
-
-
-
-
-
 # ==========================================================================
 # 3. Build SummarizedExperiment for the bulk RNA-seq data ----
 # ==========================================================================
@@ -248,6 +241,7 @@ sc_filtered <- subset(
   features = rnaseq_features_filtered$gene_name
 )
 
+# --- 4b. Metadata manipulation -------------------------------------------
 sc_filtered@meta.data$timepoints <- factor(
   sc_filtered@meta.data$timepoints,
   levels = c(
@@ -266,6 +260,38 @@ sc_filtered@meta.data$timepoints <- factor(
   ),
   ordered = TRUE
 )
+
+sc_filtered@meta.data$batch <- forcats::fct_recode(
+  factor(sc_filtered@meta.data$batch),
+  "B-S" = "batch1",
+  "SBR" = "batch2"
+)
+
+cell_type_colours <- c(
+  "Anterior primitive streak/Def. endoderm" = "#faa38a",
+  "Caudal epiblast"                         = "#56d312",
+  "Caudal epiblast/primitive streak"        = "#ffc36a",
+  "Caudal mesoderm"                         = "#01ef92",
+  "Cd63+ ectoderm-like artefact"            = "#e9b000",
+  "Ectopic pluripotency"                    = "#01d9bd",
+  "Epiblast"                                = "#bdfe0b",
+  "Epiblast/primitive streak"               = "#70cb94",
+  "Exiting naïve pluripotency"              = "#efff4e",
+  "Gut"                                     = "#8affc4",
+  "Hemogenic endothelium"                   = "#cfba1d",
+  "Naïve pluripotency"                      = "#35d365",
+  "Neuromesodermal progenitors"             = "#edff9b",
+  "Paraxial mesoderm"                       = "#53d240",
+  "Pre-somitic mesoderm"                    = "#b8dfa2",
+  "Primitive streak"                        = "#9ec72a",
+  "Somite"                                  = "#78cc6e",
+  "Somite differentiation front"            = "#baff73",
+  "Zscan4+ Artefact"                        = "#a5c54a"
+)
+
+sc_filtered@meta.data$celltype_colour <- cell_type_colours[
+  sc_filtered@meta.data$celltypeannotation
+]
 
 tinytable::tt(
   sc_filtered@meta.data |>
@@ -305,7 +331,7 @@ tinytable::tt(
   caption = "Cell types per time point"
 )
 
-# --- 4b. Convert to SingleCellExperiment ----------------------------------
+# --- 4c. Convert to SingleCellExperiment ----------------------------------
 suppinger_single_cell <- Seurat::as.SingleCellExperiment(
   sc_filtered,
   assay = "RNA"
@@ -313,7 +339,7 @@ suppinger_single_cell <- Seurat::as.SingleCellExperiment(
 
 suppinger_single_cell
 
-# --- 4c. Save -------------------------------------------------------------
+# --- 4d. Save -------------------------------------------------------------
 saveRDS(
   suppinger_single_cell,
   file = paste0(

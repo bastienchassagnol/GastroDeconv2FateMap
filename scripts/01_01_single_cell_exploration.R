@@ -1,4 +1,3 @@
-
 # ==========================================================================
 # 0. Libraries and Filename settings ----
 # ==========================================================================
@@ -50,6 +49,61 @@ print(utils::head(feature_info))
 print(colnames(raw_counts))
 
 
+phenotype_data <- GSE229513_gastruloids_seurat@meta.data
+tinytable::tt(
+  phenotype_data |>
+    head(),
+  caption = "Phenotype data for the single-cell data"
+)
+
+tinytable::tt(
+  phenotype_data |>
+    dplyr::group_by(batch, timepoints) |>
+    dplyr::summarise(n_cells = dplyr::n(), .groups = "drop") |>
+    dplyr::arrange(batch, timepoints),
+  caption = "Number of cells per batch and timepoint"
+)
+
+tinytable::tt(
+  phenotype_data |>
+    dplyr::group_by(celltypeannotation) |>
+    dplyr::summarise(n_cells = dplyr::n(), .groups = "drop"),
+  caption = "Number of cells per cell type"
+)
+
+GSE229513_gastruloids_seurat@meta.data$batch <- forcats::fct_recode(
+  factor(GSE229513_gastruloids_seurat@meta.data$batch),
+  "B-S" = "batch1",
+  "SBR" = "batch2"
+)
+
+cell_type_colours <- c(
+  "Anterior primitive streak/Def. endoderm" = "#faa38a",
+  "Caudal epiblast"                         = "#56d312",
+  "Caudal epiblast/primitive streak"        = "#ffc36a",
+  "Caudal mesoderm"                         = "#01ef92",
+  "Cd63+ ectoderm-like artefact"            = "#e9b000",
+  "Ectopic pluripotency"                    = "#01d9bd",
+  "Epiblast"                                = "#bdfe0b",
+  "Epiblast/primitive streak"               = "#70cb94",
+  "Exiting naïve pluripotency"              = "#efff4e",
+  "Gut"                                     = "#8affc4",
+  "Hemogenic endothelium"                   = "#cfba1d",
+  "Naïve pluripotency"                      = "#35d365",
+  "Neuromesodermal progenitors"             = "#edff9b",
+  "Paraxial mesoderm"                       = "#53d240",
+  "Pre-somitic mesoderm"                    = "#b8dfa2",
+  "Primitive streak"                        = "#9ec72a",
+  "Somite"                                  = "#78cc6e",
+  "Somite differentiation front"            = "#baff73",
+  "Zscan4+ Artefact"                        = "#a5c54a"
+)
+
+GSE229513_gastruloids_seurat@meta.data$celltype_colour <- cell_type_colours[
+  GSE229513_gastruloids_seurat@meta.data$celltypeannotation
+]
+batch_shapes <- c("B-S" = 6, "SBR" = 3)
+
 # ==========================================================================
 # 2. Export PCA + UMAP for each timepoint (one PDF page per ident)
 # ==========================================================================
@@ -73,16 +127,28 @@ for (tp in time_points) {
     object = tp_object,
     reduction = "pca",
     group.by = "celltypeannotation",
-    pt.size = 0.6
+    cols = cell_type_colours,
+    pt.size = 1.2,
+    shape.by = "batch",
+    label.box = TRUE,
+    alpha = 0.7,
+    stroke.size = 0.5
   ) +
+    ggplot2::scale_shape_manual(values = batch_shapes) +
     ggplot2::ggtitle("PCA")
 
   umap_plot <- Seurat::DimPlot(
     object = tp_object,
     reduction = "umap",
     group.by = "celltypeannotation",
-    pt.size = 0.6
+    cols = cell_type_colours,
+    pt.size = 1.2,
+    shape.by = "batch",
+    label.box = TRUE,
+    alpha = 0.7,
+    stroke.size = 0.5
   ) +
+    ggplot2::scale_shape_manual(values = batch_shapes) +
     ggplot2::ggtitle("UMAP")
 
   combined_plot <- (pca_plot | umap_plot) +
@@ -108,12 +174,12 @@ ggplot2::ggsave(
   width = 14,
   height = 7,
   units = "in",
-  dpi = 300
+  dpi = 500
 )
 
 
 # ==========================================================================
-# 5. Identify cell-type marker genes (phenotype features)
+# 3. Identify cell-type marker genes (phenotype features)
 # ==========================================================================
 
 # Switch default assay to SCT for differential expression
@@ -127,13 +193,13 @@ all_markers <- Seurat::FindAllMarkers(
   test.use = "wilcox"
 )
 
-# --- 5a. Top 10 markers per cell type ------------------------------------
+# --- 3a. Top 10 markers per cell type ------------------------------------
 top_markers <- all_markers |>
   dplyr::group_by(cluster) |>
   dplyr::slice_max(order_by = avg_log2FC, n = 20) |>
   dplyr::ungroup()
 
-# --- 5b. Summary table with tinytable ------------------------------------
+# --- 3b. Summary table with tinytable ------------------------------------
 
 marker_summary <- top_markers |>
   dplyr::select(
@@ -167,3 +233,42 @@ marker_table <- tinytable::tt(
   )
 
 print(marker_table)
+
+
+# ==========================================================================
+# 4. Build barcode distribution table from barcodes.tsv ----
+# ==========================================================================
+
+barcode_names <- readr::read_tsv(
+  "./data/raw/GSE229513_barcodes.tsv.gz",
+  col_names = "barcode_raw",
+  show_col_types = FALSE
+) |>
+  tidyr::separate_wider_regex(
+    cols = barcode_raw,
+    patterns = c(
+      batch_id = "[A-Za-z0-9.]+",
+      "[ -]",
+      time_id = "[^:]+",
+      ":",
+      barcode_id = ".+"
+    )
+  )
+
+barcodes_distribution <- barcode_names |>
+  dplyr::group_by(barcode_id) |>
+  dplyr::summarise(n_barcodes = dplyr::n(), .groups = "drop") |>
+  dplyr::arrange(dplyr::desc(n_barcodes))
+
+tinytable::tt(
+  barcodes_distribution,
+  caption = "Distribution of barcodes per barcode ID"
+)
+
+tinytable::tt(
+  barcode_names |>
+    dplyr::group_by(batch_id, time_id) |>
+    dplyr::arrange(batch_id, time_id) |>
+    dplyr::summarise(n_barcodes = dplyr::n(), .groups = "drop"),
+  caption = "Number of unique barcodes per batch and time ID combination"
+)

@@ -38,10 +38,10 @@
       "debugMode": "function",
       "workingDirectory": "${workspaceFolder}",
       "file": "${file}",
-      "mainFunction": "main",
+      "mainFunction": "annotate_genes_mouse",
       "allowGlobalDebugging": false,
       "rPath": "/usr/bin/R",
-      "includePackageScopes": true,
+      "includePackageScopes": false,
       "overwriteSource": true,
       "overwritePrint": true,
       "overwriteMessage": true

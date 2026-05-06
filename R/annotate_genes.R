@@ -10,6 +10,8 @@
 ##'
 ##' @param genes Character vector of mouse gene symbols
 ##'   (for example, `c("Gnai3", "H19")`).
+##' @param drop_missing_genes Logical; whether to drop genes
+##' that are not found in the annotation database. Default is `TRUE`.
 ##' @param verbose Logical; whether to print progress messages.
 ##'
 ##' @return A `data.frame` with one row per input gene and columns:
@@ -20,7 +22,11 @@
 ##' \dontrun{
 ##' annotate_genes(c("Gnai3", "Pbsn", "Cdc45"))
 ##' }
-annotate_genes_mouse <- function(genes, verbose = TRUE) {
+annotate_genes_mouse <- function(
+  genes,
+  drop_missing_genes = TRUE,
+  verbose = TRUE
+) {
   # deal with dependencies
   required_pkgs <- c(
     "AnnotationDbi",
@@ -49,7 +55,6 @@ annotate_genes_mouse <- function(genes, verbose = TRUE) {
   if (!is.character(genes) || length(genes) == 0) {
     stop("`genes` must be a non-empty character vector.")
   }
-
   genes <- unique(genes)
 
   if (verbose) {
@@ -71,9 +76,10 @@ annotate_genes_mouse <- function(genes, verbose = TRUE) {
       gene_type_raw = GENETYPE
     )
   # Get genomic coordinates and gene length
-  gene_ranges <- GenomicFeatures::genes(
-    TxDb.Mmusculus.UCSC.mm10.knownGene::TxDb.Mmusculus.UCSC.mm10.knownGene,
-    single.strand.genes.only = TRUE
+  gene_ranges <- suppressMessages(
+    GenomicFeatures::genes(
+      TxDb.Mmusculus.UCSC.mm10.knownGene::TxDb.Mmusculus.UCSC.mm10.knownGene,
+    )
   )
   chromosome_names <- data.frame(
     entrez_id = names(gene_ranges),
@@ -156,6 +162,18 @@ annotate_genes_mouse <- function(genes, verbose = TRUE) {
       ambiguous_genes = FALSE
     )
     annotated_genes <- dplyr::bind_rows(annotated_genes, missing_df)
+  }
+  # Convert empty strings, and inputs to NA (homogenize missing values)
+  annotated_genes <- annotated_genes |>
+    dplyr::mutate(
+      dplyr::across(where(is.character), \(x) dplyr::na_if(x, "")),
+      dplyr::across(where(is.numeric), \(x) ifelse(is.nan(x), NA_real_, x)),
+    )
+
+  # Drop genes in which not all biological annotation is available
+  if (drop_missing_genes) {
+    annotated_genes <- annotated_genes |>
+      tidyr::drop_na()
   }
 
   return(annotated_genes)

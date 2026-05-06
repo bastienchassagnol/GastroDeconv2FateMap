@@ -9,16 +9,6 @@ library(ggplot2)
 # useful scripts
 source("./R/annotate_genes.R")
 
-test_annotation <- annotate_genes_mouse(
-  genes = c("Gnai3", "Pbsn", "Cdc45", "H19", "Scml2", "Apoh")
-)
-
-tinytable::tt(
-  test_annotation |>
-    head(),
-  caption = "Gene annotation on a representative subset of genes"
-)
-
 study <- "suppinger"
 today <- format(Sys.Date(), "%Y-%m-%d")
 output_dir <- "data/intermediate"
@@ -135,6 +125,26 @@ print(paste(
 ))
 
 
+# --- 2d. Add gene biological function and gene biotype --------------------------------------
+rnaseq_features_filtered <- annotate_genes_mouse(
+  genes = rnaseq_features_filtered$gene_name,
+  drop_missing_genes = TRUE
+)
+
+tinytable::tt(
+  rnaseq_features_filtered |>
+    dplyr::arrange(gene_biotype, ensembl_id),
+  caption = "Gene annotations after discarding ambiguous, or poorly annotated genes"
+)
+
+print(paste(
+  "Number of genes after discarding ambiguous, or poorly annotated genes: ",
+  nrow(rnaseq_features_filtered)
+))
+
+dim(rnaseq_features_filtered)
+
+
 # ==========================================================================
 # 3. Build SummarizedExperiment for the bulk RNA-seq data ----
 # ==========================================================================
@@ -149,10 +159,7 @@ count_matrix <- bulk_rnaseq_htseq |>
 storage.mode(count_matrix) <- "integer"
 
 # --- 3b. Row metadata (feature data) -------------------------------------
-row_data <- S4Vectors::DataFrame(
-  ensembl_id = rnaseq_features_filtered$ensembl_id,
-  row.names = rnaseq_features_filtered$gene_name
-)
+row_data <- S4Vectors::DataFrame(rnaseq_features_filtered)
 
 # --- 3c. Column metadata (sample phenotype data) -------------------------
 sample_names <- colnames(count_matrix)
@@ -269,67 +276,71 @@ sc_filtered@meta.data$batch <- forcats::fct_recode(
 
 cell_type_colours <- c(
   "Anterior primitive streak/Def. endoderm" = "#faa38a",
-  "Caudal epiblast"                         = "#56d312",
-  "Caudal epiblast/primitive streak"        = "#ffc36a",
-  "Caudal mesoderm"                         = "#01ef92",
-  "Cd63+ ectoderm-like artefact"            = "#e9b000",
-  "Ectopic pluripotency"                    = "#01d9bd",
-  "Epiblast"                                = "#bdfe0b",
-  "Epiblast/primitive streak"               = "#70cb94",
-  "Exiting naïve pluripotency"              = "#efff4e",
-  "Gut"                                     = "#8affc4",
-  "Hemogenic endothelium"                   = "#cfba1d",
-  "Naïve pluripotency"                      = "#35d365",
-  "Neuromesodermal progenitors"             = "#edff9b",
-  "Paraxial mesoderm"                       = "#53d240",
-  "Pre-somitic mesoderm"                    = "#b8dfa2",
-  "Primitive streak"                        = "#9ec72a",
-  "Somite"                                  = "#78cc6e",
-  "Somite differentiation front"            = "#baff73",
-  "Zscan4+ Artefact"                        = "#a5c54a"
+  "Caudal epiblast" = "#56d312",
+  "Caudal epiblast/primitive streak" = "#ffc36a",
+  "Caudal mesoderm" = "#01ef92",
+  "Cd63+ ectoderm-like artefact" = "#e9b000",
+  "Ectopic pluripotency" = "#01d9bd",
+  "Epiblast" = "#bdfe0b",
+  "Epiblast/primitive streak" = "#70cb94",
+  "Exiting naïve pluripotency" = "#efff4e",
+  "Gut" = "#8affc4",
+  "Hemogenic endothelium" = "#cfba1d",
+  "Naïve pluripotency" = "#35d365",
+  "Neuromesodermal progenitors" = "#edff9b",
+  "Paraxial mesoderm" = "#53d240",
+  "Pre-somitic mesoderm" = "#b8dfa2",
+  "Primitive streak" = "#9ec72a",
+  "Somite" = "#78cc6e",
+  "Somite differentiation front" = "#baff73",
+  "Zscan4+ Artefact" = "#a5c54a"
 )
 
 sc_filtered@meta.data$celltype_colour <- cell_type_colours[
   sc_filtered@meta.data$celltypeannotation
 ]
 
-tinytable::tt(
-  sc_filtered@meta.data |>
-    dplyr::select(
-      "celltypeannotation",
-      "timepoints",
-      "batch",
-      "nCount_RNA",
-      "nFeature_RNA",
-    ) |>
-    head(),
-  caption = "Cell-level metadata (single-cell RNA-seq)"
-)
+# --- 4c. Attach gene-level features to the RNA assay -------------------------
+# Dimension check
+if (nrow(rnaseq_features_filtered) != nrow(sc_filtered)) {
+  stop(glue::glue(
+    "Dimension mismatch: rnaseq_features_filtered has ",
+    "{nrow(rnaseq_features_filtered)} genes but sc_filtered has ",
+    "{nrow(sc_filtered)} genes."
+  ))
+}
 
-skimr::skim(sc_filtered@meta.data)
+# Reorder rows to match Seurat gene order, then set as row names
+sc_meta_features <- rnaseq_features_filtered |>
+  tibble::column_to_rownames("gene_name") |>
+  as.data.frame()
+sc_meta_features <- sc_meta_features[rownames(sc_filtered), , drop = FALSE]
+sc_filtered[["RNA"]]@meta.features <- sc_meta_features
 
-tinytable::tt(
-  sc_filtered@meta.data |>
-    head(),
-  caption = "Cell-level metadata (single-cell RNA-seq)"
-)
+# tinytable::tt(
+#   sc_filtered@meta.data |>
+#     dplyr::select(
+#       "celltypeannotation",
+#       "timepoints",
+#       "batch",
+#       "nCount_RNA",
+#       "nFeature_RNA",
+#     ) |>
+#     head(),
+#   caption = "Cell-level metadata (single-cell RNA-seq)"
+# )
+# skimr::skim(sc_filtered@meta.data)
 
 
-tinytable::tt(
-  sc_filtered@meta.features |>
-    head(),
-  caption = "Feature metadata (single-cell RNA-seq)"
-)
-
-tinytable::tt(
-  sc_filtered@meta.data |>
-    dplyr::distinct(
-      celltypeannotation,
-      timepoints
-    ) |>
-    dplyr::arrange(timepoints, celltypeannotation),
-  caption = "Cell types per time point"
-)
+# tinytable::tt(
+#   sc_filtered@meta.data |>
+#     dplyr::distinct(
+#       celltypeannotation,
+#       timepoints
+#     ) |>
+#     dplyr::arrange(timepoints, celltypeannotation),
+#   caption = "Cell types per time point"
+# )
 
 # --- 4c. Convert to SingleCellExperiment ----------------------------------
 suppinger_single_cell <- Seurat::as.SingleCellExperiment(

@@ -72,13 +72,12 @@ venn_plot <- ggVennDiagram::ggVennDiagram(
   ggplot2::coord_cartesian(clip = "off") +
   ggplot2::theme(
     plot.title = ggplot2::element_text(
-      hjust = 0.5,
-      face = "bold",
-      size = 18
-    ),
-    plot.margin = ggplot2::margin(t = 10, r = 20, b = 10, l = 35)
-  )
-
+      hjust = 0.5,bulk_rnaseq_htseq <- read.table(
+  file = "./data/raw/GSE229386_AllHTSeqCountsWithGeneNames.txt.gz",
+  header = TRUE,
+  sep = "\t",
+  row.names = 1
+)
 ggplot2::ggsave(
   filename = venn_file,
   plot = venn_plot,

@@ -1,0 +1,98 @@
+# ============================================================================
+# OmniDeconv Run Configuration
+# Run with:
+# Rscript --no-save --no-restore scripts/02_02_omnideconv.R configs/omnideconv.yml
+# ============================================================================
+
+run:
+  random_seed: 123
+  study: suppinger
+  # Leave empty or remove this field to use Sys.Date() at runtime.
+  date:
+  verbose: true
+
+sampling:
+  max_cells_per_celltype: 20
+
+# ============================================================================
+# Input Files
+# ============================================================================
+
+input:
+  bulk_omics: data/intermediate/suppinger_bulk_summarized_experiment_2026-05-06.rds
+  single_cell_omics: data/intermediate/suppinger_single_cell_2026-05-06.rds
+
+# ============================================================================
+# Metadata Columns
+# ============================================================================
+
+columns:
+  bulk_time_point: time_point_id
+  bulk_treatment: treatment_status
+  single_cell_time_point: timepoints
+  cell_type: celltypeannotation
+  batch: batch
+
+# ============================================================================
+# Bulk Sample Filtering
+# ============================================================================
+
+filters:
+  bulk_treatment_value: control
+
+# ============================================================================
+# Deconvolution Methods
+# Use names from omnideconv::deconvolution_methods.
+# ============================================================================
+
+deconvolution:
+  methods:
+    - BayesPrism
+    - DWLS
+    - Scaden
+    - SCDC
+    - CDSeq
+  normalize_results: true
+
+# ============================================================================
+# Scaden-Specific Parameters
+# Used only when Scaden is included above.
+# ============================================================================
+
+scaden:
+  model_path: .models/scaden_model_{study}
+  temp_dir: .models/scaden_tmp_{study}
+  batch_size: 128
+  learning_rate: 1.0e-04
+  steps: 500
+  var_cutoff: 1
+  cells: 50
+  samples: 1000
+
+# ============================================================================
+# DWLS-Specific Parameters
+# ============================================================================
+
+dwls:
+  signature_method: mast_optimized
+  deconvolution_submethod: DampenedWLS
+
+# ============================================================================
+# CDSeq-Specific Parameters
+# Set batch_correction to 0 to avoid the Harmony code path that is currently
+# incompatible with recent Harmony versions (`max.iter.harmony` -> `max_iter`).
+# ============================================================================
+
+cdseq:
+  batch_correction: 0
+  block_number: 1
+  no_cores:
+  mcmc_iterations: 700
+
+# ============================================================================
+# Output
+# Placeholders {study} and {today} are expanded by glue::glue().
+# ============================================================================
+
+output:
+  file: outputs/deconvolution/{study}_deconvolution_results_{today}.rds

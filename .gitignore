@@ -54,6 +54,10 @@ rsconnect/
 
 # my folders
 slides/
+
+# logs insctrution
+logs/
+
 # Keep raw data files ignored, but allow DVC pointer files.
 # Note: use /** (not *) so the directory itself is not ignored;
 # git cannot un-ignore files inside an ignored directory.

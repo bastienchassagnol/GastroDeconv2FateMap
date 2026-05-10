@@ -39,8 +39,6 @@ cell_type_colours <- stats::setNames(
   unique(feature_metadata$celltypeannotation)
 )
 
-
-
 # 2.2 Calculate cellular ratios per time point and batch ----
 
 single_cell_ratio_data <- feature_metadata |>
@@ -166,13 +164,112 @@ single_cell_distribution_plot <- ggplot2::ggplot(
     plot.caption = ggplot2::element_text(size = 9, hjust = 0)
   )
 
-# 2.4 Save the stacked single-cell cytometry distribution plot ----
 ggplot2::ggsave(
   filename = file.path(
     output_dir,
-    glue::glue("{study}_single_cell_cytometry_distribution_{today}.pdf")
+    glue::glue("{study}_single_cell_cytometry_stacked_plot_{today}.pdf")
   ),
   plot = single_cell_distribution_plot,
+  width = 14,
+  height = 12,
+  units = "in",
+  dpi = 500,
+  device = grDevices::cairo_pdf
+)
+
+
+# 2.4 Plot the alluvial cell composition changes ----
+
+single_cell_alluvial_plot <- single_cell_ratio_data |>
+  dplyr::mutate(
+    timepoints = factor(.data$timepoints, levels = time_point_levels),
+    celltypeannotation = factor(
+      .data$celltypeannotation,
+      levels = names(cell_type_colours)
+    )
+  ) |>
+  ggplot2::ggplot(
+    ggplot2::aes(
+      x = .data$timepoints,
+      stratum = .data$celltypeannotation,
+      alluvium = .data$celltypeannotation,
+      y = .data$cellular_ratio,
+      fill = .data$celltypeannotation
+    )
+  ) +
+  ggalluvial::geom_alluvium(
+    alpha = 0.55,
+    curve_type = "sine",
+    linewidth = 0.2
+  ) +
+  ggalluvial::geom_stratum(
+    alpha = 0.88,
+    colour = "white",
+    linewidth = 0.25
+  ) +
+  ggplot2::facet_grid(
+    rows = ggplot2::vars(.data$batch),
+    scales = "fixed",
+    switch = "y"
+  ) +
+  ggplot2::scale_y_continuous(
+    labels = scales::percent_format(accuracy = 1),
+    limits = c(0, 1),
+    expand = c(0, 0)
+  ) +
+  ggplot2::scale_fill_manual(
+    values = cell_type_colours,
+    na.value = "grey65"
+  ) +
+  ggplot2::theme_minimal(base_size = 12) +
+  ggplot2::labs(
+    x = "Time point",
+    y = "Cellular ratio",
+    fill = "Cell type",
+    title = glue::glue("{study} single-cell cytometry Sankey plot"),
+    subtitle = paste(
+      "Cell composition changes over time;",
+      "ratios are normalised within each batch and time point."
+    ),
+    caption = paste(
+      "Each vertical axis sums to 100%.",
+      "Facets correspond to two distinct cell lines."
+    )
+  ) +
+  ggplot2::theme(
+    legend.position = "bottom",
+    legend.title = ggplot2::element_text(size = 13, face = "bold"),
+    legend.text = ggplot2::element_text(size = 8),
+    legend.key.size = grid::unit(0.5, "cm"),
+    legend.key.height = grid::unit(0.45, "cm"),
+    panel.grid.major.x = ggplot2::element_blank(),
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.spacing.y = grid::unit(3.25, "lines"),
+    strip.placement = "outside",
+    strip.background.y = ggplot2::element_rect(
+      fill = "grey88",
+      colour = "grey35",
+      linewidth = 0.4
+    ),
+    strip.text.y.left = ggplot2::element_text(
+      size = 14,
+      face = "bold",
+      angle = 0,
+      colour = "grey10"
+    ),
+    plot.margin = ggplot2::margin(t = 6, r = 10, b = 6, l = 10),
+    plot.title = ggplot2::element_text(size = 15, face = "bold"),
+    plot.subtitle = ggplot2::element_text(size = 11),
+    axis.text.y = ggplot2::element_text(size = 11),
+    plot.caption = ggplot2::element_text(size = 9, hjust = 0)
+  )
+
+ggplot2::ggsave(
+  filename = file.path(
+    output_dir,
+    glue::glue("{study}_single_cell_cytometry_sankey_{today}.pdf")
+  ),
+  plot = single_cell_alluvial_plot,
   width = 14,
   height = 12,
   units = "in",

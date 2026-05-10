@@ -29,8 +29,6 @@ algorithm_colours <- c(
   "BayesPrism" = "#e76f51",
   "DWLS" = "#2a9d8f",
   "SCDC" = "#457b9d",
-  "CDSeq" = "#f4a261",
-  "MuSiC" = "#7b2cbf",
   "Scaden" = "#6a994e"
 )
 

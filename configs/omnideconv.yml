@@ -51,7 +51,6 @@ deconvolution:
     - DWLS
     - Scaden
     - SCDC
-    - CDSeq
   normalize_results: true
 
 # ============================================================================
@@ -76,18 +75,6 @@ scaden:
 dwls:
   signature_method: mast_optimized
   deconvolution_submethod: DampenedWLS
-
-# ============================================================================
-# CDSeq-Specific Parameters
-# Set batch_correction to 0 to avoid the Harmony code path that is currently
-# incompatible with recent Harmony versions (`max.iter.harmony` -> `max_iter`).
-# ============================================================================
-
-cdseq:
-  batch_correction: 0
-  block_number: 1
-  no_cores:
-  mcmc_iterations: 700
 
 # ============================================================================
 # Output

@@ -1,5 +1,5 @@
 library(omnideconv)
-
+source("R/utils.R")
 # ==========================================================================
 # 0. Command-line configuration; and parse arguments ----
 # ==========================================================================
@@ -165,28 +165,6 @@ dwls_submethod <- config$dwls$deconvolution_submethod
 if (is.null(dwls_submethod) || identical(dwls_submethod, "")) {
   dwls_submethod <- "DampenedWLS"
 }
-
-# 0.5c. CDSeq-specific parameters ----
-cdseq_batch_correction <- as.integer(config$cdseq$batch_correction)
-if (is.na(cdseq_batch_correction)) {
-  cdseq_batch_correction <- 0L
-}
-cdseq_block_number <- as.integer(config$cdseq$block_number)
-if (is.na(cdseq_block_number)) {
-  cdseq_block_number <- 1L
-}
-cdseq_no_cores <- config$cdseq$no_cores
-if (!is.null(cdseq_no_cores)) {
-  cdseq_no_cores <- as.integer(cdseq_no_cores)
-  if (is.na(cdseq_no_cores)) {
-    cdseq_no_cores <- NULL
-  }
-}
-cdseq_mcmc_iterations <- as.integer(config$cdseq$mcmc_iterations)
-if (is.na(cdseq_mcmc_iterations)) {
-  cdseq_mcmc_iterations <- 700L
-}
-
 # 0.6. Output file ----
 output_file <- config$output$file
 if (is.null(output_file) || identical(output_file, "")) {
@@ -262,7 +240,7 @@ deconv_results <- purrr::map(
     bulk_tp <- bulk_omics[,
       SummarizedExperiment::colData(bulk_omics)[[bulk_time_point_column]] == tp
     ]
-    bulk_matrix <- SummarizedExperiment::assay(bulk_tp, "counts")
+    bulk_matrix <- as.matrix(SummarizedExperiment::assay(bulk_tp, "counts"))
 
     # --- 4b. Subset (already balanced) single-cell to current time point ---
     sc_tp <- single_cell_omics_sampled[,
@@ -316,39 +294,28 @@ deconv_results <- purrr::map(
                 verbose = verbose
               )
             } else if (method == "dwls") {
-              signature_matrix <- omnideconv::build_model_music(
-                single_cell_object = sc_tp,
-                cell_type_column_name = cell_type_column,
-                method = method,
-                assay_name = "counts",
+              # DWLS::DEAnalysisMASTOptimized uses matrix arithmetic (`+`);
+              # SingleCellExperiment is not numeric.
+              sc_mat <- as.matrix(
+                SummarizedExperiment::assay(sc_tp, "counts")
+              )
+              rownames(sc_mat) <- SummarizedExperiment::rownames(sc_tp)
+              colnames(sc_mat) <- SummarizedExperiment::colnames(sc_tp)
+              signature_matrix <- omnideconv::build_model_dwls(
+                single_cell_object = sc_mat,
+                cell_type_annotations = SummarizedExperiment::colData(sc_tp)[[
+                  cell_type_column
+                ]],
                 dwls_method = dwls_method,
                 verbose = verbose
               )
-              omnideconv:::deconvolute_music(
+              raw_dwls <- omnideconv:::deconvolute_dwls(
                 bulk_gene_expression = bulk_matrix,
-                model = signature_matrix,
-                method = method,
-                normalize_results = normalize_results,
+                signature = signature_matrix,
                 dwls_submethod = dwls_submethod,
                 verbose = verbose
               )
-            } else if (method == "cdseq") {
-              omnideconv:::deconvolute_cdseq(
-                bulk_gene_expression = bulk_matrix,
-                method = method,
-                single_cell_object = sc_tp,
-                batch_ids = SummarizedExperiment::colData(
-                  sc_tp
-                )[[batch_column]],
-                cell_type_column_name = cell_type_column,
-                assay_name = "counts",
-                normalize_results = normalize_results,
-                batch_correction = cdseq_batch_correction,
-                block_number = cdseq_block_number,
-                no_cores = cdseq_no_cores,
-                mcmc_iterations = cdseq_mcmc_iterations,
-                verbose = verbose
-              )
+              normalise_cell_estimates(raw_dwls)
             } else {
               if (
                 method == "music" &&

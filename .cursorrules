@@ -113,6 +113,8 @@ Have a preference for the following packages when relying on dependencies:
 - 'data.table' or 'dplyr' for efficient data import (CSV/TSV, etc.).
 - 'duckdb' when dealing with out of memory data sets.
 - 'ggplot2' for plotting.
+  - In ggplot, use manual scales for discrete shape, colour anf fill anotations
+  - To that end, resort to named vectors, using fucntion stats::setNames, instead of creating lots of temproary variables
 - 'checkmate' for inputs assertion.
 - 'cli' for displaying users' messages.
 - 'glue' for string interpolation.

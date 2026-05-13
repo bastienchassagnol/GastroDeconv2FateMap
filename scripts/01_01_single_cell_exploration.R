@@ -16,6 +16,8 @@ if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
 
+source("./R/utils.R")
+
 
 # ==========================================================================
 # 1. Load the Seurat object ----
@@ -34,6 +36,9 @@ raw_counts <- SeuratObject::GetAssayData(
   assay = "RNA",
   layer = "counts"
 )
+
+summarise_seurat_assays_layers(GSE229513_gastruloids_seurat)
+
 
 # Quick inspection of counts matrix (first genes x first cells)
 
@@ -272,3 +277,13 @@ tinytable::tt(
     dplyr::summarise(n_barcodes = dplyr::n(), .groups = "drop"),
   caption = "Number of unique barcodes per batch and time ID combination"
 )
+
+
+/mnt/DATA_11TB/projects/dtoo_project/gastruloids/02_programming/Mohamad_Al_charif_DTOO/GRNITE/Data/Gastruloids/
+
+/mnt/DATA_1/p/d/GastroDeconv2FateMap/outputs/gene_regulatory_networks/suppinger_2026-05-13_log_counts_for_grnboost_time_points.tar.gz
+
+
+cp -v \
+  "/mnt/DATA_11TB/projects/dtoo_project/GastroDeconv2FateMap/outputs/gene_regulatory_networks/suppinger_2026-05-13_log_counts_for_grnboost_time_points.tar.gz" \
+  "/mnt/DATA_11TB/projects/dtoo_project/gastruloids/02_programming/Mohamad_Al_charif_DTOO/GRNITE/Data/Gastruloids/"

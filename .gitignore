@@ -70,3 +70,5 @@ data/intermediate/**
 docs
 **/.quarto/
 .models/
+
+outputs/gene_regulatory_networks/**

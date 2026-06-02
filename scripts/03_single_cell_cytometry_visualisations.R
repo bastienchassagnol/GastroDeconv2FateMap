@@ -74,6 +74,14 @@ tinytable::tt(
   caption = "Single-cell cytometry distribution data"
 )
 
+saveRDS(
+  single_cell_ratio_data,
+  file = file.path(
+    output_dir,
+    glue::glue("{study}_single_cell_ratio_data_{today}.rds")
+  )
+)
+
 
 # 2.3 Plot the stacked single-cell cytometry distribution ----
 single_cell_distribution_plot <- ggplot2::ggplot(

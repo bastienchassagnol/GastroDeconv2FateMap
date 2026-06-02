@@ -27,8 +27,34 @@ options(
   vsc.defaultOverwriteMessage = TRUE,
   vsc.setBreakpointsInStack = TRUE,
   vsc.showInternalFrames = FALSE,
-  vsc.trySilent = TRUE
+  vsc.trySilent = TRUE,
+  vsc.previewPromises = FALSE,
+  vsc.showPromiseDetails = FALSE,
+  vsc.evaluateActiveBindings = FALSE
 )
+
+# vscDebugger 0.5.6 C promise helpers segfault on R 4.6.0 (see GitHub issue #202).
+local({
+  project_root <- if (requireNamespace("renv", quietly = TRUE)) {
+    renv::project()
+  } else {
+    getwd()
+  }
+  patch_path <- file.path(project_root, "R", "vscdebugger_r46_patch.R")
+  if (!file.exists(patch_path)) {
+    return(invisible(NULL))
+  }
+  source(patch_path, local = TRUE)
+  if (requireNamespace("vscDebugger", quietly = TRUE)) {
+    patch_vscdebugger_promises_r46()
+  }
+  setHook(
+    packageEvent("vscDebugger", "onLoad"),
+    function(...) {
+      patch_vscdebugger_promises_r46()
+    }
+  )
+})
 
 # R 4.6 no longer calls `.First.sys()`. Ensure VS Code session watcher can
 # still attach when an interactive terminal session starts.

@@ -44,6 +44,7 @@ cell_type_colours <- stats::setNames(
 single_cell_ratio_data <- feature_metadata |>
   dplyr::mutate(
     batch = factor(.data$batch),
+    timepoints = factor(.data$timepoints, levels = time_point_levels),
     celltypeannotation = factor(
       .data$celltypeannotation,
       levels = names(cell_type_colours)
@@ -61,17 +62,11 @@ single_cell_ratio_data <- feature_metadata |>
     cellular_ratio = dplyr::n() / dplyr::first(.data$total_cells),
     .groups = "drop"
   ) |>
-  # required for ggplot2::geom_area() to work, as no null input is allowed
-  tidyr::complete(
-    batch,
-    timepoints,
-    celltypeannotation,
-    fill = list(cellular_ratio = 0)
-  ) |>
   dplyr::arrange(.data$batch, .data$timepoints, .data$celltypeannotation) |>
   dplyr::mutate(
     time_elapsed_hours = as.numeric(sub("h$", "", .data$timepoints))
   )
+
 
 tinytable::tt(
   single_cell_ratio_data |>
@@ -79,17 +74,17 @@ tinytable::tt(
   caption = "Single-cell cytometry distribution data"
 )
 
+
 # 2.3 Plot the stacked single-cell cytometry distribution ----
 single_cell_distribution_plot <- ggplot2::ggplot(
   single_cell_ratio_data,
   ggplot2::aes(
-    x = .data$time_elapsed_hours,
+    x = .data$timepoints,
     y = .data$cellular_ratio,
-    fill = .data$celltypeannotation,
-    group = .data$celltypeannotation
+    fill = .data$celltypeannotation
   )
 ) +
-  ggplot2::geom_area(
+  ggplot2::geom_col(
     alpha = 0.6,
     colour = "white",
     linewidth = 0.5,
@@ -97,26 +92,19 @@ single_cell_distribution_plot <- ggplot2::ggplot(
   ) +
   ggplot2::facet_grid(
     rows = ggplot2::vars(.data$batch),
-    scales = "fixed",
+    scales = "free_x",
+    space = "free_x",
     switch = "y"
   ) +
-  ggplot2::scale_x_continuous(
-    breaks = unique(single_cell_ratio_data$time_elapsed_hours),
-    labels = time_point_levels,
-    expand = ggplot2::expansion(mult = c(0.02, 0.02))
+  ggplot2::scale_x_discrete(
+    drop = TRUE
   ) +
   ggplot2::scale_y_continuous(
     labels = scales::percent_format(accuracy = 1),
     breaks = seq(0, 1, by = 0.25),
     expand = ggplot2::expansion(mult = c(0, 0.02))
   ) +
-  ggplot2::coord_cartesian(
-    xlim = c(
-      0,
-      max(unique(single_cell_ratio_data$time_elapsed_hours), na.rm = TRUE)
-    ),
-    ylim = c(0, 1)
-  ) +
+  ggplot2::coord_cartesian(ylim = c(0, 1)) +
   ggplot2::scale_fill_manual(
     values = cell_type_colours,
     na.value = "grey65"
@@ -128,7 +116,7 @@ single_cell_distribution_plot <- ggplot2::ggplot(
     fill = "Cell type",
     title = glue::glue("{study} single-cell cytometry distribution"),
     subtitle = paste(
-      "Stacked proportions over time;",
+      "Stacked proportions over observed time points only;",
       "normalised within each batch and time point."
     ),
     caption = paste(
@@ -188,6 +176,15 @@ single_cell_alluvial_plot <- single_cell_ratio_data |>
       levels = names(cell_type_colours)
     )
   ) |>
+  dplyr::group_by(.data$batch, .data$timepoints) |>
+  dplyr::filter(sum(.data$cellular_ratio, na.rm = TRUE) > 0) |>
+  dplyr::ungroup() |>
+  dplyr::mutate(
+    timepoints = factor(
+      .data$timepoints,
+      levels = time_point_levels[time_point_levels %in% .data$timepoints]
+    )
+  ) |>
   ggplot2::ggplot(
     ggplot2::aes(
       x = .data$timepoints,
@@ -209,9 +206,11 @@ single_cell_alluvial_plot <- single_cell_ratio_data |>
   ) +
   ggplot2::facet_grid(
     rows = ggplot2::vars(.data$batch),
-    scales = "fixed",
+    scales = "free_x",
+    space = "free_x",
     switch = "y"
   ) +
+  ggplot2::scale_x_discrete(drop = TRUE) +
   ggplot2::scale_y_continuous(
     labels = scales::percent_format(accuracy = 1),
     limits = c(0, 1),

@@ -29,3 +29,23 @@ options(
   vsc.showInternalFrames = FALSE,
   vsc.trySilent = TRUE
 )
+
+# R 4.6 no longer calls `.First.sys()`. Ensure VS Code session watcher can
+# still attach when an interactive terminal session starts.
+# local({
+#   if (identical(Sys.getenv("TERM_PROGRAM"), "vscode")) {
+#     old_first <- get0(".First", envir = .GlobalEnv, mode = "function")
+#     assign(
+#       ".First",
+#       function() {
+#         if (is.function(old_first)) {
+#           old_first()
+#         }
+#         if (exists(".vsc.attach", mode = "function", inherits = TRUE)) {
+#           try(.vsc.attach(), silent = TRUE)
+#         }
+#       },
+#       envir = .GlobalEnv
+#     )
+#   }
+# })

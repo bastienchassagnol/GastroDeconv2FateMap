@@ -109,6 +109,10 @@ summarise_seurat_assays_layers <- function(seurat_obj) {
     cat("+- assay: ", nm, suffix, "\n", sep = "")
     for (ly in layers_all) {
       mat <- SeuratObject::LayerData(ast, layer = ly)
+      if (is.null(mat)) {
+        cat("|  +- layer: ", ly, "  (missing)\n", sep = "")
+        next
+      }
       d <- dim(mat)
       is_def <- ly %in%
         layers_default ||

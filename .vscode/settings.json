@@ -3,6 +3,7 @@
   "r.bracketedPaste": true,
   "r.sessionWatcher": true,
   "r.plot.useHttpgd": true,
+  "r.helpPanel.enable": true,
   "r.lsp.diagnostics": false,
   "r.rterm.linux": "/usr/bin/R",
   "r.rpath.linux": "/usr/bin/R",
@@ -13,10 +14,5 @@
   "r.rterm.option": [
     "--no-save",
     "--no-restore"
-  ],
-  "terminal.integrated.profiles.linux": {
-    "radian": {
-      "path": "radian"
-    }
-  }
+  ]
 }

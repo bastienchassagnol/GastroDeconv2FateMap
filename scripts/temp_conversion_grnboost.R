@@ -6,6 +6,7 @@ if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
 
+source("./R/utils.R")
 
 # Run with:
 # nohup Rscript --no-save --no-restore scripts/temp_conversion_grnboost.R > logs/temp_conversion_grnboost.log 2>&1 &
@@ -19,6 +20,8 @@ GSE229513_gastruloids_seurat <- readRDS(
 )
 
 dim(GSE229513_gastruloids_seurat)
+
+summarise_seurat_assays_layers(GSE229513_gastruloids_seurat)
 
 # --------------------------------------------------------------------------
 # 1.1 Repair object for Seurat v5 (NormalizeData / assay replacement) ----
@@ -53,11 +56,51 @@ GSE229513_gastruloids_seurat <- Seurat::NormalizeData(
   scale.factor = 10000
 )
 
+# 2.2 (Optional) Gene selection for export ----
+# Gold standard (Seurat): normalise first (§2.1), then rank variable genes on
+# the log-normalised `RNA@data` matrix. Do not run FindVariableFeatures on raw
+# counts.
+#
+# Choose one approach below (integration intersection OR HVG).
 
-# 2.2 (optional) Select the top 1000 most variable genes ----
+# 2.2.1 Integration feature set (SCT ∩ integrated ∩ RNA, ~2944 genes) ----
+# sct_genes <- rownames(
+#   SeuratObject::LayerData(GSE229513_gastruloids_seurat[["SCT"]], layer = "data")
+# )
+# integrated_genes <- rownames(
+#   SeuratObject::LayerData(
+#     GSE229513_gastruloids_seurat[["integrated"]],
+#     layer = "data"
+#   )
+# )
+# export_genes <- sort(intersect(
+#   intersect(sct_genes, integrated_genes),
+#   rownames(
+#     SeuratObject::LayerData(
+#       GSE229513_gastruloids_seurat[["RNA"]],
+#       layer = "data"
+#     )
+#   )
+# ))
 
-# top_genes <- Seurat::VariableFeatures(GSE229513_gastruloids_seurat)
-# log_counts_hvg <- log_counts[, top_genes]
+# 2.2.2 Highly variable genes on log-normalised RNA (VST, top 3000) ----
+GSE229513_gastruloids_seurat <- Seurat::FindVariableFeatures(
+  object = GSE229513_gastruloids_seurat,
+  assay = "RNA",
+  selection.method = "vst",
+  nfeatures = 3000
+)
+export_genes <- Seurat::VariableFeatures(
+  GSE229513_gastruloids_seurat,
+  assay = "RNA"
+)
+
+GSE229513_gastruloids_seurat <- subset(
+  x = GSE229513_gastruloids_seurat,
+  features = export_genes
+)
+
+# summarise_seurat_assays_layers(GSE229513_gastruloids_seurat)
 
 # ==========================================================================
 # 3. Save log-transformed counts for each time point ----
@@ -76,13 +119,13 @@ for (i in seq_along(time_points)) {
   )
   # `dim(seurat)` = DefaultAssay features x cells (e.g. integrated ~2944 x n).
 
-  # 3.1.2 Extract log-normalised RNA expression ----
+  # 3.1.2 Extract log-normalised RNA expression (integration gene set) ----
   tp_expression_matrix <- SeuratObject::GetAssayData(
     tp_SeuratObject,
     assay = "RNA",
     layer = "data"
   )
-  # RNA `data`: all genes in that assay x cells in the subset.
+  # Object already subset to `export_genes` in §2.2.
   message(
     "The dimension of the RNA `data` matrix is: ",
     "Number of genes: ",
@@ -120,28 +163,37 @@ for (i in seq_along(time_points)) {
 utils::tar(
   tarfile = file.path(
     output_dir,
-    paste0(study, "_", today, "_log_counts_for_grnboost_time_points.tar.gz")
+    paste0(
+      study,
+      "_",
+      today,
+      "_log_counts_after_hv_selection.tar.gz"
+    )
   ),
   files = tsv_files,
   compression = "gzip"
 )
 # clean up temporary csv files
-# unlink(tsv_files, force = TRUE)
+
+unlink(
+  list.files(output_dir, pattern = "_log_counts.tsv", full.names = TRUE),
+  force = TRUE
+)
 
 message(
   "\n\n",
   "Conversion complete. Output file: ",
   file.path(
     output_dir,
-    paste0(study, "_", today, "_log_counts_for_grnboost_time_points.tar.gz")
+    paste0(
+      study,
+      "_",
+      today,
+      "_log_counts_after_hv_selection.tar.gz"
+    )
   )
 )
 
-
-test_data <- readr::read_tsv(file.path(
-  output_dir,
-  paste0(study, "_time_point_84h_log_counts.tsv")
-))
-print(dim(test_data))
-print(head(test_data))
-print(tail(test_data))
+# cp -v \
+#   "/mnt/DATA_11TB/projects/dtoo_project/GastroDeconv2FateMap/outputs/gene_regulatory_networks/suppinger_2026-05-13_log_counts_for_grnboost_time_points.tar.gz" \
+#   "/mnt/DATA_11TB/projects/dtoo_project/gastruloids/02_programming/Mohamad_Al_charif_DTOO/GRNITE/Data/Gastruloids/"

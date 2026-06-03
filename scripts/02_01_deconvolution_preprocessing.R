@@ -35,7 +35,6 @@ bulk_rnaseq_htseq <- read.table(
 colnames(bulk_rnaseq_htseq)
 dim(bulk_rnaseq_htseq)
 
-
 # ==========================================================================
 # 2. Compare gene names between single-cell and bulk RNA-seq data
 # ==========================================================================
@@ -72,12 +71,16 @@ venn_plot <- ggVennDiagram::ggVennDiagram(
   ggplot2::coord_cartesian(clip = "off") +
   ggplot2::theme(
     plot.title = ggplot2::element_text(
-      hjust = 0.5,bulk_rnaseq_htseq <- read.table(
-  file = "./data/raw/GSE229386_AllHTSeqCountsWithGeneNames.txt.gz",
-  header = TRUE,
-  sep = "\t",
-  row.names = 1
-)
+      hjust = 0.5,
+      bulk_rnaseq_htseq <- read.table(
+        file = "./data/raw/GSE229386_AllHTSeqCountsWithGeneNames.txt.gz",
+        header = TRUE,
+        sep = "\t",
+        row.names = 1
+      )
+    )
+  )
+
 ggplot2::ggsave(
   filename = venn_file,
   plot = venn_plot,
@@ -123,9 +126,83 @@ print(paste(
   nrow(rnaseq_features_filtered)
 ))
 
+# --- 2d. venn diagram of gene names before and after removing ambiguous genes, using local versus biomart annotations --------------------------------------
 
-# --- 2d. Add gene biological function and gene biotype --------------------------------------
-rnaseq_features_filtered <- annotate_genes_mouse(
+# genes_before_filtering_local <- annotate_genes_local(
+#   genes = rnaseq_features_filtered$gene_name,
+#   drop_missing_genes = FALSE
+# )
+# genes_after_filtering_local <- annotate_genes_local(
+#   genes = rnaseq_features_filtered$gene_name,
+#   drop_missing_genes = TRUE
+# )
+
+# genes_before_filtering_biomart <- annotate_genes_biomart(
+#   genes = rnaseq_features_filtered$gene_name,
+#   drop_missing_genes = FALSE
+# )
+# genes_after_filtering_biomart <- annotate_genes_biomart(
+#   genes = rnaseq_features_filtered$gene_name,
+#   drop_missing_genes = TRUE
+# )
+
+# ## compute the overlap between the two sets of annotations
+# gene_sets <- list(
+#   "Local annotations before filtering" = genes_before_filtering_local$gene_name,
+#   "Local annotations after filtering" = genes_after_filtering_local$gene_name,
+#   "Biomart annotations before filtering" = genes_before_filtering_biomart$gene_name,
+#   "Biomart annotations after filtering" = genes_after_filtering_biomart$gene_name
+# )
+
+# ## plot the overlap between the two sets of annotations as a venn diagram
+# venn_file <- file.pathgenes_before_filtering_local <- annotate_genes_local(
+#   genes = rnaseq_features_filtered$gene_name,
+#   drop_missing_genes = FALSE
+# )
+# genes_after_filtering_local <- annotate_genes_local(
+#   genes = rnaseq_features_filtered$gene_name,
+#   drop_missing_genes = TRUE
+# )
+
+# genes_before_filtering_biomart <- annotate_genes_biomart(
+#   genes = rnaseq_features_filtered$gene_name,
+#   drop_missing_genes = FALSE
+# )
+# genes_after_filtering_biomart <- annotate_genes_biomart(
+#   genes = rnaseq_features_filtered$gene_name,
+#   drop_missing_genes =(
+#   output_dir,
+#   paste0(study, "_venn_gene_names_local_vs_biomart_", today, ".pdf")
+# )
+
+# venn_plot <- ggVennDiagram::ggVennDiagram(
+#   gene_sets,
+#   set_size = 4
+# ) +
+#   ggplot2::scale_fill_gradient(low = "grey90", high = "red") +
+#   ggplot2::ggtitle("Gene name overlap: local vs biomart") +
+#   ggplot2::scale_x_continuous(
+#     expand = ggplot2::expansion(mult = c(0.22, 0.08))
+#   ) +
+#   ggplot2::coord_cartesian(clip = "off") +
+#   ggplot2::theme(
+#     plot.title = ggplot2::element_text(
+#       hjust = 0.5,
+#       size = 14,
+#       face = "bold"
+#     )
+#   )
+
+# ggplot2::ggsave(
+#   filename = venn_file,
+#   plot = venn_plot,
+#   width = 10,
+#   height = 6,
+#   units = "in",
+#   dpi = 300
+# )
+# --- 2e. Add gene biological function and gene biotype --------------------------------------
+rnaseq_features_filtered <- annotate_genes_local(
   genes = rnaseq_features_filtered$gene_name,
   drop_missing_genes = TRUE
 )
@@ -329,7 +406,6 @@ sc_filtered[["RNA"]]@meta.features <- sc_meta_features
 #   caption = "Cell-level metadata (single-cell RNA-seq)"
 # )
 # skimr::skim(sc_filtered@meta.data)
-
 
 # tinytable::tt(
 #   sc_filtered@meta.data |>

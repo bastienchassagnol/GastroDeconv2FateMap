@@ -22,7 +22,7 @@
 ##' \dontrun{
 ##' annotate_genes(c("Gnai3", "Pbsn", "Cdc45"))
 ##' }
-annotate_genes_mouse <- function(
+annotate_genes_local <- function(
   genes,
   drop_missing_genes = TRUE,
   verbose = TRUE
@@ -150,19 +150,6 @@ annotate_genes_mouse <- function(
       ambiguous_genes
     )
 
-  missing_genes <- setdiff(genes, annotated_genes$gene_name)
-  if (length(missing_genes) > 0) {
-    missing_df <- tibble::tibble(
-      gene_name = missing_genes,
-      ensembl_id = NA_character_,
-      biological_function = NA_character_,
-      gene_length = NA_real_,
-      chromosome_name = NA_character_,
-      gene_biotype = NA_character_,
-      ambiguous_genes = FALSE
-    )
-    annotated_genes <- dplyr::bind_rows(annotated_genes, missing_df)
-  }
   # Convert empty strings, and inputs to NA (homogenize missing values)
   annotated_genes <- annotated_genes |>
     dplyr::mutate(
@@ -171,6 +158,304 @@ annotate_genes_mouse <- function(
     )
 
   # Drop genes in which not all biological annotation is available
+  if (drop_missing_genes) {
+    annotated_genes <- annotated_genes |>
+      tidyr::drop_na()
+  }
+
+  return(annotated_genes)
+}
+
+
+#' Connect to Ensembl BioMart for mouse gene annotation
+#'
+#' Tries several connection strategies with retries. Regional mirrors
+#' (`useast`, `asia`) often fail SSL checks; `host` and `version` routes
+#' are preferred fallbacks when the default www mirror probe times out.
+#'
+#' @noRd
+.connect_ensembl_biomart <- function(
+  verbose = TRUE,
+  max_attempts = 12L,
+  retry_pause_sec = 5
+) {
+  biomart <- "genes"
+  dataset <- "mmusculus_gene_ensembl"
+  ensembl_host <- "https://www.ensembl.org"
+  last_error <- NULL
+
+  connect_strategies <- list(
+    version_115 = function() {
+      biomaRt::useEnsembl(
+        biomart = biomart,
+        dataset = dataset,
+        version = 115,
+        verbose = FALSE
+      )
+    },
+    host = function() {
+      biomaRt::useEnsembl(
+        biomart = biomart,
+        dataset = dataset,
+        host = ensembl_host,
+        verbose = FALSE
+      )
+    },
+    mirror_www = function() {
+      biomaRt::useEnsembl(
+        biomart = biomart,
+        dataset = dataset,
+        mirror = "www",
+        verbose = FALSE
+      )
+    }
+  )
+
+  for (attempt in seq_len(max_attempts)) {
+    for (strategy_name in names(connect_strategies)) {
+      if (verbose) {
+        message(
+          "Connecting to Ensembl BioMart (",
+          strategy_name,
+          ", attempt ",
+          attempt,
+          "/",
+          max_attempts,
+          ")..."
+        )
+      }
+
+      mart <- tryCatch(
+        connect_strategies[[strategy_name]](),
+        error = function(err) {
+          last_error <<- conditionMessage(err)
+          NULL
+        }
+      )
+
+      if (!is.null(mart)) {
+        return(mart)
+      }
+    }
+
+    if (attempt < max_attempts) {
+      Sys.sleep(retry_pause_sec * attempt)
+    }
+  }
+
+  stop(
+    "Could not connect to Ensembl BioMart after ",
+    max_attempts,
+    " attempt(s). Last error: ",
+    last_error,
+    call. = FALSE
+  )
+}
+
+
+#' Query Ensembl BioMart in batches
+#'
+#' @noRd
+.get_biomart_batch <- function(
+  mart,
+  genes,
+  attributes,
+  max_attempts = 3L
+) {
+  last_error <- NULL
+  for (attempt in seq_len(max_attempts)) {
+    result <- tryCatch(
+      biomaRt::getBM(
+        attributes = attributes,
+        filters = "external_gene_name",
+        values = genes,
+        mart = mart
+      ),
+      error = function(err) {
+        last_error <<- conditionMessage(err)
+        NULL
+      }
+    )
+    if (!is.null(result)) {
+      return(result)
+    }
+    Sys.sleep(2 * attempt)
+  }
+
+  if (length(genes) > 1L) {
+    split_at <- ceiling(length(genes) / 2)
+    return(dplyr::bind_rows(
+      .get_biomart_batch(
+        mart,
+        genes[seq_len(split_at)],
+        attributes,
+        max_attempts
+      ),
+      .get_biomart_batch(
+        mart,
+        genes[seq(split_at + 1L, length(genes))],
+        attributes,
+        max_attempts
+      )
+    ))
+  }
+
+  stop(
+    "BioMart query failed after ",
+    max_attempts,
+    " attempt(s). Last error: ",
+    last_error,
+    call. = FALSE
+  )
+}
+
+
+.query_biomart_by_gene_batches <- function(
+  mart,
+  genes,
+  attributes,
+  batch_size = 200L,
+  verbose = TRUE
+) {
+  if (length(genes) <= batch_size) {
+    return(.get_biomart_batch(mart, genes, attributes))
+  }
+
+  batch_ids <- ceiling(seq_along(genes) / batch_size)
+  batches <- split(genes, batch_ids)
+  n_batches <- length(batches)
+
+  bm_list <- lapply(seq_along(batches), function(i) {
+    if (verbose) {
+      message(
+        "BioMart batch ",
+        i,
+        "/",
+        n_batches,
+        " (",
+        length(batches[[i]]),
+        " genes)..."
+      )
+    }
+    .get_biomart_batch(mart, batches[[i]], attributes)
+  })
+
+  dplyr::bind_rows(bm_list)
+}
+
+
+##' Annotate mouse genes with Ensembl metadata
+##'
+##' Query Ensembl BioMart for mouse genes and return a collapsed, one-row-per-gene
+##' summary including Ensembl IDs, description(s), estimated gene length, and
+##' genomic coordinates. If multiple Ensembl records map to one gene symbol, the
+##' function concatenates text fields and averages gene lengths.
+##'
+##' Output structure matches [annotate_genes_local()].
+##'
+##' @param genes Character vector of mouse gene symbols
+##'   (for example, `c("Gnai3", "H19")`).
+##' @param drop_missing_genes Logical; whether to drop genes
+##' that are not found in the annotation database. Default is `TRUE`.
+##' @param verbose Logical; whether to print progress messages.
+##' @param batch_size Maximum number of gene symbols per BioMart request.
+##'   Large inputs are split automatically to reduce timeouts.
+##'
+##' @return A `data.frame` with one row per input gene and columns:
+##'   `gene_name`, `ensembl_id`, `biological_function`, `gene_length`,
+##'   `chromosome_name`, `gene_biotype`, and `ambiguous_genes`.
+##'
+##' @examples
+##' \dontrun{
+##' annotate_genes_biomart(c("Gnai3", "H19", "Scml2"))
+##' }
+annotate_genes_biomart <- function(
+  genes,
+  drop_missing_genes = TRUE,
+  verbose = TRUE,
+  batch_size = 200L
+) {
+  if (!requireNamespace("biomaRt", quietly = TRUE)) {
+    stop(
+      "Package 'biomaRt' is required. Install with install.packages('biomaRt')"
+    )
+  }
+  if (!is.character(genes) || length(genes) == 0) {
+    stop("`genes` must be a non-empty character vector.")
+  }
+  genes <- unique(genes)
+
+  mart <- .connect_ensembl_biomart(verbose = verbose)
+
+  attributes <- c(
+    "external_gene_name",
+    "ensembl_gene_id",
+    "description",
+    "gene_biotype",
+    "chromosome_name",
+    "start_position",
+    "end_position"
+  )
+
+  if (verbose) {
+    message("Querying biomart...")
+  }
+  bm <- .query_biomart_by_gene_batches(
+    mart = mart,
+    genes = genes,
+    attributes = attributes,
+    batch_size = batch_size,
+    verbose = verbose
+  )
+
+  annotated_genes <- bm |>
+    dplyr::mutate(
+      gene_length = end_position - start_position + 1
+    ) |>
+    dplyr::group_by(external_gene_name) |>
+    dplyr::summarise(
+      ensembl_id = paste(
+        unique(stats::na.omit(ensembl_gene_id)),
+        collapse = ";"
+      ),
+      biological_function = paste(
+        unique(stats::na.omit(description)),
+        collapse = ";"
+      ),
+      gene_length = mean(gene_length, na.rm = TRUE),
+      chromosome_name = paste(
+        unique(stats::na.omit(chromosome_name)),
+        collapse = ";"
+      ),
+      gene_biotype = paste(
+        unique(stats::na.omit(gene_biotype)),
+        collapse = ";"
+      ),
+      n_ensembl_id = dplyr::n_distinct(stats::na.omit(ensembl_gene_id)),
+      .groups = "drop"
+    ) |>
+    dplyr::mutate(
+      ambiguous_genes = n_ensembl_id > 1
+    ) |>
+    dplyr::rename(gene_name = external_gene_name) |>
+    dplyr::select(
+      gene_name,
+      ensembl_id,
+      biological_function,
+      gene_length,
+      chromosome_name,
+      gene_biotype,
+      ambiguous_genes
+    )
+
+  # Output cleaning: Remove genes with partial annotation ----
+  # This is to ensure that the output is a one-to-one mapping of gene symbols to annotations.
+  annotated_genes <- annotated_genes |>
+    dplyr::mutate(
+      dplyr::across(where(is.character), \(x) dplyr::na_if(x, "")),
+      dplyr::across(where(is.numeric), \(x) ifelse(is.nan(x), NA_real_, x)),
+    )
+
   if (drop_missing_genes) {
     annotated_genes <- annotated_genes |>
       tidyr::drop_na()

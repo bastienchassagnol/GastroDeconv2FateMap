@@ -146,6 +146,13 @@ print(paste(
 #   drop_missing_genes = TRUE
 # )
 
+# Download supplementary RDS from GEO GSE250136 (885.9 Mb):
+# https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE250136
+
+cd /mnt/DATA_11TB/projects/dtoo_project/GastroDeconv2FateMap/data/raw
+curl -L -C - -o GSE250136_df120_final.rds.gz \
+  "https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE250136&format=file&file=GSE250136_df120_final.rds.gz"
+
 # ## compute the overlap between the two sets of annotations
 # gene_sets <- list(
 #   "Local annotations before filtering" = genes_before_filtering_local$gene_name,

@@ -21,6 +21,10 @@
     "reditorsupport.r-syntax",
     "rdebugger.r-debugger",
     // ============================================================
+    // LaTeX (TinyTeX in ~/.TinyTeX; see .vscode/settings.json)
+    // ============================================================
+    "James-Yu.latex-workshop",
+    // ============================================================
     // Quarto / Markdown authoring
     // ============================================================
     "quarto.quarto",

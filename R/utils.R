@@ -1,4 +1,3 @@
-
 # ============================================================================
 # Seurat v5: assay and layer diagnostics ----
 # ============================================================================
@@ -92,4 +91,45 @@ summarise_seurat_assays_layers <- function(seurat_obj) {
     }
   }
   invisible(NULL)
+}
+
+
+#' Read a doubly gzip-compressed RDS file
+#'
+#' @description
+#' Loads an R object from an \code{.rds.gz} file that has been compressed
+#' twice with gzip. A single \code{\link[base]{readRDS}} call on
+#' \code{\link[base]{gzfile}} only removes the outer compression layer; the
+#' remaining bytes are still gzip-encoded, which triggers an *unknown input
+#' format* error. This helper decompresses both layers in memory, then calls
+#' \code{\link[base]{readRDS}}.
+#'
+#' Some GEO supplementary archives (e.g. per-sample files inside
+#' \code{GSE250136_RAW.tar}) are stored in this double-gzip form.
+#'
+#' @param path Character scalar. Path to the \code{.rds.gz} file.
+#'
+#' @return The R object stored in the RDS file (class depends on the file;
+#'   often a \pkg{Seurat} object for single-cell supplementary data).
+#'
+#' @details
+#' Peak memory use is roughly the size of the first decompressed gzip layer
+#' plus the second. For large objects, ensure sufficient RAM is available.
+#'
+#' @seealso \link[base]{readRDS}, \link[base]{gzfile}, \link[base]{gzcon},
+#'   \link[base]{rawConnection}, \link[base]{readBin}
+#'
+#' @examples
+#' \dontrun{
+#' obj <- read_double_gz_rds(
+#'   "./data/raw/GSE250136/GSM7974412_df48_final.rds.gz"
+#' )
+#' }
+#'
+#' @export
+read_double_gz_rds <- function(path) {
+  con <- gzfile(path, "rb")
+  on.exit(close(con), add = TRUE)
+  inner_gz <- readBin(con, "raw", n = 1e9)
+  readRDS(gzcon(rawConnection(inner_gz)))
 }

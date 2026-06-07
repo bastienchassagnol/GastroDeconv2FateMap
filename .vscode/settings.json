@@ -1,4 +1,28 @@
 {
+  "latex-workshop.latex.tools": [
+    {
+      "name": "latexmk",
+      "command": "/home/bastienc/.TinyTeX/bin/x86_64-linux/latexmk",
+      "args": [
+        "-synctex=1",
+        "-interaction=nonstopmode",
+        "-file-line-error",
+        "-pdf",
+        "-outdir=%OUTDIR%",
+        "%DOC%"
+      ],
+      "env": {
+        "PATH": "/home/bastienc/.TinyTeX/bin/x86_64-linux:/usr/local/bin:/usr/bin:/bin"
+      }
+    }
+  ],
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "latexmk (pdf)",
+      "tools": ["latexmk"]
+    }
+  ],
+  "latex-workshop.latex.recipe.default": "latexmk (pdf)",
   "r.alwaysUseActiveTerminal": true,
   "r.bracketedPaste": true,
   "r.sessionWatcher": true,

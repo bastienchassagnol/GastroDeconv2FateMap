@@ -20,8 +20,7 @@ Tracked locations:
 Install DVC with SSH support:
 
 ```bash
-pip install "dvc[ssh]"
-# or: conda install -c conda-forge dvc-ssh
+uv install "dvc[ssh]"
 ```
 
 Clone the repository and activate the R environment (`renv`) as usual.
@@ -131,27 +130,13 @@ pointer is committed.
 ```bash
 dvc add data/raw/my_new_dataset.rds
 ```
-
-Or several files at once:
-
-```bash
-dvc add data/intermediate/my_processed_object_2026-06-07.rds \
-        data/intermediate/my_summary_table_2026-06-07.rds
-```
-
-DVC creates a `.dvc` stub next to each file and updates
+> DVC creates a `.dvc` stub next to each file and updates
 `data/raw/.gitignore` or `data/intermediate/.gitignore` automatically.
 
 **Step 2 — Upload data to the remote:**
 
 ```bash
 dvc push
-```
-
-Or push only the files you just added:
-
-```bash
-dvc push data/raw/my_new_dataset.rds.dvc
 ```
 
 **Step 3 — Commit the DVC pointers to Git:**
@@ -162,14 +147,12 @@ git commit -m "Track my_new_dataset with DVC"
 git push
 ```
 
-Other collaborators can then run `git pull` followed by `dvc pull` to
-obtain the new files.
+**Other collaborators can then run `git pull` followed by `dvc pull` to
+obtain the new files.**
 
 ### Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
-| `Temporary failure in name resolution` | Hostname in remote URL does not resolve | Use a resolvable host in `dvc remote modify --local mmg_cluster url ...` |
 | `Permission denied (publickey)` | SSH key not authorised on storage host | Add your public key; set `keyfile` in `.dvc/config.local` |
 | `Connection timed out` | Network cannot reach storage host | Use Option B if storage is mounted locally, or contact IT for VPN/routing |
-| `.dvc` files not tracked by Git | `.gitignore` excludes them | Project rules already allow `*.dvc` under `data/raw/` and `data/intermediate/`; ensure you `git add` the `.dvc` file explicitly |

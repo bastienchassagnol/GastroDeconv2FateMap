@@ -1,0 +1,30 @@
+url: https://bastienchassagnol.github.io/GastroDeconv2FateMap/
+
+template:
+  bootstrap: 5
+
+navbar:
+  structure:
+    left: [intro, reference, articles]
+    right: [search, github]
+  components:
+    intro:
+      text: Get started
+      href: articles/pseudo-bulk_generation.html
+    articles:
+      text: Articles
+      menu:
+        - text: Pseudo-bulk generation strategies
+          href: articles/pseudo-bulk_generation.html
+        - text: Deconvolution methods
+          href: articles/deconvolution_description.html
+    github:
+      icon: fab fa-github
+      href: https://github.com/bastienchassagnol/GastroDeconv2FateMap
+
+articles:
+  - title: Package documentation
+    navbar: ~
+    contents:
+      - pseudo-bulk_generation.qmd
+      - deconvolution_description.qmd

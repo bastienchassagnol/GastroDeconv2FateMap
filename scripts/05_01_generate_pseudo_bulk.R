@@ -47,19 +47,16 @@ tinytable::tt(
 # 2. Strategy 1 — direct barcode aggregation ----
 # ==========================================================================
 
-pb_barcode <- aggregate_barcode_pseudo_bulk(
+naive_pseudo_bulk <- aggregate_barcode_pseudo_bulk(
   seurat_obj = GSE250136_120h,
   phenotype_col = "Morphotype",
   barcode_col = "Sample.barcode"
 )
 
-message(
-  "Strategy 1 (barcode aggregation): ",
-  ncol(pb_barcode),
-  " samples; phenotypes: ",
-  paste(
-    table(SummarizedExperiment::colData(pb_barcode)$Morphotype),
-    collapse = ", "
+saveRDS(
+  naive_pseudo_bulk,
+  file = glue::glue(
+    "./data/intermediate/{study}_naive_pseudo_bulk_{today}.rds"
   )
 )
 

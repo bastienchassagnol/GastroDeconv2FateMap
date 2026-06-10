@@ -4,7 +4,7 @@
 #
 # Implements strategies 1–3 and generative count models (log-normal and
 # Splatter-style negative binomial) described in
-# vignettes/pseudo-bulk_generation.qmd. All bulk profiles are raw summed
+# vignettes/pseudo_bulk_generation.qmd. All bulk profiles are raw summed
 # counts (no normalisation).
 # ============================================================================
 
@@ -137,8 +137,8 @@
 #'
 #' This stabilises zeros before log transformation, following common
 #' pseudo-bulk pipelines (strategy 7 in
-#' \code{vignettes/pseudo-bulk_generation.qmd}) and mean-pseudo-bulk
-#' approaches using \code{log2(counts + \epsilon)}.
+#' \code{vignettes/pseudo_bulk_generation.qmd}) and mean-pseudo-bulk
+#' approaches using \code{log2(counts + epsilon)}.
 #'
 #' @param counts Sparse or dense count matrix (genes x cells).
 #' @param cell_idx Integer indices of cells in the estimation subset.
@@ -534,7 +534,7 @@
 #' Aggregate pseudo-bulk samples by barcode (organoid)
 #'
 #' @description
-#' Strategy 1 from \code{vignettes/pseudo-bulk_generation.qmd}: treat each
+#' Strategy 1 from \code{vignettes/pseudo_bulk_generation.qmd}: treat each
 #' barcode as one bulk sample by summing raw single-cell counts within
 #' barcodes, analogous to \code{\link[Seurat]{AggregateExpression}} with
 #' \code{slot = "counts"} and no normalisation.
@@ -553,7 +553,7 @@
 #'   \code{simulation_method = "barcode_aggregation"}.
 #'
 #' @seealso [simulate_bootstrap_samples()], [simulate_generative_models()],
-#'   \code{vignettes/pseudo-bulk_generation.qmd}
+#'   \code{vignettes/pseudo_bulk_generation.qmd}
 #'
 #' @export
 aggregate_barcode_pseudo_bulk <- function(
@@ -638,7 +638,7 @@ aggregate_barcode_pseudo_bulk <- function(
 #' Simulate pseudo-bulk samples by cell resampling (bootstrap)
 #'
 #' @description
-#' Strategies 2 and 3 from \code{vignettes/pseudo-bulk_generation.qmd}.
+#' Strategies 2 and 3 from \code{vignettes/pseudo_bulk_generation.qmd}.
 #' \describe{
 #'   \item{\code{replicate_type = "biological"}}{
 #'     Phenotype-stratified bootstrap: resample cells from all organoids
@@ -785,7 +785,7 @@ simulate_bootstrap_samples <- function(
 #'
 #' @description
 #' Splatter- and HADACA3-inspired generative simulation (strategies 7 and 10
-#' in \code{vignettes/pseudo-bulk_generation.qmd}). Parameters are inferred at
+#' in \code{vignettes/pseudo_bulk_generation.qmd}). Parameters are inferred at
 #' the biological (phenotype) level; technical library scaling is applied
 #' only for the log-normal model. Simulated cells are summed to sample-level
 #' raw bulk counts.

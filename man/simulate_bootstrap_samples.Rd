@@ -40,7 +40,7 @@ A \pkg{SummarizedExperiment} with raw summed counts and balanced
 phenotypes in \code{colData}.
 }
 \description{
-Strategies 2 and 3 from \code{vignettes/pseudo-bulk_generation.qmd}.
+Strategies 2 and 3 from \code{vignettes/pseudo_bulk_generation.qmd}.
 \describe{
 \item{\code{replicate_type = "biological"}}{
 Phenotype-stratified bootstrap: resample cells from all organoids

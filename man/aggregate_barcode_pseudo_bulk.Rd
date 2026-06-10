@@ -30,12 +30,12 @@ A \pkg{SummarizedExperiment} with one column per distinct barcode.
 \code{simulation_method = "barcode_aggregation"}.
 }
 \description{
-Strategy 1 from \code{vignettes/pseudo-bulk_generation.qmd}: treat each
+Strategy 1 from \code{vignettes/pseudo_bulk_generation.qmd}: treat each
 barcode as one bulk sample by summing raw single-cell counts within
 barcodes, analogous to \code{\link[Seurat]{AggregateExpression}} with
 \code{slot = "counts"} and no normalisation.
 }
 \seealso{
 \code{\link[=simulate_bootstrap_samples]{simulate_bootstrap_samples()}}, \code{\link[=simulate_generative_models]{simulate_generative_models()}},
-\code{vignettes/pseudo-bulk_generation.qmd}
+\code{vignettes/pseudo_bulk_generation.qmd}
 }

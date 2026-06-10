@@ -38,7 +38,7 @@ A \pkg{SummarizedExperiment} with raw summed counts.
 }
 \description{
 Splatter- and HADACA3-inspired generative simulation (strategies 7 and 10
-in \code{vignettes/pseudo-bulk_generation.qmd}). Parameters are inferred at
+in \code{vignettes/pseudo_bulk_generation.qmd}). Parameters are inferred at
 the biological (phenotype) level; technical library scaling is applied
 only for the log-normal model. Simulated cells are summed to sample-level
 raw bulk counts.

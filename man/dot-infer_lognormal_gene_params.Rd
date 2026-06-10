@@ -37,8 +37,8 @@ with \eqn{\tilde{z}_{gc} \sim \mathcal{N}(\hat{\mu}_g, \hat{\sigma}_g^2)}.
 
 This stabilises zeros before log transformation, following common
 pseudo-bulk pipelines (strategy 7 in
-\code{vignettes/pseudo-bulk_generation.qmd}) and mean-pseudo-bulk
-approaches using \code{log2(counts + \epsilon)}.
+\code{vignettes/pseudo_bulk_generation.qmd}) and mean-pseudo-bulk
+approaches using \code{log2(counts + epsilon)}.
 }
 \references{
 \url{https://oshlacklab.com/splatter/articles/splatter.html} (log-normal

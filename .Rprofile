@@ -40,6 +40,9 @@ local({
   } else {
     getwd()
   }
+  if (length(project_root) == 0L || !nzchar(project_root)) {
+    project_root <- getwd()
+  }
   patch_path <- file.path(project_root, "R", "vscdebugger_r46_patch.R")
   if (!file.exists(patch_path)) {
     return(invisible(NULL))

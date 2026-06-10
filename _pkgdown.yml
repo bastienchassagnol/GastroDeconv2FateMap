@@ -1,5 +1,7 @@
 url: https://bastienchassagnol.github.io/GastroDeconv2FateMap/
 
+llm-docs: false
+
 template:
   bootstrap: 5
 
@@ -10,12 +12,12 @@ navbar:
   components:
     intro:
       text: Get started
-      href: articles/pseudo-bulk_generation.html
+      href: articles/pseudo_bulk_generation.html
     articles:
       text: Articles
       menu:
         - text: Pseudo-bulk generation strategies
-          href: articles/pseudo-bulk_generation.html
+          href: articles/pseudo_bulk_generation.html
         - text: Deconvolution methods
           href: articles/deconvolution_description.html
     github:
@@ -26,5 +28,5 @@ articles:
   - title: Package documentation
     navbar: ~
     contents:
-      - pseudo-bulk_generation.qmd
-      - deconvolution_description.qmd
+      - pseudo_bulk_generation
+      - deconvolution_description

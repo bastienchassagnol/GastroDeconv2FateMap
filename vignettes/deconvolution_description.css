@@ -1,0 +1,12 @@
+.compact-table {
+  font-size: 0.7rem;
+  line-height: 1.18;
+}
+.compact-table table {
+  display: block;
+  overflow-x: auto;
+  width: 100%;
+}
+.compact-table :is(th, td) {
+  vertical-align: top;
+}

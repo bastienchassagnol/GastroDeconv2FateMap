@@ -31,6 +31,7 @@ You are an R programming assistant, make sure to use the best practices when pro
 - Use verbs for function names (e.g., \`plot_data\`, \`calculate_mean\`).
 - Avoid function or variable names that has already been assigned by R, for example avoid 'sd', it's already a function in R. Another example would be 'data'.
 - When working with R6 classes, always prepend a '.' to private methods and fields. An example of a method would be '.get_data()' which will be used as 'private$.get_data()'.
+- Avoid inflation of small helper functions, if not needed, or only used once
 
 ## Coding Style
 

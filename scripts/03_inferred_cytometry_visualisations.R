@@ -2,7 +2,7 @@
 # 0. Libraries and Filename settings ----
 # ==========================================================================
 study <- "suppinger"
-today <- format(Sys.Date(), "%Y-%m-%d")
+today <- "2026-05-07"
 output_dir <- "outputs/deconvolution"
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)

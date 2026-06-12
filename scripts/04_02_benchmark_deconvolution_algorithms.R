@@ -10,28 +10,31 @@ if (!dir.exists(output_dir)) {
 }
 
 source("./R/deconvolution_scorings.R")
+source("./R/plotting.R")
 
-p_obs <- c(
-  epithelial = 0.1,
-  mesenchymal = 0.2,
-  immune = 0.3,
-  endothelial = 0.5,
-  stromal = 0
-)
-p_estimated <- c(
-  epithelial = 0.1,
-  mesenchymal = 0.4,
-  immune = 0.3,
-  endothelial = 0.2,
-  stromal = 0
-)
+library(ggplot2)
 
-eval_Pearson(p_obs, p_estimated)
-eval_JSD(p_obs, p_estimated)
-eval_Aitchison(p_obs, p_estimated)
-eval_SDID(p_obs, p_estimated)
-eval_RMSE(p_obs, p_estimated)
-eval_MAE(p_obs, p_estimated)
+# p_obs <- c(
+#   epithelial = 0.1,
+#   mesenchymal = 0.2,
+#   immune = 0.3,
+#   endothelial = 0.5,
+#   stromal = 0
+# )
+# p_estimated <- c(
+#   epithelial = 0.1,
+#   mesenchymal = 0.4,
+#   immune = 0.3,
+#   endothelial = 0.2,
+#   stromal = 0
+# )
+
+# eval_Pearson(p_obs, p_estimated)
+# eval_JSD(p_obs, p_estimated)
+# eval_Aitchison(p_obs, p_estimated)
+# eval_SDID(p_obs, p_estimated)
+# eval_RMSE(p_obs, p_estimated)
+# eval_MAE(p_obs, p_estimated)
 # ==========================================================================
 # 1. Load omic objects----
 # ==========================================================================
@@ -176,7 +179,7 @@ saveRDS(
 
 
 # ==========================================================================
-# 3. Scatter regression plot: observed vs estimated (one panel per time point) ----
+# 3. Scatter plot: observed vs estimated (rows = sample, cols = time point) ----
 # ==========================================================================
 
 joint_composition <- deconv_results_wider |>
@@ -186,52 +189,79 @@ joint_composition <- deconv_results_wider |>
     values_to = "estimated"
   ) |>
   dplyr::rename(timepoints = time_point) |>
-  dplyr::mutate(timepoints = as.character(timepoints)) |>
+  dplyr::mutate(
+    timepoints = factor(
+      as.character(timepoints),
+      levels = c("48h", "72h", "96h"),
+      ordered = TRUE
+    ),
+    sample_id = factor(
+      sample_id,
+      levels = sort(unique(sample_id)),
+      ordered = TRUE
+    )
+  ) |>
   dplyr::left_join(
     single_cell_ratios_wider |>
-      dplyr::mutate(timepoints = as.character(timepoints)) |>
+      dplyr::mutate(
+        timepoints = factor(
+          as.character(timepoints),
+          levels = c("48h", "72h", "96h"),
+          ordered = TRUE
+        )
+      ) |>
       tidyr::pivot_longer(
         cols = dplyr::all_of(shared_cell_types),
         names_to = "cell_type",
         values_to = "observed"
       ),
     by = c("timepoints", "cell_type")
-  )
+  )  |> 
+  dplyr::filter(!(observed == 0 & estimated == 0))
 
+algorithm_levels <- sort(unique(joint_composition$deconvolution_algorithm))
 algorithm_shapes <- stats::setNames(
-  c(16L, 17L, 15L, 18L, 3L, 7L),
-  sort(unique(joint_composition$deconvolution_algorithm))
-)
-replicate_sizes <- stats::setNames(
-  seq(1.6, 3.2, length.out = length(unique(joint_composition$sample_id))),
-  sort(unique(joint_composition$sample_id))
+  c(16L, 17L, 15L),
+  algorithm_levels
 )
 
-plot_scatter_one_timepoint <- function(tp) {
-  tp_data <- joint_composition |>
-    dplyr::filter(timepoints == tp)
-  obs <- tp_data$observed
-  est <- tp_data$estimated
-  mae_val <- mean(abs(obs - est), na.rm = TRUE)
-  rmse_val <- sqrt(mean((obs - est)^2, na.rm = TRUE))
-  stats_label <- glue::glue(
-    "paste(MAE == frac(1,n)*sum(abs(y[i]-hat(y)[i])), \"=\", ",
-    "{formatC(mae_val, format = 'f', digits = 2)}, \"~~\", ",
-    "\n",
-    "RMSE == sqrt(frac(1,n)*sum((y[i]-hat(y)[i])^2)), \"=\", ",
-    "{formatC(rmse_val, format = 'f', digits = 2)})"
+scatter_pearson_labels <- benchmark_metrics |>
+  dplyr::mutate(
+    timepoints = factor(
+      as.character(time_point),
+      levels = c("48h", "72h", "96h"),
+      ordered = TRUE
+    ),
+    sample_id = factor(
+      sample_id,
+      levels = levels(joint_composition$sample_id),
+      ordered = TRUE
+    )
+  ) |>
+  dplyr::arrange(deconvolution_algorithm) |>
+  dplyr::group_by(sample_id, timepoints) |>
+  dplyr::summarise(
+    label = paste(
+      glue::glue(
+        "{deconvolution_algorithm}: r = ",
+        "{formatC(pearson, format = 'f', digits = 3)}"
+      ),
+      collapse = "\n"
+    ),
+    .groups = "drop"
   )
 
-  ggplot2::ggplot(
-    tp_data,
+plot_scatter_panel <- function(show_legend = FALSE) {
+  p <- ggplot2::ggplot(
+    joint_composition,
     ggplot2::aes(
       x = observed,
       y = estimated,
       colour = cell_type,
       shape = deconvolution_algorithm,
-      size = sample_id
     )
   ) +
+    ggplot2::geom_point(alpha = 0.85, size = 2.2) +
     ggplot2::geom_abline(
       slope = 1,
       intercept = 0,
@@ -239,62 +269,67 @@ plot_scatter_one_timepoint <- function(tp) {
       colour = "grey40",
       linewidth = 0.4
     ) +
-    ggplot2::geom_point(alpha = 0.85) +
+    ggplot2::geom_text(
+      data = scatter_pearson_labels,
+      ggplot2::aes(
+        x = 0.05,
+        y = 0.95,
+        label = label
+      ),
+      inherit.aes = FALSE,
+      hjust = 0,
+      vjust = 1,
+      size = 2.6,
+      lineheight = 0.9
+    ) +
     ggplot2::scale_shape_manual(values = algorithm_shapes) +
-    ggplot2::scale_size_manual(values = replicate_sizes) +
-    ggplot2::coord_equal() +
+    ggplot2::scale_x_continuous(
+      limits = c(0, 1),
+      expand = expansion(mult = c(0.08, 0.05))
+    ) +
+    ggplot2::scale_y_continuous(
+      limits = c(0, 1),
+      expand = expansion(mult = c(0.08, 0.02))
+    ) +
+    ggplot2::coord_fixed(ratio = 1, xlim = c(0, 1), ylim = c(0, 1)) +
+    ggplot2::facet_grid(
+      rows = ggplot2::vars(sample_id),
+      cols = ggplot2::vars(timepoints),
+      labeller = ggplot2::label_value
+    ) +
     ggplot2::labs(
-      title = tp,
       x = "Observed proportion",
       y = "Estimated proportion",
       colour = "Cell type",
-      shape = "Algorithm",
-      size = "Replicate"
+      shape = "Algorithm"
     ) +
-    ggplot2::annotate(
-      "text",
-      x = Inf,
-      y = -Inf,
-      label = stats_label,
-      parse = TRUE,
-      hjust = 1.05,
-      vjust = -0.4,
-      size = 3.2
-    ) +
-    ggplot2::theme_bw(base_size = 10) +
+    theme_features(base_size = 11) +
     ggplot2::theme(
-      legend.position = "none",
-      plot.title = ggplot2::element_text(face = "bold"),
-      axis.title = ggplot2::element_text(face = "bold")
+      legend.position = if (show_legend) "bottom" else "none",
+      legend.box = "horizontal",
+      axis.title = ggplot2::element_text(face = "bold"),
+      panel.spacing = grid::unit(0.8, "lines")
     )
+
+  if (show_legend) {
+    p <- p +
+      ggplot2::guides(
+        colour = ggplot2::guide_legend(nrow = 2, title.position = "top"),
+        shape = ggplot2::guide_legend(nrow = 1, title.position = "top")
+      )
+  }
+
+  p
 }
-scatter_plots <- purrr::map(
-  unique(joint_composition$timepoints),
-  plot_scatter_one_timepoint
-)
-names(scatter_plots) <- unique(joint_composition$timepoints)
 
-# retrieve the shared legend for the scatter plot
-scatter_legend_plot <- plot_scatter_one_timepoint("48h") +
-  ggplot2::theme(
-    legend.position = "bottom",
-    legend.box = "horizontal"
-  ) +
-  ggplot2::guides(
-    colour = ggplot2::guide_legend(nrow = 2, title.position = "top"),
-    shape = ggplot2::guide_legend(nrow = 1, title.position = "top"),
-    size = ggplot2::guide_legend(nrow = 1, title.position = "top")
-  )
-
-# combien and arrange all plots together with the legend
-scatter_legend <- cowplot::get_legend(scatter_legend_plot)
-scatter_panels <- patchwork::wrap_plots(scatter_plots, nrow = 1)
+scatter_panels <- plot_scatter_panel(show_legend = FALSE)
+scatter_legend <- cowplot::get_legend(plot_scatter_panel(show_legend = TRUE))
 
 scatter_figure <- cowplot::plot_grid(
   scatter_panels,
   scatter_legend,
   ncol = 1,
-  rel_heights = c(1, 0.18)
+  rel_heights = c(1, 0.12)
 )
 
 ggplot2::ggsave(
@@ -303,8 +338,10 @@ ggplot2::ggsave(
     glue::glue("{study}_observed_vs_estimated_scatter_{today}.pdf")
   ),
   scatter_figure,
-  width = 14,
-  height = 5.5
+  width = 16,
+  height = 14,
+  dpi = 300,
+  limitsize = FALSE
 )
 
 # ==========================================================================
@@ -321,17 +358,12 @@ radar_long <- benchmark_metrics |>
     .groups = "drop"
   ) |>
   dplyr::mutate(
-    aitchison_max = max(aitchison, na.rm = TRUE),
-    Pearson = pmin(pmax((pearson + 1) / 2, 0), 1),
-    JSD = pmin(pmax(1 - jsd, 0), 1),
-    Aitchison = dplyr::if_else(
-      aitchison_max > 0,
-      pmin(pmax(1 - aitchison / aitchison_max, 0), 1),
-      1
-    ),
-    SDID = pmin(pmax(1 - sdid, 0), 1),
-    RMSE = pmin(pmax(1 - rmse, 0), 1),
-    MAE = pmin(pmax(1 - mae, 0), 1)
+    Aitchison = 1 - aitchison / max(aitchison, na.rm = TRUE),
+    SDID = 1 - sdid,
+    Pearson = pmax(0, pearson),
+    JSD = 1 - jsd,
+    RMSE = 1 - rmse,
+    MAE = 1 - mae
   ) |>
   dplyr::select(
     time_point,
@@ -376,7 +408,7 @@ plot_radar_one_timepoint <- function(tp) {
 
   ggradar::ggradar(
     tp_data_wide,
-    values.radar = c("0", "0.25", "0.5", "0.75", "1"),
+    values.radar = c("0", "0.5", "1"),
     grid.min = 0,
     grid.max = 1,
     group.line.width = 0.7,

@@ -1,5 +1,6 @@
 ---
 title: "Second-generation bulk RNA-seq deconvolution algorithms"
+from: markdown+emoji
 format:
   html:
     toc: true
@@ -162,4 +163,25 @@ is the cell-association coefficient vector. A positive coefficient indicates a c
 - **DE logFC threshold** merges `log2FC`, `Log2FC_cutoff`, and `logFC_threshold`.
 - **DE p/FDR threshold** merges `p_adjust`, `pval_threshold`, `FDR_threshold`, and related significance cutoffs.
 - Infrastructure-only parameters such as `seed`, `assay`, `tmp_dir`, cache paths, and low-level environment paths were intentionally excluded.
+:::
+
+## Benchmarking metrics
+
+
+
+We compare in @tbl-metrics-for-deconvolution the following metrics for **cellular composition deconvolution**, where the true composition is $p=(p_1,\dots,p_J)$ and the estimated composition is $\hat p=(\hat p_1,\dots,\hat p_J)$, with $p_j,\hat p_j\in[0,1]$ and $\sum_j p_j=\sum_j \hat p_j=1$. Note that the Aitchison distance, and the Jensen Shannon divergence are grounded in **compositional-data geometry**, while the RMSE, MAE, and Pearson correlation are commonly used in most regression frameworks.
+
+::: {.metrics-table}
+
+| Metric name | Metric formula | Bounds for cellular composition | Major difference: what is captured |
+| --- | --- | --- | --- |
+| **Aitchison distance** :triangular_ruler: | $\mathrm{clr}(p)_j=\log(p_j)-\frac{1}{J}\sum_{k=1}^{J}\log(p_k)$. Then $d_A(p,\hat p)=\|\mathrm{clr}(p)-\mathrm{clr}(\hat p)\|_2$: RMSE after centred log-ratio (CLR) transformation. | **Lower:** $0$ when $p=\hat p$. **Upper:** unbounded; diverges to $+\infty$ as any component approaches $0$. Requires strictly positive values, so zeros need a pseudocount or zero-replacement strategy. | **Best compositional metric** when relative cell-type ratios matter (**log-ratios**), not raw differences. A two-fold error on a rare type weighs similarly to a two-fold error on an abundant type. Very sensitive to rare cell types and to zero handling. |
+| **Jensen–Shannon divergence** :information_source: | Let $m_j=\frac{1}{2}(p_j+\hat p_j)$. Then $\mathrm{JSD}(p,\hat p)=\frac{1}{2}\sum_j p_j\log\frac{p_j}{m_j}+\frac{1}{2}\sum_j \hat p_j\log\frac{\hat p_j}{m_j}$: a symmetrised Kullback–Leibler divergence. | **Lower:** $0$ when $p=\hat p$. **Upper:** $\log(2)$ with natural log, or $1$ with $\log_2$. Symmetric and finite even when one vector contains zeros (with appropriate pseudocounts). | Measures **distributional disagreement** between two composition profiles. More stable than KL divergence. Good global score for whole-profile comparison, but may under-emphasise biologically meaningful fold-changes in rare cell types. |
+| **SDID** (Sine-Diagonal ID) :large_blue_diamond: | $\mathrm{SDID}(p,\hat p)=\sin\theta$, where $\theta=\arccos\left(\frac{p^\top \hat p}{\|p\|_2\|\hat p\|_2}\right)$. This project uses $\mathrm{SDID}=\sqrt{\sqrt{1-\min(1,\cos^2\theta)}}$. | **Lower:** $0$ when $p$ and $\hat p$ are perfectly aligned. **Upper:** $1$ for orthogonal compositions. Bounded on $[0,1]$ in the convention used here. | Similar to angular distance: captures deviation in the **direction** between predicted and observed cellular ratios. Insensitive to **linear scaling** because scaling does not change the angle. Still reflects vector geometry more than rank-only scores. |
+| **RMSE** :straight_ruler: | $\mathrm{RMSE}(p,\hat p)=\sqrt{\frac{1}{J}\sum_{j=1}^{J}(p_j-\hat p_j)^2}$. | With $p_j,\hat p_j\in[0,1]$: **Lower:** $0$. **Upper:** at most $1$ component-wise; for valid compositions summing to $1$, the sharper maximum is $\sqrt{2/J}$, when all mass sits on one cell type in $p$ and on a different one in $\hat p$. | Due to squaring, large absolute errors on abundant populations dominate the score. Can underweight rare cell types: predicting $0.001$ instead of $0.01$ contributes little, despite a ten-fold relative error. |
+| **MAE** :abacus: | $\mathrm{MAE}(p,\hat p)=\frac{1}{J}\sum_{j=1}^{J}\left|p_j-\hat p_j\right|$. | **Lower:** $0$. **Upper:** at most $1$ component-wise; for valid compositions summing to $1$, the sharper maximum is $2/J$, again when all mass is assigned to different single cell types. | Simple and interpretable average absolute percentage-point error per cell type. Less sensitive to outliers than RMSE (L1 rather than L2), but still measures absolute rather than relative error and can underweight rare populations. |
+| **Pearson correlation** :chart_with_upwards_trend: | $r(p,\hat p)=\frac{\sum_j(p_j-\bar p)(\hat p_j-\bar{\hat p})}{\sqrt{\sum_j(p_j-\bar p)^2}\sqrt{\sum_j(\hat p_j-\bar{\hat p})^2}}$, computed across cell types within a sample. | **Lower:** $-1$. **Upper:** $1$. Often converted to an error score: $1-r\in[0,2]$, or $\frac{1-r}{2}\in[0,1]$. | Captures whether abundant types are ranked high and rare types low. Invariant to affine transformations, so it can remain high when predicted proportions are systematically biased. Poor standalone calibration metric: high correlation does not imply correct absolute fractions. |
+
+: Metrics for evaluating cellular composition deconvolution {#tbl-metrics-for-deconvolution}
+
 :::

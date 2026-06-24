@@ -37,23 +37,19 @@ raw_counts <- SeuratObject::GetAssayData(
   layer = "counts"
 )
 
-
-
-
 # Quick inspection of counts matrix (first genes x first cells)
 
 # Retrieve feature (gene) information from RNA assay
 feature_info <- GSE229513_gastruloids_seurat@assays$RNA@meta.features
 feature_info$gene <- rownames(feature_info)
 
-if (ncol(feature_info) == 1) {
-  message("No extra feature metadata found; showing gene names only.")
-}
+## inspect metadata phenotype 
 
-print(utils::head(feature_info))
-print(colnames(raw_counts))
-
-
+GSE229513_gastruloids_seurat@meta.data$batch <- forcats::fct_recode(
+  factor(GSE229513_gastruloids_seurat@meta.data$batch),
+  "B-S" = "batch1",
+  "SBR" = "batch2"
+)
 phenotype_data <- GSE229513_gastruloids_seurat@meta.data
 tinytable::tt(
   phenotype_data |>
@@ -74,12 +70,6 @@ tinytable::tt(
     dplyr::group_by(celltypeannotation) |>
     dplyr::summarise(n_cells = dplyr::n(), .groups = "drop"),
   caption = "Number of cells per cell type"
-)
-
-GSE229513_gastruloids_seurat@meta.data$batch <- forcats::fct_recode(
-  factor(GSE229513_gastruloids_seurat@meta.data$batch),
-  "B-S" = "batch1",
-  "SBR" = "batch2"
 )
 
 cell_type_colours <- c(

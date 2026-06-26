@@ -25,6 +25,7 @@ Imports:
     GenomicFeatures,
     GenomicRanges,
     glue,
+    lme4,
     Matrix,
     matrixStats,
     methods,

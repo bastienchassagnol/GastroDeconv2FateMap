@@ -242,6 +242,146 @@ eval_MAE <- function(p_obs, p_estimated, trim_shared_zeros = TRUE) {
   mean(abs(p_obs - p_estimated), na.rm = TRUE)
 }
 
+#' Hierarchical relative RMSE against a shared compositional reference
+#'
+#' @description
+#' Computes a conditional, common-reference hierarchical relative RMSE
+#' (hrRMSE) from multiple deconvolution replicates compared with one pooled
+#' gold-standard composition. This is appropriate for technical replicates of
+#' the same mixture, but is a strong assumption for biological replicates.
+#'
+#' @param p_obs Named numeric vector of the shared reference composition
+#'   (\eqn{p_j}), repeated for every sample.
+#' @param p_estimated Sample-level estimated compositions. A matrix or data
+#'   frame with samples in rows and cell types in columns (matching `p_obs`
+#'   names), or a named list of named numeric vectors.
+#' @param trim_shared_zeros Logical; if `TRUE`, cell types that are zero in
+#'   both the reference and all estimates are removed before fitting.
+#' @param method Character; `"REML"` (default) or `"ML"` for variance-component
+#'   estimation.
+#'
+#' @details
+#' After arranging the data, for sample \eqn{i}, cell type \eqn{j}, and
+#' measurement source \eqn{m}:
+#' \deqn{
+#' y_{ijm} =
+#' \begin{cases}
+#' p_j, & m = \text{gold standard}, \\
+#' \hat{p}_{ij}, & m = \text{estimated}.
+#' \end{cases}
+#' }
+#'
+#' The hierarchical mixed-effects model is:
+#' \deqn{
+#' y_{ijm} = \mu + \beta\, I(m = \text{estimated}) + u_j + v_{ij} + \varepsilon_{ijm},
+#' }
+#' with
+#' \deqn{u_j \sim \mathcal{N}(0, \sigma^2_{\mathrm{population}}),}
+#' \deqn{v_{ij} \sim \mathcal{N}(0, \sigma^2_{\mathrm{sample}}),}
+#' \deqn{\varepsilon_{ijm} \sim \mathcal{N}(0, \sigma_e^2).}
+#'
+#' Biological signal variance is
+#' \deqn{
+#' V_T = \sigma^2_{\mathrm{population}} + \sigma^2_{\mathrm{sample}},
+#' }
+#' and
+#' \deqn{
+#' \mathrm{hrRMSE} = \sqrt{\frac{\sigma_e^2}{V_T}}.
+#' }
+#'
+#' Variance components are estimated by REML or ML. Values below 1 indicate
+#' residual disagreement smaller than the variance separating cell-type
+#' abundances.
+#'
+#' @return A numeric scalar hrRMSE. Attributes `variance_components` (named
+#'   vector of estimated variances) and `method` record the fitted components
+#'   and estimation method.
+#' @export
+eval_hrRMSE <- function(
+    p_obs,
+    p_estimated,
+    trim_shared_zeros = TRUE,
+    method = c("REML", "ML")
+) {
+  method <- match.arg(method)
+  prepared <- .prepare_hrrmse_compositions(
+    p_obs = p_obs,
+    p_estimated = p_estimated,
+    trim_shared_zeros = trim_shared_zeros
+  )
+  p_obs <- prepared$p_obs
+  p_estimated <- prepared$p_estimated
+
+  n_samples <- nrow(p_estimated)
+  n_cell_types <- ncol(p_estimated)
+  if (n_samples < 2L) {
+    stop(
+      "At least two samples are required to estimate nested sample variance.",
+      call. = FALSE
+    )
+  }
+  if (n_cell_types < 2L) {
+    stop(
+      "At least two cell types are required to fit the hierarchical model.",
+      call. = FALSE
+    )
+  }
+
+  cell_types <- colnames(p_estimated)
+  samples <- rownames(p_estimated)
+  ref_grid <- expand.grid(
+    sample = samples,
+    cell_type = cell_types,
+    stringsAsFactors = FALSE
+  )
+  ref_grid$source <- "reference"
+  ref_grid$y <- p_obs[ref_grid$cell_type]
+
+  est_idx <- cbind(
+    match(ref_grid$sample, samples),
+    match(ref_grid$cell_type, cell_types)
+  )
+  est_grid <- ref_grid
+  est_grid$source <- "estimated"
+  est_grid$y <- p_estimated[est_idx]
+
+  model_data <- rbind(ref_grid, est_grid)
+  model_data$source <- factor(
+    model_data$source,
+    levels = c("reference", "estimated")
+  )
+  model_data$cell_type <- factor(model_data$cell_type, levels = cell_types)
+  model_data$sample <- factor(model_data$sample, levels = samples)
+  model_data$cell_type_sample <- interaction(
+    model_data$cell_type,
+    model_data$sample,
+    drop = TRUE
+  )
+
+  fit <- lme4::lmer(
+    y ~ source + (1 | cell_type) + (1 | cell_type_sample),
+    data = model_data,
+    REML = identical(method, "REML"),
+    control = lme4::lmerControl(check.conv.singular = "ignore")
+  )
+
+  variance_components <- .extract_hrrmse_variances(fit)
+  biological_variance <- variance_components["population"] +
+    variance_components["sample"]
+
+  if (!is.finite(biological_variance) || biological_variance <= 0) {
+    stop(
+      "Biological signal variance must be positive to compute hrRMSE.",
+      call. = FALSE
+    )
+  }
+
+  hrrmse <- sqrt(variance_components["residual"] / biological_variance)
+  attr(hrrmse, "variance_components") <- variance_components
+  attr(hrrmse, "method") <- method
+  hrrmse
+}
+
 #' Validate two compositional vectors
 #'
 #' @param p_obs Numeric vector of observed cellular ratios.
@@ -340,4 +480,111 @@ normalise_cell_estimates <- function(x) {
 .calculate_clr <- function(x) {
   log_x <- log(x)
   log_x - mean(log_x)
+}
+
+.prepare_hrrmse_compositions <- function(
+    p_obs,
+    p_estimated,
+    trim_shared_zeros = TRUE
+) {
+  if (!is.numeric(p_obs) || !is.vector(p_obs)) {
+    stop("`p_obs` must be a named numeric vector.", call. = FALSE)
+  }
+  if (is.null(names(p_obs)) || any(names(p_obs) == "")) {
+    stop("`p_obs` must be a named vector.", call. = FALSE)
+  }
+
+  if (is.list(p_estimated) && !is.data.frame(p_estimated)) {
+    sample_names <- names(p_estimated)
+    if (is.null(sample_names) || any(sample_names == "")) {
+      stop(
+        "List `p_estimated` entries must be named by sample.",
+        call. = FALSE
+      )
+    }
+    cell_types <- names(p_obs)
+    p_estimated <- do.call(
+      rbind,
+      lapply(p_estimated, function(sample_comp) {
+        if (!identical(names(sample_comp), cell_types)) {
+          stop(
+            "Each estimated composition must match `p_obs` names.",
+            call. = FALSE
+          )
+        }
+        sample_comp
+      })
+    )
+    rownames(p_estimated) <- sample_names
+  } else if (is.data.frame(p_estimated)) {
+    p_estimated <- as.matrix(p_estimated)
+  } else if (!is.matrix(p_estimated)) {
+    stop(
+      "`p_estimated` must be a matrix, data frame, or named list.",
+      call. = FALSE
+    )
+  }
+
+  if (is.null(colnames(p_estimated)) || any(colnames(p_estimated) == "")) {
+    stop("`p_estimated` columns must be named cell types.", call. = FALSE)
+  }
+  if (!identical(names(p_obs), colnames(p_estimated))) {
+    stop(
+      "`p_obs` names must match `p_estimated` column names in the same order.",
+      call. = FALSE
+    )
+  }
+  if (nrow(p_estimated) < 2L) {
+    stop("`p_estimated` must contain at least two samples.", call. = FALSE)
+  }
+
+  if (trim_shared_zeros) {
+    zero_in_all_estimates <- apply(p_estimated, 2, function(col) {
+      all(col == 0)
+    })
+    keep_idx <- !(p_obs == 0 & zero_in_all_estimates)
+    p_obs <- p_obs[keep_idx]
+    p_estimated <- p_estimated[, keep_idx, drop = FALSE]
+  }
+  if (length(p_obs) < 2L) {
+    stop(
+      "At least two cell types must remain after trimming shared zeros.",
+      call. = FALSE
+    )
+  }
+
+  p_obs <- normalise_cell_estimates(p_obs)
+  p_estimated <- apply(
+    p_estimated,
+    1,
+    normalise_cell_estimates,
+    simplify = FALSE
+  )
+  p_estimated <- do.call(rbind, p_estimated)
+  colnames(p_estimated) <- names(p_obs)
+
+  if (is.null(rownames(p_estimated))) {
+    rownames(p_estimated) <- paste0("sample_", seq_len(nrow(p_estimated)))
+  }
+
+  list(
+    p_obs = p_obs,
+    p_estimated = p_estimated
+  )
+}
+
+.extract_hrrmse_variances <- function(fit) {
+  variance_cor <- lme4::VarCorr(fit)
+  population_var <- attr(variance_cor$cell_type, "stddev")^2
+  sample_var <- attr(variance_cor$cell_type_sample, "stddev")^2
+  residual_var <- stats::sigma(fit)^2
+
+  if (any(!is.finite(c(population_var, sample_var, residual_var)))) {
+    stop("Could not extract finite variance components from the model.", call. = FALSE)
+  }
+
+  stats::setNames(
+    c(population_var, sample_var, residual_var),
+    c("population", "sample", "residual")
+  )
 }

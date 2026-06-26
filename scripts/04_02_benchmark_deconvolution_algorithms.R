@@ -43,7 +43,7 @@ library(ggplot2)
 
 single_cell_ratio_data <- readRDS(file.path(
   "outputs/single-cell",
-  "suppinger_single_cell_ratio_data_2026-06-02.rds"
+  "suppinger_single_cell_ratio_data_2026-06-24.rds"
 ))
 tinytable::tt(
   single_cell_ratio_data,
@@ -99,6 +99,12 @@ single_cell_ratios_wider <- single_cell_ratio_data |>
   ) |>
   dplyr::arrange(timepoints)
 
+tinytable::tt(
+  single_cell_ratios_wider  |> 
+  dplyr::filter(timepoints == "96h"),
+  caption = "Single-cell cytometry distribution data at 96h"
+)
+
 
 deconv_results_wider <- deconv_results |>
   dplyr::filter(
@@ -128,6 +134,13 @@ deconv_results_wider <- deconv_results |>
     )
   ) |>
   dplyr::arrange(time_point, deconvolution_algorithm, sample_id)
+
+
+  tinytable::tt(
+    deconv_results_wider  |> 
+    dplyr::filter(time_point == "96h" & deconvolution_algorithm == "BayesPrism"),
+    caption = "Deconvolution estimates for BayesPrism at 96h"
+  )
 
 
 # ==========================================================================
@@ -171,6 +184,27 @@ benchmark_metrics <- purrr::map_dfr(
     )
   }
 )
+
+benchmark_hrrmse <- deconv_results_wider |>
+  dplyr::group_by(deconvolution_algorithm, time_point) |>
+  dplyr::group_modify(\(df, group_keys) {
+    obs_row <- single_cell_ratios_wider[
+      single_cell_ratios_wider$timepoints == group_keys$time_point,
+      ,
+      drop = FALSE
+    ]
+    p_obs <- .composition_vector(obs_row, shared_cell_types)
+    p_estimated <- as.matrix(df[, shared_cell_types, drop = FALSE])
+    rownames(p_estimated) <- df$sample_id
+    tibble::tibble(hrrmse = eval_hrRMSE(p_obs, p_estimated))
+  }) |>
+  dplyr::ungroup()
+
+benchmark_metrics <- benchmark_metrics |>
+  dplyr::left_join(
+    benchmark_hrrmse,
+    by = c("deconvolution_algorithm", "time_point")
+  )
 
 saveRDS(
   benchmark_metrics,
@@ -348,6 +382,10 @@ ggplot2::ggsave(
 # 4. Radar plots (mean metrics across replicates) ----
 # ==========================================================================
 
+n_cell_types <- length(shared_cell_types)
+mae_upper <- 2 / n_cell_types
+rmse_upper <- sqrt(2 / n_cell_types)
+
 radar_long <- benchmark_metrics |>
   dplyr::group_by(time_point, deconvolution_algorithm) |>
   dplyr::summarise(
@@ -355,6 +393,7 @@ radar_long <- benchmark_metrics |>
       c(pearson, jsd, aitchison, sdid, rmse, mae),
       ~ mean(.x, na.rm = TRUE)
     ),
+    hrrmse = dplyr::first(hrrmse),
     .groups = "drop"
   ) |>
   dplyr::mutate(
@@ -362,8 +401,9 @@ radar_long <- benchmark_metrics |>
     SDID = 1 - sdid,
     Pearson = pmax(0, pearson),
     JSD = 1 - jsd,
-    RMSE = 1 - rmse,
-    MAE = 1 - mae
+    RMSE = pmax(0, 1 - rmse / rmse_upper),
+    MAE = pmax(0, 1 - mae / mae_upper),
+    hrRMSE = pmax(0, 1 - hrrmse)
   ) |>
   dplyr::select(
     time_point,
@@ -373,17 +413,26 @@ radar_long <- benchmark_metrics |>
     Aitchison,
     SDID,
     RMSE,
-    MAE
+    MAE,
+    hrRMSE
   ) |>
   tidyr::pivot_longer(
-    cols = c(Pearson, JSD, Aitchison, SDID, RMSE, MAE),
+    cols = c(Pearson, JSD, Aitchison, SDID, RMSE, MAE, hrRMSE),
     names_to = "metric",
     values_to = "score"
   ) |>
   dplyr::mutate(
     metric = factor(
       metric,
-      levels = c("Pearson", "JSD", "Aitchison", "SDID", "RMSE", "MAE")
+      levels = c(
+        "Pearson",
+        "JSD",
+        "Aitchison",
+        "SDID",
+        "RMSE",
+        "MAE",
+        "hrRMSE"
+      )
     )
   )
 
@@ -468,7 +517,7 @@ ggplot2::ggsave(
 # ==========================================================================
 
 metric_cor <- benchmark_metrics |>
-  dplyr::select(pearson, jsd, aitchison, sdid, rmse, mae) |>
+  dplyr::select(pearson, jsd, aitchison, sdid, rmse, mae, hrrmse) |>
   stats::cor(use = "pairwise.complete.obs")
 
 palette_cor <- grDevices::colorRampPalette(

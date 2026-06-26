@@ -83,30 +83,6 @@ saveRDS(
   )
 )
 
-# merge() keeps shared gene names but drops RNA@meta.features (0 columns on merged
-# object). Recover VST feature metadata from the pre-merge objects instead.
-# feature_info <- dplyr::bind_rows(lapply(
-#   splitted_seurat_objects,
-#   function(obj) {
-#     meta <- obj@assays$RNA@meta.features
-#     data.frame(
-#       gene = rownames(meta),
-#       meta,
-#       timepoint = obj$timepoint[1L],
-#       row.names = NULL
-#     )
-#   }
-# ))
-# feature_info <- feature_info |>
-#   dplyr::filter(.data$gene %in% common_genes)
-
-# tinytable::tt(
-#   feature_info |>
-#     utils::head(),
-#   caption = paste(
-#     "Gene feature information"
-#   )
-# )
 
 # 1.3: Merge SCT objects first, then append 48h so the SCT assay is preserved where available ----
 objs_with_sct <- splitted_seurat_objects[c("h72", "h96", "h120")]
@@ -139,12 +115,8 @@ saveRDS(
   )
 )
 
-dvc add data/intermediate/luque_single_cell_merged_2026-06-07.rds \
-        data/intermediate/luque_single_cell_splitted_2026-06-07.rds
-dvc push
-
 dim(GSE250136_merged)
-summarise_seurat_assays_layers(GSE250136_merged)
+# summarise_seurat_assays_layers(GSE250136_merged)
 
 
 
@@ -182,16 +154,86 @@ tinytable::tt(
 )
 
 
+cells_labels_per_timepoint <- phenotype_data |>
+  dplyr::select(timepoint, seurat_clusters) |>
+  dplyr::distinct()
+
+tinytable::tt(
+  cells_labels_per_timepoint,
+  caption = "Cells labels per time point"
+)
+
+readr::write_csv(
+  cells_labels_per_timepoint,
+  file = "luque_cells_labels_per_timepoint_2026-06-26_temp.csv"
+)
+
 # ==========================================================================
-# 2. Export PCA + UMAP for each time point (one PDF page per time point)
+# 2. Join luque_cluster_annotation onto per-time-point objects
+# ==========================================================================
+
+cluster_mapping <- readr::read_csv(
+  "./data/intermediate/mapping_seurat_villaronga.csv",
+  show_col_types = FALSE
+) |>
+  dplyr::mutate(
+    seurat_clusters = as.character(.data$seurat_clusters)
+  )
+
+.add_luque_cluster_annotation <- function(object, timepoint_label) {
+  meta <- object@meta.data |>
+    tibble::rownames_to_column("cell_id") |>
+    dplyr::mutate(
+      timepoint = timepoint_label,
+      seurat_clusters = as.character(.data$seurat_clusters)
+    ) |>
+    dplyr::inner_join(
+      cluster_mapping,
+      by = c("timepoint", "seurat_clusters")
+    )
+
+  matched_cells <- meta$cell_id
+  object <- subset(object, cells = matched_cells)
+  annotation <- stats::setNames(
+    meta$luque_cluster_annotation,
+    meta$cell_id
+  )
+  object$luque_cluster_annotation <- unname(
+    annotation[colnames(object)]
+  )
+  object
+}
+
+splitted_seurat_objects <- lapply(
+  names(timepoint_labels),
+  function(tp_id) {
+    .add_luque_cluster_annotation(
+      object = splitted_seurat_objects[[tp_id]],
+      timepoint_label = timepoint_labels[[tp_id]]
+    )
+  }
+)
+names(splitted_seurat_objects) <- names(timepoint_labels)
+
+# ==========================================================================
+# 3. Export PCA + UMAP for each time point (one PDF page per time point)
 # ==========================================================================
 
 # merge() drops reductions; author PCA/UMAP live on each per-time-point object.
-# Metadata (seurat_clusters, Sample.barcode, Morphotype) matches GSE250136_merged.
-cluster_ids <- sort(unique(as.character(GSE250136_merged$seurat_clusters)))
-cluster_colours <- stats::setNames(
-  grDevices::hcl.colors(length(cluster_ids), palette = "Zissou1"),
-  cluster_ids
+# Metadata (luque_cluster_annotation, Sample.barcode, Morphotype) matches
+# GSE250136_merged after inner join with cluster_mapping.
+annotation_ids <- sort(unique(unlist(lapply(
+  splitted_seurat_objects,
+  function(obj) as.character(obj$luque_cluster_annotation)
+))))
+annotation_colours <- stats::setNames(
+  grDevices::hcl.colors(length(annotation_ids), palette = "Zissou1"),
+  annotation_ids
+)
+
+morphotype_colours <- stats::setNames(
+  c("neural_bias" = "#E41A1C", "TLS" = "#377EB8"),
+  c("neural_bias", "TLS")
 )
 
 morphotype_shapes <- stats::setNames(
@@ -217,9 +259,18 @@ morphotype_shapes <- stats::setNames(
   coords <- Seurat::Embeddings(object, reduction = reduction)
   plot_df <- cbind(
     as.data.frame(coords),
-    seurat_clusters = .get_meta_column(object, "seurat_clusters"),
+    luque_cluster_annotation = .get_meta_column(
+      object,
+      "luque_cluster_annotation"
+    ),
     shape_group = .get_meta_column(object, shape_by)
   )
+
+  colour_levels <- sort(unique(
+    plot_df$luque_cluster_annotation[!is.na(plot_df$luque_cluster_annotation)]
+  ))
+  colour_values <- annotation_colours[colour_levels]
+  colour_values[is.na(colour_values)] <- "#999999"
 
   shape_levels <- sort(unique(plot_df$shape_group[!is.na(plot_df$shape_group)]))
   if (shape_by == "Morphotype") {
@@ -244,14 +295,14 @@ morphotype_shapes <- stats::setNames(
     ggplot2::aes(
       x = .data[[dim_x]],
       y = .data[[dim_y]],
-      colour = .data$seurat_clusters,
+      colour = .data$luque_cluster_annotation,
       shape = .data$shape_group
     )
   ) +
     ggplot2::geom_point(size = 1.2, alpha = 0.7) +
     ggplot2::scale_colour_manual(
-      values = cluster_colours,
-      name = "Seurat cluster"
+      values = colour_values,
+      name = "Luque cluster"
     ) +
     ggplot2::scale_shape_manual(
       values = shape_values,
@@ -341,7 +392,7 @@ all_timepoints_pages <- gridExtra::marrangeGrob(
   top = NULL
 )
 
-# 2.2: Save the plots ----
+# 3.2: Save the plots ----
 
 plot_prefix <- file.path(
   output_dir,
@@ -352,6 +403,110 @@ ggplot2::ggsave(
   plot = all_timepoints_pages,
   width = 14,
   height = 10,
+  units = "in",
+  dpi = 500
+)
+
+# ==========================================================================
+# 4. 120h UMAP: one page per luque_cluster_annotation
+# ==========================================================================
+
+.make_120h_celltype_umap <- function(object, celltype_label) {
+  coords <- Seurat::Embeddings(object, reduction = "umap")
+  plot_df <- cbind(
+    as.data.frame(coords),
+    luque_cluster_annotation = as.character(object$luque_cluster_annotation),
+    Morphotype = as.character(object$Morphotype),
+    Sample.barcode = as.character(object$Sample.barcode)
+  ) |>
+    tibble::as_tibble() |>
+    dplyr::filter(.data$luque_cluster_annotation == celltype_label)
+
+  morphotype_levels <- sort(unique(plot_df$Morphotype[!is.na(plot_df$Morphotype)]))
+  morphotype_values <- morphotype_colours[morphotype_levels]
+  morphotype_values[is.na(morphotype_values)] <- "#999999"
+
+  barcode_levels <- sort(unique(plot_df$Sample.barcode[!is.na(plot_df$Sample.barcode)]))
+  barcode_shapes <- stats::setNames(
+    rep(0:25, length.out = length(barcode_levels)),
+    barcode_levels
+  )
+
+  dim_x <- colnames(coords)[1L]
+  dim_y <- colnames(coords)[2L]
+
+  ggplot2::ggplot(
+    plot_df,
+    ggplot2::aes(
+      x = .data[[dim_x]],
+      y = .data[[dim_y]],
+      colour = .data$Morphotype,
+      shape = .data$Sample.barcode
+    )
+  ) +
+    ggplot2::geom_point(size = 1.5, alpha = 0.8) +
+    ggplot2::scale_colour_manual(
+      values = morphotype_values,
+      name = "Morphotype",
+      drop = FALSE
+    ) +
+    ggplot2::scale_shape_manual(
+      values = barcode_shapes,
+      name = "Sample.barcode",
+      drop = FALSE
+    ) +
+    ggplot2::labs(
+      title = glue::glue("120h - {celltype_label}"),
+      subtitle = glue::glue("{nrow(plot_df)} cells")
+    ) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(
+      legend.position = "bottom",
+      legend.box = "vertical",
+      legend.text = ggplot2::element_text(size = 12),
+      legend.title = ggplot2::element_text(size = 14, face = "bold"),
+      legend.key.size = grid::unit(1.1, "lines"),
+      plot.title = ggplot2::element_text(hjust = 0.5, face = "bold", size = 16),
+      plot.subtitle = ggplot2::element_text(hjust = 0.5, size = 12)
+    ) +
+    ggplot2::guides(
+      colour = ggplot2::guide_legend(
+        title = "Morphotype",
+        override.aes = list(size = 4)
+      ),
+      shape = ggplot2::guide_legend(
+        title = "Sample.barcode",
+        ncol = 4,
+        override.aes = list(size = 4)
+      )
+    )
+}
+
+h120_object <- splitted_seurat_objects$h120
+celltype_levels <- sort(unique(as.character(h120_object$luque_cluster_annotation)))
+
+celltype_plot_list <- lapply(celltype_levels, function(ct) {
+  p <- .make_120h_celltype_umap(h120_object, ct)
+  ggplot2::ggplotGrob(p)
+})
+names(celltype_plot_list) <- celltype_levels
+
+all_celltype_pages <- gridExtra::marrangeGrob(
+  grobs = celltype_plot_list,
+  nrow = 1,
+  ncol = 1,
+  top = NULL
+)
+
+celltype_pdf <- file.path(
+  output_dir,
+  paste0(study, "_120h_celltype_umap_", today, ".pdf")
+)
+ggplot2::ggsave(
+  filename = celltype_pdf,
+  plot = all_celltype_pages,
+  width = 12,
+  height = 9,
   units = "in",
   dpi = 500
 )

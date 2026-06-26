@@ -14,27 +14,6 @@ source("./R/plotting.R")
 
 library(ggplot2)
 
-# p_obs <- c(
-#   epithelial = 0.1,
-#   mesenchymal = 0.2,
-#   immune = 0.3,
-#   endothelial = 0.5,
-#   stromal = 0
-# )
-# p_estimated <- c(
-#   epithelial = 0.1,
-#   mesenchymal = 0.4,
-#   immune = 0.3,
-#   endothelial = 0.2,
-#   stromal = 0
-# )
-
-# eval_Pearson(p_obs, p_estimated)
-# eval_JSD(p_obs, p_estimated)
-# eval_Aitchison(p_obs, p_estimated)
-# eval_SDID(p_obs, p_estimated)
-# eval_RMSE(p_obs, p_estimated)
-# eval_MAE(p_obs, p_estimated)
 # ==========================================================================
 # 1. Load omic objects----
 # ==========================================================================

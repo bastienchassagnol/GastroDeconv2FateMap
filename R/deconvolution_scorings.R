@@ -573,6 +573,32 @@ normalise_cell_estimates <- function(x) {
   )
 }
 
+#' Extract variance components from an hrRMSE mixed model
+#'
+#' @description
+#' Retrieves the three variance components estimated by
+#' [lme4::lmer()] for the hrRMSE hierarchical model.
+#'
+#' @details
+#' For a fitted model of the form
+#' \deqn{
+#' y_{ijm} = \mu + \beta\, I(m = \text{estimated}) + u_j + v_{ij} + \varepsilon_{ijm},
+#' }
+#' the random-effect standard deviations returned by [lme4::VarCorr()] are
+#' squared to obtain
+#' \deqn{\hat\sigma^2_{\mathrm{population}} = \mathrm{Var}(u_j),}
+#' \deqn{\hat\sigma^2_{\mathrm{sample}} = \mathrm{Var}(v_{ij}),}
+#' from the `(1 | cell_type)` and `(1 | cell_type:sample)` terms,
+#' respectively. The residual variance is
+#' \deqn{\hat\sigma_e^2 = \sigma(\mathrm{fit})^2,}
+#' where `\sigma(\mathrm{fit})` is given by [stats::sigma()].
+#'
+#' @param fit A fitted `lmerMod` object from [lme4::lmer()].
+#'
+#' @return A named numeric vector with elements `population`, `sample`, and
+#'   `residual`.
+#'
+#' @keywords internal
 .extract_hrrmse_variances <- function(fit) {
   variance_cor <- lme4::VarCorr(fit)
   population_var <- attr(variance_cor$cell_type, "stddev")^2

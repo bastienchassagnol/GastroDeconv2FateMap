@@ -1,14 +1,15 @@
 url: https://bastienchassagnol.github.io/GastroDeconv2FateMap/
-
-llm-docs: false
-
 template:
   bootstrap: 5
-
 navbar:
   structure:
-    left: [intro, reference, articles]
-    right: [search, github]
+    left:
+    - intro
+    - reference
+    - articles
+    right:
+    - search
+    - github
   components:
     intro:
       text: Get started
@@ -16,21 +17,21 @@ navbar:
     articles:
       text: Articles
       menu:
-        - text: Pseudo-bulk generation strategies
-          href: articles/pseudo_bulk_generation.html
-        - text: Deconvolution methods
-          href: articles/deconvolution_description.html
-        - text: Suppinger biological interpretation
-          href: articles/suppinger_biological_interpretation.html
+      - text: Pseudo-bulk generation strategies
+        href: articles/pseudo_bulk_generation.html
+      - text: Deconvolution methods
+        href: articles/deconvolution_description.html
+      - text: Suppinger biological interpretation
+        href: articles/suppinger_biological_interpretation.html
     github:
       icon: fab fa-github
       aria-label: GitHub
       href: https://github.com/bastienchassagnol/GastroDeconv2FateMap
-
 articles:
-  - title: Package documentation
-    navbar: ~
-    contents:
-      - pseudo_bulk_generation
-      - deconvolution_description
-      - suppinger_biological_interpretation
+- title: Package documentation
+  navbar: ~
+  contents:
+  - pseudo_bulk_generation
+  - deconvolution_description
+  - suppinger_biological_interpretation
+

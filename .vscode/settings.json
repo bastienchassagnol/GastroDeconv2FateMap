@@ -1,19 +1,42 @@
 {
+  "latex-workshop.latex.tools": [
+    {
+      "name": "latexmk",
+      "command": "/home/bastienc/.TinyTeX/bin/x86_64-linux/latexmk",
+      "args": [
+        "-synctex=1",
+        "-interaction=nonstopmode",
+        "-file-line-error",
+        "-pdf",
+        "-outdir=%OUTDIR%",
+        "%DOC%"
+      ],
+      "env": {
+        "PATH": "/home/bastienc/.TinyTeX/bin/x86_64-linux:/usr/local/bin:/usr/bin:/bin"
+      }
+    }
+  ],
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "latexmk (pdf)",
+      "tools": ["latexmk"]
+    }
+  ],
+  "latex-workshop.latex.recipe.default": "latexmk (pdf)",
   "r.alwaysUseActiveTerminal": true,
   "r.bracketedPaste": true,
   "r.sessionWatcher": true,
   "r.plot.useHttpgd": true,
+  "r.helpPanel.enable": true,
   "r.lsp.diagnostics": false,
-  "r.rterm.linux": "radian",
-  "r.rpath.linux": "R",
+  "r.rterm.linux": "/usr/bin/R",
+  "r.rpath.linux": "/usr/bin/R",
+  "r.debugger.timeouts.startup": 10000,
+  "r.debugger.timeouts.terminate": 2000,
+  "r.debugger.timeouts.prompt": 500,
+  "r.debugger.checkVersion": "recommended",
   "r.rterm.option": [
     "--no-save",
     "--no-restore"
-  ],
-  "terminal.integrated.profiles.linux": {
-    "radian": {
-      "path": "radian"
-    }
-  }
+  ]
 }
-

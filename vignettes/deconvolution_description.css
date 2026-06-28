@@ -1,0 +1,56 @@
+.compact-table {
+  font-size: 0.7rem;
+  line-height: 1.18;
+}
+
+.compact-table table {
+  display: block;
+  overflow-x: auto;
+  width: 100%;
+}
+
+.compact-table :is(th, td) {
+  vertical-align: top;
+}
+
+.metrics-table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+.metrics-table table {
+  table-layout: fixed;
+  width: 100%;
+  min-width: 80rem;
+}
+
+.metrics-table th:nth-child(1),
+.metrics-table td:nth-child(1) {
+  width: 8%;
+  min-width: 8rem;
+}
+
+.metrics-table th:nth-child(2),
+.metrics-table td:nth-child(2) {
+  width: 42%;
+  min-width: 36rem;
+}
+
+.metrics-table th:nth-child(3),
+.metrics-table td:nth-child(3) {
+  width: 18%;
+  min-width: 12rem;
+}
+
+.metrics-table th:nth-child(4),
+.metrics-table td:nth-child(4) {
+  width: 32%;
+  min-width: 16rem;
+}
+
+.metrics-table :is(th, td) {
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}

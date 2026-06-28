@@ -1,6 +1,7 @@
 # History files
 .Rhistory
 .Rapp.history
+temp_commands.R
 
 # Session Data files
 .RData
@@ -53,11 +54,21 @@ rsconnect/
 
 # my folders
 slides/
+
+# logs insctrution
+logs/
+
 # Keep raw data files ignored, but allow DVC pointer files.
-data/raw-data/*
-!data/raw-data/**/*.dvc
+# Note: use /** (not *) so the directory itself is not ignored;
+# git cannot un-ignore files inside an ignored directory.
+data/raw/**
+!data/raw/*.dvc
+!data/raw/.gitignore
+data/intermediate/**
+!data/intermediate/*.dvc
+!data/intermediate/.gitignore
 docs
 **/.quarto/
+.models/
 
-
-dvc remote add -d mmg_cluster ssh://mmg-sb-05:/mnt/DATA_11TB/projects/dtoo_project/GastroDeconv2FateMap
+outputs/gene_regulatory_networks/**

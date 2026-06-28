@@ -5496,10 +5496,58 @@
       "Author": "Jason Cory Brunson [aut, cre], Quentin D. Read [aut]",
       "Repository": "CRAN"
     },
+    "ggmosaic": {
+      "Package": "ggmosaic",
+      "Version": "0.4.0",
+      "Source": "GitHub",
+      "Title": "Mosaic Plots in the 'ggplot2' Framework",
+      "Authors@R": "c(person(given = \"Haley\", family = \"Jeppson\", role = c(\"aut\", \"cre\"), email = \"hjeppson@iastate.edu\", comment = c(ORCID = \"0000-0003-2524-4063\")), person(given = \"Heike\", family = \"Hofmann\", role = \"aut\", email = \"hofmann@iastate.edu\", comment = c(ORCID = \"0000-0001-6216-5183\")), person(given = \"Di\", family = \"Cook\", role = \"aut\", email = \"dicook@monash.edu\", comment= c(ORCID = \"0000-0002-3813-7155\")), person(given = \"Hadley\", family = \"Wickham\", role = \"ctb\", email = \"hadley@posit.co\", comment = c(ORCID=\"0000-0003-4757-117X\")))",
+      "Description": "Mosaic plots in the 'ggplot2' framework. Mosaic plot functionality is provided in a single 'ggplot2' layer by calling the geom 'mosaic'.",
+      "License": "GPL (>= 2)",
+      "URL": "https://haleyjeppson.github.io/ggmosaic/, https://github.com/haleyjeppson/ggmosaic",
+      "BugReports": "https://github.com/haleyjeppson/ggmosaic",
+      "Depends": [
+        "ggplot2 (>= 4.0.0)",
+        "R (>= 3.5.0)"
+      ],
+      "Imports": [
+        "productplots",
+        "dplyr (>= 1.1.4)",
+        "plotly (>= 4.9.3)",
+        "purrr",
+        "rlang",
+        "tidyr",
+        "ggrepel",
+        "scales",
+        "withr (>= 2.5.0)"
+      ],
+      "Suggests": [
+        "gridExtra",
+        "knitr",
+        "NHANES",
+        "rmarkdown",
+        "shiny (>= 1.1.0)",
+        "patchwork"
+      ],
+      "VignetteBuilder": "knitr",
+      "Encoding": "UTF-8",
+      "LazyData": "true",
+      "Roxygen": "list(markdown = TRUE, roclets=c('rd', 'collate', 'namespace'))",
+      "RoxygenNote": "7.3.3",
+      "Author": "Haley Jeppson [aut, cre] (ORCID: <https://orcid.org/0000-0003-2524-4063>), Heike Hofmann [aut] (ORCID: <https://orcid.org/0000-0001-6216-5183>), Di Cook [aut] (ORCID: <https://orcid.org/0000-0002-3813-7155>), Hadley Wickham [ctb] (ORCID: <https://orcid.org/0000-0003-4757-117X>)",
+      "Maintainer": "Haley Jeppson <hjeppson@iastate.edu>",
+      "RemoteType": "github",
+      "Remotes": "tidyverse/ggplot2",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "haleyjeppson",
+      "RemoteRepo": "ggmosaic",
+      "RemoteRef": "master",
+      "RemoteSha": "929d25c0b452407ec474a339c0dd570be0391f8d"
+    },
     "ggplot2": {
       "Package": "ggplot2",
-      "Version": "4.0.3",
-      "Source": "Repository",
+      "Version": "4.0.3.9000",
+      "Source": "GitHub",
       "Title": "Create Elegant Data Visualisations Using the Grammar of Graphics",
       "Authors@R": "c( person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = \"aut\", comment = c(ORCID = \"0000-0003-4757-117X\")), person(\"Winston\", \"Chang\", role = \"aut\", comment = c(ORCID = \"0000-0002-1576-2126\")), person(\"Lionel\", \"Henry\", role = \"aut\"), person(\"Thomas Lin\", \"Pedersen\", , \"thomas.pedersen@posit.co\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-5147-4711\")), person(\"Kohske\", \"Takahashi\", role = \"aut\"), person(\"Claus\", \"Wilke\", role = \"aut\", comment = c(ORCID = \"0000-0002-7470-9261\")), person(\"Kara\", \"Woo\", role = \"aut\", comment = c(ORCID = \"0000-0002-5125-4188\")), person(\"Hiroaki\", \"Yutani\", role = \"aut\", comment = c(ORCID = \"0000-0002-3385-7233\")), person(\"Dewey\", \"Dunnington\", role = \"aut\", comment = c(ORCID = \"0000-0002-9415-4582\")), person(\"Teun\", \"van den Brand\", role = \"aut\", comment = c(ORCID = \"0000-0002-9335-7468\")), person(\"Posit, PBC\", role = c(\"cph\", \"fnd\"), comment = c(ROR = \"03wc8by49\")) )",
       "Description": "A system for 'declaratively' creating graphics, based on \"The Grammar of Graphics\". You provide the data, tell 'ggplot2' how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details.",
@@ -5548,7 +5596,7 @@
         "rpart",
         "sf (>= 0.7-3)",
         "svglite (>= 2.1.2)",
-        "testthat (>= 3.1.5)",
+        "testthat (>= 3.3.0)",
         "tibble",
         "vdiffr (>= 1.0.6)",
         "xml2"
@@ -5562,12 +5610,17 @@
       "Config/usethis/last-upkeep": "2025-04-23",
       "Encoding": "UTF-8",
       "LazyData": "true",
+      "Roxygen": "list(markdown = TRUE)",
       "RoxygenNote": "7.3.3",
-      "Collate": "'ggproto.R' 'ggplot-global.R' 'aaa-.R' 'aes-colour-fill-alpha.R' 'aes-evaluation.R' 'aes-group-order.R' 'aes-linetype-size-shape.R' 'aes-position.R' 'all-classes.R' 'compat-plyr.R' 'utilities.R' 'aes.R' 'annotation-borders.R' 'utilities-checks.R' 'legend-draw.R' 'geom-.R' 'annotation-custom.R' 'annotation-logticks.R' 'scale-type.R' 'layer.R' 'make-constructor.R' 'geom-polygon.R' 'geom-map.R' 'annotation-map.R' 'geom-raster.R' 'annotation-raster.R' 'annotation.R' 'autolayer.R' 'autoplot.R' 'axis-secondary.R' 'backports.R' 'bench.R' 'bin.R' 'coord-.R' 'coord-cartesian-.R' 'coord-fixed.R' 'coord-flip.R' 'coord-map.R' 'coord-munch.R' 'coord-polar.R' 'coord-quickmap.R' 'coord-radial.R' 'coord-sf.R' 'coord-transform.R' 'data.R' 'docs_layer.R' 'facet-.R' 'facet-grid-.R' 'facet-null.R' 'facet-wrap.R' 'fortify-map.R' 'fortify-models.R' 'fortify-spatial.R' 'fortify.R' 'stat-.R' 'geom-abline.R' 'geom-rect.R' 'geom-bar.R' 'geom-tile.R' 'geom-bin2d.R' 'geom-blank.R' 'geom-boxplot.R' 'geom-col.R' 'geom-path.R' 'geom-contour.R' 'geom-point.R' 'geom-count.R' 'geom-crossbar.R' 'geom-segment.R' 'geom-curve.R' 'geom-defaults.R' 'geom-ribbon.R' 'geom-density.R' 'geom-density2d.R' 'geom-dotplot.R' 'geom-errorbar.R' 'geom-freqpoly.R' 'geom-function.R' 'geom-hex.R' 'geom-histogram.R' 'geom-hline.R' 'geom-jitter.R' 'geom-label.R' 'geom-linerange.R' 'geom-pointrange.R' 'geom-quantile.R' 'geom-rug.R' 'geom-sf.R' 'geom-smooth.R' 'geom-spoke.R' 'geom-text.R' 'geom-violin.R' 'geom-vline.R' 'ggplot2-package.R' 'grob-absolute.R' 'grob-dotstack.R' 'grob-null.R' 'grouping.R' 'properties.R' 'margins.R' 'theme-elements.R' 'guide-.R' 'guide-axis.R' 'guide-axis-logticks.R' 'guide-axis-stack.R' 'guide-axis-theta.R' 'guide-legend.R' 'guide-bins.R' 'guide-colorbar.R' 'guide-colorsteps.R' 'guide-custom.R' 'guide-none.R' 'guide-old.R' 'guides-.R' 'guides-grid.R' 'hexbin.R' 'import-standalone-obj-type.R' 'import-standalone-types-check.R' 'labeller.R' 'labels.R' 'layer-sf.R' 'layout.R' 'limits.R' 'performance.R' 'plot-build.R' 'plot-construction.R' 'plot-last.R' 'plot.R' 'position-.R' 'position-collide.R' 'position-dodge.R' 'position-dodge2.R' 'position-identity.R' 'position-jitter.R' 'position-jitterdodge.R' 'position-nudge.R' 'position-stack.R' 'quick-plot.R' 'reshape-add-margins.R' 'save.R' 'scale-.R' 'scale-alpha.R' 'scale-binned.R' 'scale-brewer.R' 'scale-colour.R' 'scale-continuous.R' 'scale-date.R' 'scale-discrete-.R' 'scale-expansion.R' 'scale-gradient.R' 'scale-grey.R' 'scale-hue.R' 'scale-identity.R' 'scale-linetype.R' 'scale-linewidth.R' 'scale-manual.R' 'scale-shape.R' 'scale-size.R' 'scale-steps.R' 'scale-view.R' 'scale-viridis.R' 'scales-.R' 'stat-align.R' 'stat-bin.R' 'stat-summary-2d.R' 'stat-bin2d.R' 'stat-bindot.R' 'stat-binhex.R' 'stat-boxplot.R' 'stat-connect.R' 'stat-contour.R' 'stat-count.R' 'stat-density-2d.R' 'stat-density.R' 'stat-ecdf.R' 'stat-ellipse.R' 'stat-function.R' 'stat-identity.R' 'stat-manual.R' 'stat-qq-line.R' 'stat-qq.R' 'stat-quantilemethods.R' 'stat-sf-coordinates.R' 'stat-sf.R' 'stat-smooth-methods.R' 'stat-smooth.R' 'stat-sum.R' 'stat-summary-bin.R' 'stat-summary-hex.R' 'stat-summary.R' 'stat-unique.R' 'stat-ydensity.R' 'summarise-plot.R' 'summary.R' 'theme.R' 'theme-defaults.R' 'theme-current.R' 'theme-sub.R' 'utilities-break.R' 'utilities-grid.R' 'utilities-help.R' 'utilities-patterns.R' 'utilities-resolution.R' 'utilities-tidy-eval.R' 'zxx.R' 'zzz.R'",
-      "NeedsCompilation": "no",
+      "Collate": "'aes-delayed-eval.R' 'aes-variants.R' 'ggplot-global.R' 'ggproto.R' 'all-classes.R' 'compat-plyr.R' 'utilities.R' 'aes.R' 'annotate.R' 'annotation-borders.R' 'utilities-checks.R' 'legend-draw.R' 'geom-.R' 'annotation-custom.R' 'annotation-logticks.R' 'scale-type.R' 'layer.R' 'make-constructor.R' 'geom-polygon.R' 'geom-map.R' 'annotation-map.R' 'geom-raster.R' 'annotation-raster.R' 'autolayer.R' 'autoplot.R' 'axis-secondary.R' 'backports.R' 'bench.R' 'bin.R' 'coord-.R' 'coord-cartesian-.R' 'coord-fixed.R' 'coord-flip.R' 'coord-map.R' 'coord-munch.R' 'coord-polar.R' 'coord-quickmap.R' 'coord-radial.R' 'coord-sf.R' 'coord-transform.R' 'data.R' 'docs-aes.R' 'docs-layer.R' 'facet-.R' 'facet-grid-.R' 'facet-labeller.R' 'facet-null.R' 'facet-wrap.R' 'fortify-map.R' 'fortify-models.R' 'fortify-spatial.R' 'fortify.R' 'stat-.R' 'geom-abline-hline-vline.R' 'geom-rect.R' 'geom-bar.R' 'geom-tile.R' 'geom-bin2d.R' 'geom-blank.R' 'geom-boxplot.R' 'geom-path.R' 'geom-contour.R' 'geom-point.R' 'geom-count.R' 'geom-crossbar.R' 'geom-segment.R' 'geom-curve.R' 'geom-ribbon.R' 'geom-density.R' 'geom-density2d.R' 'geom-dotplot.R' 'geom-errorbar.R' 'geom-freqpoly.R' 'geom-function.R' 'geom-hex.R' 'geom-histogram.R' 'geom-jitter.R' 'geom-label.R' 'geom-linerange.R' 'geom-pointrange.R' 'geom-quantile.R' 'geom-rug.R' 'geom-sf.R' 'geom-smooth.R' 'geom-spoke.R' 'geom-text.R' 'geom-update-defaults.R' 'geom-violin.R' 'ggplot2-package.R' 'grob-absolute.R' 'grob-dotstack.R' 'grouping.R' 'properties.R' 'margins.R' 'theme-elements.R' 'guide-.R' 'guide-axis.R' 'guide-axis-logticks.R' 'guide-axis-stack.R' 'guide-axis-theta.R' 'guide-legend.R' 'guide-bins.R' 'guide-colorbar.R' 'guide-colorsteps.R' 'guide-custom.R' 'guide-none.R' 'guide-old.R' 'guides-.R' 'guides-grid.R' 'hexbin.R' 'import-standalone-obj-type.R' 'import-standalone-types-check.R' 'labels.R' 'layer-sf.R' 'layout.R' 'limits.R' 'plot-build.R' 'plot-construction.R' 'plot-last.R' 'plot-render.R' 'plot.R' 'position-.R' 'position-collide.R' 'position-dodge.R' 'position-dodge2.R' 'position-identity.R' 'position-jitter.R' 'position-jitterdodge.R' 'position-nudge.R' 'position-stack.R' 'quick-plot.R' 'reshape-add-margins.R' 'save.R' 'scale-.R' 'scale-alpha.R' 'scale-binned.R' 'scale-brewer.R' 'scale-colour.R' 'scale-continuous.R' 'scale-date.R' 'scale-discrete-.R' 'scale-expansion.R' 'scale-gradient.R' 'scale-grey.R' 'scale-hue.R' 'scale-identity.R' 'scale-linetype.R' 'scale-linewidth.R' 'scale-manual.R' 'scale-shape.R' 'scale-size.R' 'scale-steps.R' 'scale-view.R' 'scale-viridis.R' 'scales-.R' 'stat-align.R' 'stat-bin.R' 'stat-summary-2d.R' 'stat-bin2d.R' 'stat-bindot.R' 'stat-binhex.R' 'stat-boxplot.R' 'stat-connect.R' 'stat-contour.R' 'stat-count.R' 'stat-density-2d.R' 'stat-density.R' 'stat-ecdf.R' 'stat-ellipse.R' 'stat-function.R' 'stat-identity.R' 'stat-manual.R' 'stat-qq-line.R' 'stat-qq.R' 'stat-quantilemethods.R' 'stat-sf-coordinates.R' 'stat-sf.R' 'stat-smooth-methods.R' 'stat-smooth.R' 'stat-sum.R' 'stat-summary-bin.R' 'stat-summary-hex.R' 'stat-summary.R' 'stat-unique.R' 'stat-ydensity.R' 'summarise-plot.R' 'summary.R' 'theme.R' 'theme-defaults.R' 'theme-current.R' 'theme-sub.R' 'utilities-break.R' 'utilities-grid.R' 'utilities-help.R' 'utilities-lifecycle.R' 'utilities-patterns.R' 'utilities-performance.R' 'utilities-resolution.R' 'utilities-tidy-eval.R' 'zxx.R' 'zzz.R'",
       "Author": "Hadley Wickham [aut] (ORCID: <https://orcid.org/0000-0003-4757-117X>), Winston Chang [aut] (ORCID: <https://orcid.org/0000-0002-1576-2126>), Lionel Henry [aut], Thomas Lin Pedersen [aut, cre] (ORCID: <https://orcid.org/0000-0002-5147-4711>), Kohske Takahashi [aut], Claus Wilke [aut] (ORCID: <https://orcid.org/0000-0002-7470-9261>), Kara Woo [aut] (ORCID: <https://orcid.org/0000-0002-5125-4188>), Hiroaki Yutani [aut] (ORCID: <https://orcid.org/0000-0002-3385-7233>), Dewey Dunnington [aut] (ORCID: <https://orcid.org/0000-0002-9415-4582>), Teun van den Brand [aut] (ORCID: <https://orcid.org/0000-0002-9335-7468>), Posit, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>)",
       "Maintainer": "Thomas Lin Pedersen <thomas.pedersen@posit.co>",
-      "Repository": "CRAN"
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "tidyverse",
+      "RemoteRepo": "ggplot2",
+      "RemoteRef": "main",
+      "RemoteSha": "6870419aa6e106c3580c45c81d5b688cb31758bd"
     },
     "ggpubr": {
       "Package": "ggpubr",
@@ -8393,6 +8446,33 @@
       "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
       "Repository": "RSPM"
     },
+    "productplots": {
+      "Package": "productplots",
+      "Version": "0.1.2",
+      "Source": "Repository",
+      "Title": "Product Plots for R",
+      "Description": "Framework for visualising tables of counts, proportions and probabilities. The framework is called product plots, alluding to the computation of area as a product of height and width, and the statistical concept of generating a joint distribution from the product of conditional and marginal distributions. The framework, with extensions, is sufficient to encompass over 20 visualisations previously described in fields of statistical graphics and 'infovis', including bar charts, mosaic plots, 'treemaps', equal area plots and fluctuation diagrams.",
+      "Authors@R": "c( person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", c(\"aut\", \"cre\")), person(\"Heike\", \"Hofmann\", , \"heike.hofmann@gmail.com\", role = \"aut\") )",
+      "Imports": [
+        "plyr",
+        "ggplot2"
+      ],
+      "Suggests": [
+        "reshape2",
+        "testthat",
+        "covr"
+      ],
+      "License": "GPL-2",
+      "LazyData": "true",
+      "RoxygenNote": "7.3.3",
+      "Encoding": "UTF-8",
+      "URL": "https://github.com/hadley/productplots",
+      "BugReports": "https://github.com/hadley/productplots/issues",
+      "NeedsCompilation": "no",
+      "Author": "Hadley Wickham [aut, cre], Heike Hofmann [aut]",
+      "Maintainer": "Hadley Wickham <hadley@posit.co>",
+      "Repository": "CRAN"
+    },
     "profvis": {
       "Package": "profvis",
       "Version": "0.4.0",
@@ -11005,7 +11085,7 @@
     },
     "tinytex": {
       "Package": "tinytex",
-      "Version": "0.59",
+      "Version": "0.60",
       "Source": "Repository",
       "Type": "Package",
       "Title": "Helper Functions to Install and Maintain TeX Live, and Compile LaTeX Documents",
@@ -11418,42 +11498,6 @@
       "Maintainer": "Jennifer Bryan <jenny@posit.co>",
       "Repository": "CRAN"
     },
-    "vscDebugger": {
-      "Package": "vscDebugger",
-      "Version": "0.5.6",
-      "Source": "GitHub",
-      "Title": "Support for Visual Studio Code Debugger",
-      "Authors@R": "c( person( given = \"Manuel\", family = \"Hentschel\", role = c(\"aut\", \"cre\"), email = \"Manuel.Hentschel@outlook.com\" ), person( given = \"Kun\", family = \"Ren\", role = \"ctb\", email = \"mail@renkun.me\" ), person( given = \"Denes\",  family = \"Toth\",  role = \"ctb\", email = \"toth.denes@kogentum.hu\",  comment = c(ORCID = \"0000-0003-4262-3217\") ))",
-      "Description": "Provides support for a visual studio code debugger",
-      "License": "MIT",
-      "URL": "https://ManuelHentschel.github.io/vscDebugger/, https://github.com/ManuelHentschel/vscDebugger",
-      "BugReports": "https://github.com/ManuelHentschel/vscDebugger/issues",
-      "Imports": [
-        "jsonlite",
-        "R6",
-        "tcltk"
-      ],
-      "Suggests": [
-        "pkgload",
-        "knitr",
-        "rmarkdown",
-        "markdown"
-      ],
-      "Encoding": "UTF-8",
-      "LazyData": "true",
-      "NeedsCompilation": "yes",
-      "Roxygen": "list(markdown = TRUE)",
-      "RoxygenNote": "7.3.2",
-      "VignetteBuilder": "knitr",
-      "Author": "Manuel Hentschel [aut, cre], Kun Ren [ctb], Denes Toth [ctb] (ORCID: <https://orcid.org/0000-0003-4262-3217>)",
-      "Maintainer": "Manuel Hentschel <Manuel.Hentschel@outlook.com>",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteUsername": "ManuelHentschel",
-      "RemoteRepo": "vscDebugger",
-      "RemoteRef": "v0.5.6",
-      "RemoteSha": "a81598d153b194b6e2d85d0b86da450b12949a3b"
-    },
     "waldo": {
       "Package": "waldo",
       "Version": "0.6.2",
@@ -11513,7 +11557,7 @@
     },
     "withr": {
       "Package": "withr",
-      "Version": "3.0.2",
+      "Version": "3.0.3",
       "Source": "Repository",
       "Title": "Run Code 'With' Temporarily Modified Global State",
       "Authors@R": "c( person(\"Jim\", \"Hester\", role = \"aut\"), person(\"Lionel\", \"Henry\", , \"lionel@posit.co\", role = c(\"aut\", \"cre\")), person(\"Kirill\", \"Müller\", , \"krlmlr+r@mailbox.org\", role = \"aut\"), person(\"Kevin\", \"Ushey\", , \"kevinushey@gmail.com\", role = \"aut\"), person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = \"aut\"), person(\"Winston\", \"Chang\", role = \"aut\"), person(\"Jennifer\", \"Bryan\", role = \"ctb\"), person(\"Richard\", \"Cotton\", role = \"ctb\"), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\")) )",
@@ -11547,11 +11591,11 @@
       "NeedsCompilation": "no",
       "Author": "Jim Hester [aut], Lionel Henry [aut, cre], Kirill Müller [aut], Kevin Ushey [aut], Hadley Wickham [aut], Winston Chang [aut], Jennifer Bryan [ctb], Richard Cotton [ctb], Posit Software, PBC [cph, fnd]",
       "Maintainer": "Lionel Henry <lionel@posit.co>",
-      "Repository": "RSPM"
+      "Repository": "CRAN"
     },
     "xfun": {
       "Package": "xfun",
-      "Version": "0.58",
+      "Version": "0.59",
       "Source": "Repository",
       "Type": "Package",
       "Title": "Supporting Functions for Packages Maintained by 'Yihui Xie'",
@@ -11595,7 +11639,7 @@
       "NeedsCompilation": "yes",
       "Author": "Yihui Xie [aut, cre, cph] (ORCID: <https://orcid.org/0000-0003-0645-5666>, URL: https://yihui.org), Wush Wu [ctb], Daijiang Li [ctb], Xianying Tan [ctb], Salim Brüggemann [ctb] (ORCID: <https://orcid.org/0000-0002-5329-5987>), Christophe Dervieux [ctb]",
       "Maintainer": "Yihui Xie <xie@yihui.name>",
-      "Repository": "RSPM"
+      "Repository": "CRAN"
     },
     "xml2": {
       "Package": "xml2",

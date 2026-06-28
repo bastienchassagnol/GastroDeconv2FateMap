@@ -1,7 +1,9 @@
 {
   "bioconductor.version": "3.23",
   "external.libraries": [],
-  "ignored.packages": [],
+  "ignored.packages": [
+    "vscDebugger"
+  ],
   "package.dependency.fields": [
     "Imports",
     "Depends",

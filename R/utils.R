@@ -38,6 +38,7 @@
 #'   \link[SeuratObject]{DefaultLayer}
 #'
 #' @keywords internal
+#' @importFrom glue glue
 summarise_seurat_assays_layers <- function(seurat_obj) {
   # ======================================================================
   # Shared setup ----
@@ -45,12 +46,10 @@ summarise_seurat_assays_layers <- function(seurat_obj) {
   assay_nms <- names(methods::slot(seurat_obj, "assays"))
   def_assay <- SeuratObject::DefaultAssay(seurat_obj)
   cat(
-    "Seurat object: ",
-    length(assay_nms),
-    " assay(s); DefaultAssay = \"",
-    def_assay,
-    "\"\n",
-    sep = ""
+    glue::glue(
+      "Seurat object: {length(assay_nms)} assay(s); ",
+      "DefaultAssay = \"{def_assay}\"\n"
+    )
   )
 
   # ======================================================================

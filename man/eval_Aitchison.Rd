@@ -13,15 +13,24 @@ eval_Aitchison(p_obs, p_estimated, min_ratio = 1e-09, trim_shared_zeros = TRUE)
 
 \item{min_ratio}{Numeric pseudo-count replacing ratios below this value
 before the centred log-ratio transform. Aitchison distance is undefined for
-zero components.
+zero components.}
 
+\item{trim_shared_zeros}{Logical; if \code{TRUE}, entries where both vectors are
+exactly zero are removed before normalisation (e.g. jointly missing cell
+types).}
+}
+\value{
+A numeric scalar score.
+}
+\description{
 For a composition \eqn{p}, the centred log-ratio transform is:
 \deqn{
 \mathrm{clr}(p)_j =
 \log(p_{j}) -
 \frac{1}{J}\sum_{k = 1}^{J}\log(p_{k}).
 }
-
+}
+\details{
 The Aitchison distance is the Euclidean distance between the two centred
 log-ratio vectors:
 \deqn{
@@ -33,15 +42,5 @@ d_A(p^{obs}, \hat{p}) =
     \mathrm{clr}(\hat{p})_j
   \right]^2
 }.
-}}
-
-\item{trim_shared_zeros}{Logical; if \code{TRUE}, entries where both vectors are
-exactly zero are removed before normalisation (e.g. jointly missing cell
-types).}
 }
-\value{
-A numeric scalar score.
-}
-\description{
-Aitchison distance between two compositional vectors
 }

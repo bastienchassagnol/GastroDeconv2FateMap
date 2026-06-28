@@ -1,0 +1,69 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "R: load_all",
+      "type": "shell",
+      "command": "${config:r.rpath.linux}",
+      "args": ["-q", "-e", "devtools::load_all()"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "R: document",
+      "type": "shell",
+      "command": "${config:r.rpath.linux}",
+      "args": ["-q", "-e", "devtools::document()"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "R: test",
+      "type": "shell",
+      "command": "${config:r.rpath.linux}",
+      "args": ["-q", "-e", "devtools::test()"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "R: check",
+      "type": "shell",
+      "command": "${config:r.rpath.linux}",
+      "args": ["-q", "-e", "devtools::check()"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    }
+  ]
+}

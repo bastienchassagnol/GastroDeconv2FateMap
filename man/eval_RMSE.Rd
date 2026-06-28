@@ -6,9 +6,26 @@
 \usage{
 eval_RMSE(p_obs, p_estimated, trim_shared_zeros = TRUE)
 }
+\arguments{
+\item{p_obs}{Numeric vector of observed cellular ratios.}
+
+\item{p_estimated}{Numeric vector of estimated cellular ratios.}
+
+\item{trim_shared_zeros}{Logical; if \code{TRUE}, entries where both vectors are
+exactly zero are removed before normalisation (e.g. jointly missing cell
+types).}
+}
 \value{
 A numeric scalar score.
 }
 \description{
-Root mean squared error for cellular proportion vectors
+The root mean squared error is:
+\deqn{
+\mathrm{RMSE} =
+\sqrt{
+  \frac{1}{J}
+  \sum_{j = 1}^{J}
+  \left(p^{obs}_{j} - \hat{p}_{j}\right)^2
+}.
+}
 }

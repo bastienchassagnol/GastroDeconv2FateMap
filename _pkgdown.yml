@@ -20,8 +20,11 @@ navbar:
           href: articles/pseudo_bulk_generation.html
         - text: Deconvolution methods
           href: articles/deconvolution_description.html
+        - text: Suppinger biological interpretation
+          href: articles/suppinger_biological_interpretation.html
     github:
       icon: fab fa-github
+      aria-label: GitHub
       href: https://github.com/bastienchassagnol/GastroDeconv2FateMap
 
 articles:
@@ -30,3 +33,4 @@ articles:
     contents:
       - pseudo_bulk_generation
       - deconvolution_description
+      - suppinger_biological_interpretation

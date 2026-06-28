@@ -9,6 +9,7 @@
 #'
 #' @return `TRUE` if the patch was applied, `FALSE` otherwise (invisible).
 #' @keywords internal
+#' @note Requires the **vscDebugger** package (see `Suggests`).
 patch_vscdebugger_promises_r46 <- function() {
   if (getRversion() < "4.6.0") {
     return(invisible(FALSE))

@@ -38,8 +38,6 @@ eval_Pearson <- function(p_obs, p_estimated, trim_shared_zeros = TRUE) {
 
 #' Square-root sine distance between two compositional vectors
 #'
-#' @inheritParams .validate_compositions
-#'
 #' This metric first computes the cosine similarity between `p_obs` and
 #' `p_estimated`:
 #' \deqn{
@@ -65,6 +63,7 @@ eval_Pearson <- function(p_obs, p_estimated, trim_shared_zeros = TRUE) {
 #' This keeps the positive distance scale rather than changing the sign as in
 #' the MPRA formulation.
 #'
+#' @inheritParams .validate_compositions
 #' @return A numeric scalar score.
 #' @references \url{https://mpra.ub.uni-muenchen.de/84387/}
 #' @export
@@ -91,11 +90,6 @@ eval_SDID <- function(p_obs, p_estimated, trim_shared_zeros = TRUE) {
 
 #' Aitchison distance between two compositional vectors
 #'
-#' @inheritParams .validate_compositions
-#' @param min_ratio Numeric pseudo-count replacing ratios below this value
-#'   before the centred log-ratio transform. Aitchison distance is undefined for
-#'   zero components.
-#'
 #' For a composition \eqn{p}, the centred log-ratio transform is:
 #' \deqn{
 #' \mathrm{clr}(p)_j =
@@ -116,6 +110,10 @@ eval_SDID <- function(p_obs, p_estimated, trim_shared_zeros = TRUE) {
 #' }.
 #' }
 #'
+#' @inheritParams .validate_compositions
+#' @param min_ratio Numeric pseudo-count replacing ratios below this value
+#'   before the centred log-ratio transform. Aitchison distance is undefined for
+#'   zero components.
 #' @return A numeric scalar score.
 #' @export
 eval_Aitchison <- function(
@@ -143,9 +141,6 @@ eval_Aitchison <- function(
 
 #' Jensen-Shannon divergence between two compositional vectors
 #'
-#' @inheritParams .validate_compositions
-#' @inheritParams eval_Aitchison
-#'
 #' Define the mixture composition:
 #' \deqn{
 #' m_{j} = \frac{1}{2}(p^{obs}_{j} + \hat{p}_{j}).
@@ -165,6 +160,10 @@ eval_Aitchison <- function(
 #' \log\left(\frac{\hat{p}_{j}}{m_{j}}\right).
 #' }
 #'
+#' @inheritParams .validate_compositions
+#' @param min_ratio Numeric pseudo-count replacing ratios below this value
+#'   before computing logarithms. Jensen-Shannon divergence is undefined for
+#'   zero components.
 #' @return A numeric scalar score.
 #' @export
 eval_JSD <- function(
@@ -192,8 +191,6 @@ eval_JSD <- function(
 
 #' Root mean squared error for cellular proportion vectors
 #'
-#' @inheritParams .validate_compositions
-#'
 #' The root mean squared error is:
 #' \deqn{
 #' \mathrm{RMSE} =
@@ -204,6 +201,7 @@ eval_JSD <- function(
 #' }.
 #' }
 #'
+#' @inheritParams .validate_compositions
 #' @return A numeric scalar score.
 #' @export
 eval_RMSE <- function(p_obs, p_estimated, trim_shared_zeros = TRUE) {
@@ -219,8 +217,6 @@ eval_RMSE <- function(p_obs, p_estimated, trim_shared_zeros = TRUE) {
 
 #' Mean absolute error for cellular proportion vectors
 #'
-#' @inheritParams .validate_compositions
-#'
 #' The mean absolute error is:
 #' \deqn{
 #' \mathrm{MAE} =
@@ -229,6 +225,7 @@ eval_RMSE <- function(p_obs, p_estimated, trim_shared_zeros = TRUE) {
 #' \left|p^{obs}_{j} - \hat{p}_{j}\right|.
 #' }
 #'
+#' @inheritParams .validate_compositions
 #' @return A numeric scalar score.
 #' @export
 eval_MAE <- function(p_obs, p_estimated, trim_shared_zeros = TRUE) {

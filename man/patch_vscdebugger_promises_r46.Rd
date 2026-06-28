@@ -18,4 +18,7 @@ variables pane (often on an unrelated line such as \code{stats::cor()}).
 Until vscDebugger is rebuilt for R 4.6, replace \code{isPromise()} with a safe
 R implementation that skips the broken \code{.Call(c_is_promise, ...)}.
 }
+\note{
+Requires the \strong{vscDebugger} package (see \code{Suggests}).
+}
 \keyword{internal}

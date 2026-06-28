@@ -7,6 +7,9 @@
 #'
 #' @return A **ggplot2** `theme` object.
 #'
+#' @importFrom grid unit
+#' @importFrom ggplot2 element_line element_rect element_text margin theme
+#'   theme_minimal
 #' @references
 #' \url{https://github.com/theislab/atlas-feature-selection-benchmark/blob/b89fc0f66747062e6e1b4b35bd392b27ad035295/analysis/R/plotting.R}
 #' @export

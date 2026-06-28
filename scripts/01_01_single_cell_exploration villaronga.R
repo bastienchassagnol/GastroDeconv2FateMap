@@ -115,10 +115,12 @@ saveRDS(
   )
 )
 
+GSE250136_merged <- readRDS(
+  file = "./data/intermediate/luque_single_cell_merged_2026-06-07.rds"
+)
+
 dim(GSE250136_merged)
 # summarise_seurat_assays_layers(GSE250136_merged)
-
-
 
 phenotype_data <- GSE250136_merged@meta.data
 tinytable::tt(
@@ -144,29 +146,7 @@ tinytable::tt(
   caption = "Number of morphotype annotations per time point"
 )
 
-tinytable::tt(
-  phenotype_data |>
-    dplyr::group_by(.data$timepoint, .data$Morphotype, .data$Sample.barcode) |>
-    dplyr::summarise(n_cells = dplyr::n(), .groups = "drop") |>
-    dplyr::arrange(.data$timepoint, .data$Sample.barcode, .data$Morphotype)  |> 
-    tidyr::drop_na(),
-  caption = "Number of morphotype annotations per time point and sample barcode"
-)
 
-
-cells_labels_per_timepoint <- phenotype_data |>
-  dplyr::select(timepoint, seurat_clusters) |>
-  dplyr::distinct()
-
-tinytable::tt(
-  cells_labels_per_timepoint,
-  caption = "Cells labels per time point"
-)
-
-readr::write_csv(
-  cells_labels_per_timepoint,
-  file = "luque_cells_labels_per_timepoint_2026-06-26_temp.csv"
-)
 
 # ==========================================================================
 # 2. Join luque_cluster_annotation onto per-time-point objects

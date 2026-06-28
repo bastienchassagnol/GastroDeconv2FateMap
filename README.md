@@ -3,6 +3,15 @@ Using a combination of bulk transcriptome, single-cell, imaging, and deconvoluti
 
 
 
+## Run the package with VSCode custom keybindings
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+Shift+B` | **R: devtools::load_all** (default build task) |
+| `Ctrl+Shift+D` | **R: devtools::document** |
+| `Ctrl+Shift+T` | **R: devtools::test** |
+| `Ctrl+Shift+C` | **R: devtools::check** |
+
 ## Data management with DVC
 
 Large datasets in this project are tracked with

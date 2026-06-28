@@ -29,6 +29,7 @@
 #'   phenotype labels.
 #'
 #' @keywords internal
+#' @importFrom forcats fct_inorder
 .balanced_phenotype_labels <- function(
     n_samples,
     phenotypes
@@ -44,7 +45,8 @@
   if (extra > 0L) {
     counts[seq_len(extra)] <- counts[seq_len(extra)] + 1L
   }
-  rep(phenotypes, times = counts)
+  labels <- rep(phenotypes, times = counts)
+  as.character(forcats::fct_inorder(factor(labels, levels = phenotypes)))
 }
 
 
@@ -555,6 +557,8 @@
 #' @seealso [simulate_bootstrap_samples()], [simulate_generative_models()],
 #'   \code{vignettes/pseudo_bulk_generation.qmd}
 #'
+#' @importFrom Seurat GetAssay
+#' @importFrom glue glue
 #' @export
 aggregate_barcode_pseudo_bulk <- function(
     seurat_obj,
@@ -563,7 +567,7 @@ aggregate_barcode_pseudo_bulk <- function(
     assay = "RNA"
 ) {
   if (!inherits(seurat_obj, "Seurat")) {
-    stop("`seurat_obj` must be a Seurat object.", call. = FALSE)
+    stop(glue::glue("`seurat_obj` must be a Seurat object."), call. = FALSE)
   }
   meta <- seurat_obj@meta.data
   missing <- setdiff(c(phenotype_col, barcode_col), colnames(meta))
@@ -581,6 +585,7 @@ aggregate_barcode_pseudo_bulk <- function(
     )
   }
 
+  Seurat::GetAssay(seurat_obj, assay = assay)
   counts <- SeuratObject::GetAssayData(
     object = seurat_obj,
     assay = assay,
@@ -665,6 +670,8 @@ aggregate_barcode_pseudo_bulk <- function(
 #'
 #' @seealso [aggregate_barcode_pseudo_bulk()], [simulate_generative_models()]
 #'
+#' @importFrom Seurat GetAssay
+#' @importFrom glue glue
 #' @export
 simulate_bootstrap_samples <- function(
     seurat_obj,
@@ -679,7 +686,7 @@ simulate_bootstrap_samples <- function(
   replicate_type <- match.arg(replicate_type)
 
   if (!inherits(seurat_obj, "Seurat")) {
-    stop("`seurat_obj` must be a Seurat object.", call. = FALSE)
+    stop(glue::glue("`seurat_obj` must be a Seurat object."), call. = FALSE)
   }
   meta <- seurat_obj@meta.data
   missing <- setdiff(c(phenotype_col, barcode_col), colnames(meta))
@@ -697,6 +704,7 @@ simulate_bootstrap_samples <- function(
     )
   }
 
+  Seurat::GetAssay(seurat_obj, assay = assay)
   counts <- SeuratObject::GetAssayData(
     object = seurat_obj,
     assay = assay,
@@ -817,6 +825,8 @@ simulate_bootstrap_samples <- function(
 #' @seealso [aggregate_barcode_pseudo_bulk()], [simulate_bootstrap_samples()],
 #'   \url{https://oshlacklab.com/splatter/articles/splatter.html}
 #'
+#' @importFrom Seurat GetAssay
+#' @importFrom glue glue
 #' @export
 simulate_generative_models <- function(
     seurat_obj,
@@ -831,7 +841,7 @@ simulate_generative_models <- function(
   model <- match.arg(model)
 
   if (!inherits(seurat_obj, "Seurat")) {
-    stop("`seurat_obj` must be a Seurat object.", call. = FALSE)
+    stop(glue::glue("`seurat_obj` must be a Seurat object."), call. = FALSE)
   }
   meta <- seurat_obj@meta.data
   missing <- setdiff(c(phenotype_col, barcode_col), colnames(meta))
@@ -849,6 +859,7 @@ simulate_generative_models <- function(
     )
   }
 
+  Seurat::GetAssay(seurat_obj, assay = assay)
   counts <- SeuratObject::GetAssayData(
     object = seurat_obj,
     assay = assay,

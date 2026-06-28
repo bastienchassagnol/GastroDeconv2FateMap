@@ -22,6 +22,7 @@
 #' \dontrun{
 #' annotate_genes_local(c("Gnai3", "Pbsn", "Cdc45"))
 #' }
+#' @importFrom rlang .data
 #' @export
 annotate_genes_local <- function(
   genes,
@@ -70,11 +71,11 @@ annotate_genes_local <- function(
     keytype = "SYMBOL"
   ) |>
     dplyr::rename(
-      gene_name = SYMBOL,
-      ensembl_id = ENSEMBL,
-      entrez_id = ENTREZID,
-      gene_name_long = GENENAME,
-      gene_type_raw = GENETYPE
+      gene_name = "SYMBOL",
+      ensembl_id = "ENSEMBL",
+      entrez_id = "ENTREZID",
+      gene_name_long = "GENENAME",
+      gene_type_raw = "GENETYPE"
     )
   # Get genomic coordinates and gene length
   gene_ranges <- suppressMessages(
@@ -91,71 +92,79 @@ annotate_genes_local <- function(
   # Annotate genes with genomic coordinates and gene length
   annotated_genes <- id_map |>
     dplyr::distinct(
-      gene_name,
-      ensembl_id,
-      entrez_id,
-      gene_name_long,
+      "gene_name",
+      "ensembl_id",
+      "entrez_id",
+      "gene_name_long",
       .keep_all = TRUE
     ) |>
     dplyr::left_join(chromosome_names, by = "entrez_id") |>
     dplyr::mutate(
-      biological_function = gene_name_long,
+      biological_function = .data[["gene_name_long"]],
       gene_biotype = dplyr::case_when(
-        is.na(gene_type_raw) ~ NA_character_,
-        gene_type_raw %in%
+        is.na(.data[["gene_type_raw"]]) ~ NA_character_,
+        .data[["gene_type_raw"]] %in%
           c("protein-coding", "protein_coding") ~ "protein_coding",
-        grepl("lnc|long non", gene_type_raw, ignore.case = TRUE) ~ "lncRNA",
-        grepl("miRNA|microRNA", gene_type_raw, ignore.case = TRUE) ~ "miRNA",
-        grepl("snRNA", gene_type_raw, ignore.case = TRUE) ~ "snRNA",
-        grepl("snoRNA", gene_type_raw, ignore.case = TRUE) ~ "snoRNA",
-        grepl("rRNA", gene_type_raw, ignore.case = TRUE) ~ "rRNA",
-        grepl("tRNA", gene_type_raw, ignore.case = TRUE) ~ "tRNA",
+        grepl("lnc|long non", .data[["gene_type_raw"]], ignore.case = TRUE) ~
+          "lncRNA",
+        grepl("miRNA|microRNA", .data[["gene_type_raw"]], ignore.case = TRUE) ~
+          "miRNA",
+        grepl("snRNA", .data[["gene_type_raw"]], ignore.case = TRUE) ~ "snRNA",
+        grepl("snoRNA", .data[["gene_type_raw"]], ignore.case = TRUE) ~ "snoRNA",
+        grepl("rRNA", .data[["gene_type_raw"]], ignore.case = TRUE) ~ "rRNA",
+        grepl("tRNA", .data[["gene_type_raw"]], ignore.case = TRUE) ~ "tRNA",
         grepl(
           "ncRNA|non.?coding",
-          gene_type_raw,
+          .data[["gene_type_raw"]],
           ignore.case = TRUE
         ) ~ "other_non_coding_RNA",
         TRUE ~ "other"
       )
     ) |>
-    dplyr::group_by(gene_name) |>
+    dplyr::group_by(.data[["gene_name"]]) |>
     dplyr::summarise(
-      entrez_id = paste(unique(stats::na.omit(entrez_id)), collapse = ";"),
-      ensembl_id = paste(unique(stats::na.omit(ensembl_id)), collapse = ";"),
-      biological_function = paste(
-        unique(stats::na.omit(biological_function)),
+      entrez_id = paste(
+        unique(stats::na.omit(.data[["entrez_id"]])),
         collapse = ";"
       ),
-      gene_length = mean(gene_length, na.rm = TRUE),
+      ensembl_id = paste(
+        unique(stats::na.omit(.data[["ensembl_id"]])),
+        collapse = ";"
+      ),
+      biological_function = paste(
+        unique(stats::na.omit(.data[["biological_function"]])),
+        collapse = ";"
+      ),
+      gene_length = mean(.data[["gene_length"]], na.rm = TRUE),
       chromosome_name = paste(
-        unique(stats::na.omit(chromosome_name)),
+        unique(stats::na.omit(.data[["chromosome_name"]])),
         collapse = ";"
       ),
       gene_biotype = paste(
-        unique(stats::na.omit(gene_biotype)),
+        unique(stats::na.omit(.data[["gene_biotype"]])),
         collapse = ";"
       ),
-      n_ensembl_id = dplyr::n_distinct(stats::na.omit(ensembl_id)),
+      n_ensembl_id = dplyr::n_distinct(stats::na.omit(.data[["ensembl_id"]])),
       .groups = "drop"
     ) |>
     dplyr::mutate(
-      ambiguous_genes = n_ensembl_id > 1
+      ambiguous_genes = .data[["n_ensembl_id"]] > 1
     ) |>
     dplyr::select(
-      gene_name,
-      ensembl_id,
-      biological_function,
-      gene_length,
-      chromosome_name,
-      gene_biotype,
-      ambiguous_genes
+      "gene_name",
+      "ensembl_id",
+      "biological_function",
+      "gene_length",
+      "chromosome_name",
+      "gene_biotype",
+      "ambiguous_genes"
     )
 
   # Convert empty strings, and inputs to NA (homogenize missing values)
   annotated_genes <- annotated_genes |>
     dplyr::mutate(
-      dplyr::across(where(is.character), \(x) dplyr::na_if(x, "")),
-      dplyr::across(where(is.numeric), \(x) ifelse(is.nan(x), NA_real_, x)),
+      dplyr::across(dplyr::where(is.character), \(x) dplyr::na_if(x, "")),
+      dplyr::across(dplyr::where(is.numeric), \(x) ifelse(is.nan(x), NA_real_, x)),
     )
 
   # Drop genes in which not all biological annotation is available
@@ -370,6 +379,7 @@ annotate_genes_local <- function(
 #' \dontrun{
 #' annotate_genes_biomart(c("Gnai3", "H19", "Scml2"))
 #' }
+#' @importFrom rlang .data
 #' @export
 annotate_genes_biomart <- function(
   genes,
@@ -412,50 +422,50 @@ annotate_genes_biomart <- function(
 
   annotated_genes <- bm |>
     dplyr::mutate(
-      gene_length = end_position - start_position + 1
+      gene_length = .data[["end_position"]] - .data[["start_position"]] + 1
     ) |>
-    dplyr::group_by(external_gene_name) |>
+    dplyr::group_by(.data[["external_gene_name"]]) |>
     dplyr::summarise(
       ensembl_id = paste(
-        unique(stats::na.omit(ensembl_gene_id)),
+        unique(stats::na.omit(.data[["ensembl_gene_id"]])),
         collapse = ";"
       ),
       biological_function = paste(
-        unique(stats::na.omit(description)),
+        unique(stats::na.omit(.data[["description"]])),
         collapse = ";"
       ),
-      gene_length = mean(gene_length, na.rm = TRUE),
+      gene_length = mean(.data[["gene_length"]], na.rm = TRUE),
       chromosome_name = paste(
-        unique(stats::na.omit(chromosome_name)),
+        unique(stats::na.omit(.data[["chromosome_name"]])),
         collapse = ";"
       ),
       gene_biotype = paste(
-        unique(stats::na.omit(gene_biotype)),
+        unique(stats::na.omit(.data[["gene_biotype"]])),
         collapse = ";"
       ),
-      n_ensembl_id = dplyr::n_distinct(stats::na.omit(ensembl_gene_id)),
+      n_ensembl_id = dplyr::n_distinct(stats::na.omit(.data[["ensembl_gene_id"]])),
       .groups = "drop"
     ) |>
     dplyr::mutate(
-      ambiguous_genes = n_ensembl_id > 1
+      ambiguous_genes = .data[["n_ensembl_id"]] > 1
     ) |>
-    dplyr::rename(gene_name = external_gene_name) |>
+    dplyr::rename(gene_name = "external_gene_name") |>
     dplyr::select(
-      gene_name,
-      ensembl_id,
-      biological_function,
-      gene_length,
-      chromosome_name,
-      gene_biotype,
-      ambiguous_genes
+      "gene_name",
+      "ensembl_id",
+      "biological_function",
+      "gene_length",
+      "chromosome_name",
+      "gene_biotype",
+      "ambiguous_genes"
     )
 
   # Output cleaning: Remove genes with partial annotation ----
   # This is to ensure that the output is a one-to-one mapping of gene symbols to annotations.
   annotated_genes <- annotated_genes |>
     dplyr::mutate(
-      dplyr::across(where(is.character), \(x) dplyr::na_if(x, "")),
-      dplyr::across(where(is.numeric), \(x) ifelse(is.nan(x), NA_real_, x)),
+      dplyr::across(dplyr::where(is.character), \(x) dplyr::na_if(x, "")),
+      dplyr::across(dplyr::where(is.numeric), \(x) ifelse(is.nan(x), NA_real_, x)),
     )
 
   if (drop_missing_genes) {

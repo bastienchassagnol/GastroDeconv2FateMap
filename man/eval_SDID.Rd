@@ -6,11 +6,44 @@
 \usage{
 eval_SDID(p_obs, p_estimated, trim_shared_zeros = TRUE)
 }
+\arguments{
+\item{p_obs}{Numeric vector of observed cellular ratios.}
+
+\item{p_estimated}{Numeric vector of estimated cellular ratios.}
+
+\item{trim_shared_zeros}{Logical; if \code{TRUE}, entries where both vectors are
+exactly zero are removed before normalisation (e.g. jointly missing cell
+types).}
+}
 \value{
 A numeric scalar score.
 }
 \description{
-Square-root sine distance between two compositional vectors
+This metric first computes the cosine similarity between \code{p_obs} and
+\code{p_estimated}:
+\deqn{
+\cos(\theta) =
+\frac{
+  \sum_{j = 1}^{J} p^{obs}_{j}\hat{p}_{j}
+}{
+  \lVert p^{obs} \rVert_2
+  \lVert \hat{p} \rVert_2
+}.
+}
+}
+\details{
+The returned score is:
+\deqn{
+\mathrm{SDID} =
+\sqrt{
+  \sqrt{
+    1 - \min(1, \cos^2(\theta))
+  }
+}.
+}
+
+This keeps the positive distance scale rather than changing the sign as in
+the MPRA formulation.
 }
 \references{
 \url{https://mpra.ub.uni-muenchen.de/84387/}

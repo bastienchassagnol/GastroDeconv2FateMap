@@ -11,6 +11,10 @@ eval_JSD(p_obs, p_estimated, min_ratio = 1e-09, trim_shared_zeros = TRUE)
 
 \item{p_estimated}{Numeric vector of estimated cellular ratios.}
 
+\item{min_ratio}{Numeric pseudo-count replacing ratios below this value
+before computing logarithms. Jensen-Shannon divergence is undefined for
+zero components.}
+
 \item{trim_shared_zeros}{Logical; if \code{TRUE}, entries where both vectors are
 exactly zero are removed before normalisation (e.g. jointly missing cell
 types).}
@@ -19,5 +23,23 @@ types).}
 A numeric scalar score.
 }
 \description{
-Jensen-Shannon divergence between two compositional vectors
+Define the mixture composition:
+\deqn{
+m_{j} = \frac{1}{2}(p^{obs}_{j} + \hat{p}_{j}).
+}
+}
+\details{
+The Jensen-Shannon divergence is:
+\deqn{
+\mathrm{JSD} =
+\frac{1}{2}
+\sum_{j = 1}^{J}
+p^{obs}_{j}
+\log\left(\frac{p^{obs}_{j}}{m_{j}}\right)
++
+\frac{1}{2}
+\sum_{j = 1}^{J}
+\hat{p}_{j}
+\log\left(\frac{\hat{p}_{j}}{m_{j}}\right).
+}
 }

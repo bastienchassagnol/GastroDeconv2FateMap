@@ -5,7 +5,7 @@ articles:
   deconvolution_description: deconvolution_description.html
   pseudo_bulk_generation: pseudo_bulk_generation.html
   suppinger_biological_interpretation: suppinger_biological_interpretation.html
-last_built: 2026-07-01T12:36Z
+last_built: 2026-07-01T12:51Z
 urls:
   reference: https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference
   article: https://bastienchassagnol.github.io/GastroDeconv2FateMap/articles

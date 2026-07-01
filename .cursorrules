@@ -1,4 +1,4 @@
-You are an R programming assistant, make sure to use the best practices when programming in R:
+You are an R and Python programming assistant. Use the best practices below for each language.
 
 ## Project Structure and File Organization
 
@@ -124,3 +124,150 @@ Have a preference for the following packages when relying on dependencies:
 - 'renv' for dependency management.
 - 'jsonlite' for working with 'json'. If the json object is large, use 'yyjsonr'.
 - 'Rcpp' when integrating C++ code in the R project.
+
+---
+
+## Python — Project Structure and File Organization
+
+- Keep analysis scripts in `Python/` (R scripts live in `scripts/`). Use matching
+  numeric prefixes when a Python script mirrors an R workflow
+  (e.g. `Python/06_01_...py` ↔ `scripts/06_01_...R`).
+- Extract reusable logic into importable modules under `Python/` only when used
+  more than once; prefer focused scripts over premature packaging.
+- Keep raw data immutable; read from `data/raw/` and write processed objects to
+  `data/intermediate/`. Save figures and tables to `outputs/`.
+- Use paths relative to the project root (`pathlib.Path`) so scripts run
+  consistently from Cursor, the terminal, and CI.
+- Use `snake_case` for file names; keep names short and descriptive.
+- Do not install this repository as a Python package. The environment is a
+  script workspace only (`[tool.uv] package = false` in `pyproject.toml`).
+
+## Python — Dependency Management (uv)
+
+- Manage Python dependencies with [uv](https://docs.astral.sh/uv/) at the
+  project root — the Python counterpart of `renv` for R.
+- Track reproducibility via version-controlled `pyproject.toml`, `uv.lock`, and
+  `.python-version`. Never commit `.venv/`.
+- Add dependencies with `uv add <package>` (not `pip install`). Sync with
+  `uv sync`. Run scripts with `uv run Python/<script>.py`.
+- Add optional pertpy extras explicitly when needed, e.g.
+  `uv add 'pertpy[de]'`, `uv add 'pertpy[tcoda]'`.
+- Include `ipykernel` for Cursor/VS Code Interactive Window and `# %%` cells.
+- Avoid unnecessary dependencies. Prefer the scverse stack already in use before
+  adding new libraries.
+
+## Python — Naming Conventions
+
+- `snake_case` for variables, functions, modules, and file names
+  (e.g. `cell_type_counts`, `load_merged_anndata()`).
+- `UpperCamelCase` for classes only (e.g. `CompositionModel`).
+- `SCREAMING_SNAKE_CASE` for module-level constants (e.g. `DEFAULT_SEED`).
+- Avoid shadowing builtins (`id`, `type`, `list`, `dict`).
+- Use descriptive names aligned with single-cell metadata
+  (`timepoint`, `sample_barcode`, `luque_cluster_annotation`).
+- Avoid one-letter names except for idiomatic loop indices or coordinates.
+
+## Python — Coding Style
+
+- Follow [PEP 8](https://peps.python.org/pep-0008/) and modern typing
+  (`list[str]`, `X | None`, not bare `List`/`Optional` unless required).
+- Use 4-space indentation; keep lines ≤ 88 characters (Ruff default).
+- Use type hints on public functions; keep annotations practical, not exhaustive.
+- Prefer `pathlib.Path` over `os.path`. Prefer f-strings for interpolation.
+- Write modular functions instead of long scripts. One statement per line
+  (no `a = 1; b = 2`).
+- Use `# %%` cell markers for interactive exploration in Cursor (Shift+Enter).
+- Comment only non-obvious logic; code should be self-explanatory.
+- Use `if __name__ == "__main__":` guards for executable scripts.
+- Format and lint with Ruff (`ruff format`, `ruff check`); match existing style.
+
+## Python — Single-Cell Omics Practices
+
+- Build on the [scverse](https://scverse.org/) ecosystem:
+  - `anndata` / `AnnData` as the central data structure.
+  - `scanpy` for preprocessing, neighbours, embeddings, and plotting.
+  - `pertpy` for perturbation and compositional analyses (e.g. tascCODA, milo).
+  - `mudata` when working with multimodal objects.
+- Treat `AnnData` as the source of truth:
+  - Store counts in `.layers["counts"]` or `.raw`; keep normalised data in
+    `.X` or named layers. Document which layer each step uses.
+  - Use `.obs` for cell metadata and `.var` for gene metadata; avoid parallel
+    DataFrames that can drift out of sync.
+  - Subset with `adata[cells, genes].copy()` only when necessary; avoid
+    silent copies in loops.
+- Follow standard scanpy preprocessing order when applicable: QC → filter →
+  normalise → HVGs → scale/PCA → neighbours → UMAP.
+- Set random seeds (`sc.settings.set_figure_params`, `np.random.seed`,
+  module-specific `random_state`) for reproducible results.
+- Prefer pertpy dataloaders and tools (`pt.dt.*`, `pt.tl.*`, `pt.pp.*`) when
+  they cover the analysis; align naming with existing R workflows where both
+  languages analyse the same dataset.
+- For compositional / cell-type proportion analyses, prefer pertpy tascCODA over
+  ad hoc proportion transforms.
+- Save intermediate `AnnData` objects to `data/intermediate/` as `.h5ad` when
+  reuse is expected; use `.rds` only on the R side.
+
+## Python — Performance and Memory
+
+- Prefer vectorised NumPy, SciPy, and scanpy operations over Python loops.
+- Use sparse matrices for count data; avoid densifying large matrices.
+- For large `obs`/`var` tables, prefer `pandas` (scverse-native). Consider
+  `polars` only for non-AnnData tabular work where it clearly helps.
+- Profile before optimising (`%timeit` in Interactive Window, `scalene`, or
+  `cProfile` for scripts).
+- Release large objects when done (`del adata`; avoid keeping multiple full
+  copies in memory).
+
+## Python — Plotting
+
+- Use `matplotlib` and `scanpy` plotting (`sc.pl.*`) as defaults.
+- Use `seaborn` for statistical graphics on tabular summaries.
+- Set figure parameters once per script; save figures to `outputs/` with
+  descriptive `snake_case` file names.
+- Use explicit colour palettes and legends; store label-to-colour maps as
+  named dicts for consistency across plots.
+
+## Python — Testing and Validation
+
+- Write unit tests with `pytest` under `tests/` when adding reusable functions.
+- Use fixed random seeds in tests.
+- Cover edge cases: empty AnnData subsets, missing metadata columns, NaN
+  proportions, single-cell-type samples.
+- Smoke-test environment setup with a minimal import and dataload
+  (`import pertpy as pt`).
+
+## Python — Reproducibility
+
+- Pin dependencies via `uv.lock`; recreate with `uv sync`.
+- Record environment details with `session_info` / `session-info2` in reports.
+- Store scripts and lock files in Git; keep large data on DVC remotes.
+- Prefer Quarto or notebook exports for reports; keep `# %%` scripts as the
+  primary development format in Cursor.
+
+## Python — Cursor / VS Code Workflow
+
+- Select the project interpreter: `.venv` via
+  `python.defaultInterpreterPath` in `.vscode/settings.json`.
+- Run whole scripts: `uv run Python/<script>.py` or **Run Python File** with
+  `.venv` selected — never system `/bin/python3`.
+- Run line-by-line / see values: `# %%` cells + Interactive Window
+  (Shift+Enter), analogous to sending code to the R console.
+- Install Jupyter kernel dependencies with `uv add ipykernel`, not ad hoc pip.
+
+## Python — Preferred Dependencies
+
+When adding Python dependencies, prefer:
+
+- `scanpy` and `anndata` for single-cell data and workflows.
+- `pertpy` for perturbation, differential abundance, and compositional methods.
+- `mudata` for multimodal integration.
+- `numpy`, `scipy`, `pandas`, `scikit-learn` for numerics and ML.
+- `matplotlib` and `seaborn` for plotting.
+- `ipykernel` for Interactive Window support in Cursor.
+- `ruff` for formatting and linting.
+- `pytest` for testing.
+- `session-info2` for reproducibility metadata.
+- `pyarrow` or `polars` for efficient I/O when outside the AnnData workflow.
+
+Avoid `pip install` in instructions and generated code when `uv` is available.
+Use `uv add`, `uv sync`, and `uv run` instead.

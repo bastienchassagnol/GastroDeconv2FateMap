@@ -72,3 +72,7 @@ docs
 .models/
 
 outputs/gene_regulatory_networks/**
+
+# Python virtual environment (uv)
+.venv/
+temp_luque_120h_celltype_composition.csv

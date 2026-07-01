@@ -1,0 +1,11 @@
+[project]
+name = "gastrodeconv2fatemap-python"
+version = "0.1.0"
+description = "Python analysis environment for GastroDeconv2FateMap (scripts only, not installable)."
+requires-python = ">=3.13"
+dependencies = [
+    "pertpy[tcoda]>=1.1.1",
+]
+
+[tool.uv]
+package = false

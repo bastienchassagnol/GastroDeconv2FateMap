@@ -1,0 +1,11 @@
+study,timepoint,contrast,reference_cell_type,ci_prob,parameter,mean,sd,eti95_lb,eti95_ub,ess_bulk,ess_tail,r_hat,mcse_mean,mcse_sd
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,0.95,alpha[neural],1.98,0.244,1.5,2.4,1701,2943,,0.0059,0.004
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,0.95,alpha[neuromesodermal progenitors],1.24,0.278,0.71,1.8,1677,3240,,0.0068,0.0044
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,0.95,alpha[pluripotent],-0.029,0.196,-0.43,0.34,7668,9544,,0.0022,0.0016
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,0.95,alpha[somitic],1.33,0.251,0.86,1.8,1889,2543,,0.0058,0.0039
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,0.95,alpha[unknown],-0.262,0.247,-0.81,0.17,4482,5495,,0.0038,0.0028
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,0.95,"beta[C(Morphotype, Treatment('TLS'))[T.neural_bias], neural]",0.48,0.343,-1.1e-05,1.1,1513,2200,,0.0092,0.0048
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,0.95,"beta[C(Morphotype, Treatment('TLS'))[T.neural_bias], neuromesodermal progenitors]",-0.5,0.4,-1.3,8.8e-05,1454,2779,,0.011,0.0059
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,0.95,"beta[C(Morphotype, Treatment('TLS'))[T.neural_bias], pluripotent]",0,0,0,0,20000,20000,,0,
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,0.95,"beta[C(Morphotype, Treatment('TLS'))[T.neural_bias], somitic]",-0.26,0.34,-1,0.088,1618,3092,,0.009,0.0059
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,0.95,"beta[C(Morphotype, Treatment('TLS'))[T.neural_bias], unknown]",0.2,0.312,-0.15,0.97,3653,5674,,0.0055,0.0049

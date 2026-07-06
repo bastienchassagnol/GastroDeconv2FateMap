@@ -1,0 +1,6 @@
+study,timepoint,contrast,reference_cell_type,Covariate,Cell Type,credible
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,"C(Morphotype, Treatment('TLS'))[T.neural_bias]",neural,False
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,"C(Morphotype, Treatment('TLS'))[T.neural_bias]",neuromesodermal progenitors,False
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,"C(Morphotype, Treatment('TLS'))[T.neural_bias]",pluripotent,False
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,"C(Morphotype, Treatment('TLS'))[T.neural_bias]",somitic,False
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,"C(Morphotype, Treatment('TLS'))[T.neural_bias]",unknown,False

@@ -3,10 +3,12 @@
 # ==========================================================================
 
 library(dplyr)
+library(flextable)
 library(forcats)
 library(ggdist)
 library(ggplot2)
 library(glue)
+library(patchwork)
 library(readr)
 library(scales)
 library(sccomp)
@@ -367,12 +369,37 @@ empirical_log2_fc <- tibble::tibble(
 )
 
 # ==========================================================================
-# 4. scCODA log2 fold-change vs TLS (Bayesian bars + empirical dots) ----
+# 4. scCODA log2 fold-change vs TLS (forest plot + effects table) ----
 # ==========================================================================
 
 sccoda_colours <- cell_type_colours[
   c("neural", "neuromesodermal progenitors", "somitic", "unknown")
 ]
+
+sccoda_credible <- readr::read_csv(
+  file.path(
+    "outputs",
+    "biological-exploration",
+    "pertpy",
+    "luque_GSE250136_120h_sccoda_credible_effects.csv"
+  ),
+  show_col_types = FALSE
+)
+
+sccoda_diag <- readr::read_csv(
+  file.path(
+    "outputs",
+    "biological-exploration",
+    "pertpy",
+    "luque_GSE250136_120h_sccoda_mcmc_diagnostics.csv"
+  ),
+  show_col_types = FALSE
+) |>
+  dplyr::filter(grepl("^beta\\[", .data$parameter)) |>
+  dplyr::mutate(
+    `Cell Type` = sub(".*, ([^]]+)\\]$", "\\1", .data$parameter)
+  ) |>
+  dplyr::select("Cell Type", "ess_bulk", "ess_tail")
 
 effects_plot <- readr::read_csv(
   file.path(
@@ -384,6 +411,12 @@ effects_plot <- readr::read_csv(
   show_col_types = FALSE
 ) |>
   dplyr::filter(.data$`Cell Type` != "pluripotent") |>
+  dplyr::left_join(
+    sccoda_credible |>
+      dplyr::select("Cell Type", "credible"),
+    by = "Cell Type"
+  ) |>
+  dplyr::left_join(sccoda_diag, by = "Cell Type") |>
   dplyr::mutate(
     cell_type = factor(
       .data$`Cell Type`,
@@ -402,8 +435,110 @@ effects_plot <- readr::read_csv(
   ) |>
   dplyr::left_join(empirical_log2_fc, by = "Cell Type")
 
-x_lim <- max(abs(c(effects_plot$xmin, effects_plot$xmax)), na.rm = TRUE) + 0.15
-y_top <- nrow(effects_plot) + 0.65
+effects_table <- effects_plot |>
+  dplyr::transmute(
+    `Cell Type` = as.character(.data$cell_type),
+    `Log2 FC` = .data$log2_neural_bias_vs_TLS,
+    `ETI Low` = .data$relative_log2_low,
+    `ETI High` = .data$relative_log2_high,
+    `Exp Sample` = .data$`Expected Sample`,
+    `Incl Prob` = .data$`Inclusion probability`,
+    `Credible` = ifelse(.data$credible, "Yes", "No"),
+    `ESS Bulk` = .data$ess_bulk,
+    `ESS Tail` = .data$ess_tail
+  )
+
+effects_flex <- effects_table |>
+  flextable::flextable() |>
+  flextable::colformat_double(
+    j = c("Log2 FC", "ETI Low", "ETI High"),
+    digits = 3
+  ) |>
+  flextable::colformat_double(j = "Exp Sample", digits = 1) |>
+  flextable::colformat_double(j = "Incl Prob", digits = 3) |>
+  flextable::colformat_double(j = c("ESS Bulk", "ESS Tail"), digits = 0) |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::align(j = 1, align = "left", part = "body") |>
+  flextable::fontsize(size = 8, part = "all") |>
+  flextable::padding(padding = 2, part = "all") |>
+  flextable::autofit() |>
+  flextable::theme_vanilla() |>
+  flextable::footnote(
+    i = 1,
+    j = 2,
+    ref_symbols = "a",
+    value = flextable::as_paragraph(
+      "Log2 FC: empirical sample-mean log2 ratio-of-ratios vs pluripotent."
+    ),
+    part = "header"
+  ) |>
+  flextable::footnote(
+    i = 1,
+    j = 3,
+    ref_symbols = "b",
+    value = flextable::as_paragraph(
+      "ETI Low: lower bound of the 95% equal-tailed credible interval (log2)."
+    ),
+    part = "header"
+  ) |>
+  flextable::footnote(
+    i = 1,
+    j = 4,
+    ref_symbols = "c",
+    value = flextable::as_paragraph(
+      "ETI High: upper bound of the 95% equal-tailed credible interval (log2)."
+    ),
+    part = "header"
+  ) |>
+  flextable::footnote(
+    i = 1,
+    j = 5,
+    ref_symbols = "d",
+    value = flextable::as_paragraph(
+      "Exp Sample: posterior expected cell count."
+    ),
+    part = "header"
+  ) |>
+  flextable::footnote(
+    i = 1,
+    j = 6,
+    ref_symbols = "e",
+    value = flextable::as_paragraph(
+      "Incl Prob: spike-and-slab posterior inclusion probability."
+    ),
+    part = "header"
+  ) |>
+  flextable::footnote(
+    i = 1,
+    j = 7,
+    ref_symbols = "f",
+    value = flextable::as_paragraph(
+      "Credible: effect selected at FDR 5%."
+    ),
+    part = "header"
+  ) |>
+  flextable::footnote(
+    i = 1,
+    j = 8,
+    ref_symbols = "g",
+    value = flextable::as_paragraph(
+      "ESS Bulk: effective sample size for the main posterior mass; higher is better."
+    ),
+    part = "header"
+  ) |>
+  flextable::footnote(
+    i = 1,
+    j = 9,
+    ref_symbols = "h",
+    value = flextable::as_paragraph(
+      "ESS Tail: effective sample size for posterior tails; higher is better."
+    ),
+    part = "header"
+  ) |>
+  flextable::fontsize(size = 7, part = "footer")
+
+x_lim <- max(abs(c(effects_plot$xmin, effects_plot$xmax)), na.rm = TRUE) + 0.2
+y_top <- nrow(effects_plot) + 0.85
 
 sccoda_l2fc_plot <- ggplot2::ggplot(effects_plot) +
   ggplot2::geom_vline(
@@ -412,16 +547,15 @@ sccoda_l2fc_plot <- ggplot2::ggplot(effects_plot) +
     colour = "grey30",
     linewidth = 0.4
   ) +
-  ggplot2::geom_rect(
+  ggplot2::geom_errorbarh(
     ggplot2::aes(
       xmin = .data$xmin,
       xmax = .data$xmax,
-      ymin = .data$y_idx - 0.35,
-      ymax = .data$y_idx + 0.35,
-      fill = .data$cell_type
+      y = .data$y_idx,
+      colour = .data$cell_type
     ),
-    alpha = 0.75,
-    colour = NA
+    height = 0.3,
+    linewidth = 0.85
   ) +
   ggplot2::geom_point(
     ggplot2::aes(
@@ -429,7 +563,7 @@ sccoda_l2fc_plot <- ggplot2::ggplot(effects_plot) +
       y = .data$y_idx,
       colour = .data$cell_type
     ),
-    size = 2.8
+    size = 3.6
   ) +
   ggplot2::geom_text(
     ggplot2::aes(x = .data$star_x, y = .data$y_idx, label = .data$star),
@@ -438,19 +572,19 @@ sccoda_l2fc_plot <- ggplot2::ggplot(effects_plot) +
   ) +
   ggplot2::annotate(
     "text",
-    x = -x_lim,
+    x = -x_lim * 0.92,
     y = y_top,
-    label = "Relative increase in TLS",
+    label = "TLS enriched",
     hjust = 0,
-    size = 3.8
+    size = 3.5
   ) +
   ggplot2::annotate(
     "text",
-    x = x_lim,
+    x = x_lim * 0.92,
     y = y_top,
-    label = "Relative increase in neural_bias",
+    label = "neural_bias enriched",
     hjust = 1,
-    size = 3.8
+    size = 3.5
   ) +
   ggplot2::annotate(
     "segment",
@@ -479,7 +613,6 @@ sccoda_l2fc_plot <- ggplot2::ggplot(effects_plot) +
     size = 3.5,
     show.legend = FALSE
   ) +
-  ggplot2::scale_fill_manual(values = sccoda_colours) +
   ggplot2::scale_colour_manual(values = sccoda_colours) +
   ggplot2::scale_x_continuous(
     limits = c(-x_lim, x_lim),
@@ -489,7 +622,7 @@ sccoda_l2fc_plot <- ggplot2::ggplot(effects_plot) +
   ggplot2::scale_y_continuous(
     breaks = seq_len(nrow(effects_plot)),
     labels = NULL,
-    limits = c(0.5, y_top + 0.35)
+    limits = c(0.5, y_top + 0.45)
   ) +
   ggplot2::coord_cartesian(clip = "off") +
   ggplot2::labs(
@@ -497,7 +630,11 @@ sccoda_l2fc_plot <- ggplot2::ggplot(effects_plot) +
     y = NULL,
     caption = paste(
       "Luque GSE250136, 120h scCODA (pertpy): neural_bias vs TLS.",
-      "Bars = 95% ETI; * = interval excludes 0."
+      "Effect = log2 ratio-of-ratios relative to pluripotent (reference cell type):",
+      "morphotype-associated change for each cell type beyond that of the reference,",
+      "i.e. a compositional difference-in-differences (Eitzinger et al., scCODA).",
+      "Whiskers = 95% ETI on log2 scale; dots = empirical sample-mean estimate;",
+      "* = ETI excludes 0; credible = spike-and-slab selection at FDR 5%."
     )
   ) +
   ggplot2::theme_minimal(base_size = 12) +
@@ -513,14 +650,35 @@ sccoda_l2fc_plot <- ggplot2::ggplot(effects_plot) +
       colour = "grey30",
       margin = ggplot2::margin(t = 10)
     ),
-    plot.margin = ggplot2::margin(t = 20, r = 15, b = 10, l = 200)
+    plot.margin = ggplot2::margin(t = 28, r = 15, b = 10, l = 200)
   )
+
+sccoda_table_panel <- ggplot2::ggplot() +
+  ggplot2::theme_void() +
+  ggplot2::coord_cartesian(
+    xlim = c(0, 1),
+    ylim = c(0, 1),
+    expand = FALSE
+  ) +
+  patchwork::inset_element(
+    p = flextable::gen_grob(effects_flex),
+    left = 0,
+    right = 1,
+    bottom = 0.1,
+    top = 0.9,
+    align_to = "full"
+  )
+
+sccoda_figure <- sccoda_l2fc_plot |
+  sccoda_table_panel +
+  patchwork::plot_layout(widths = c(1.4, 1.1))
 
 ggplot2::ggsave(
   filename = file.path(plot_dir, "sccoda_log2fc_morphotype.pdf"),
-  plot = sccoda_l2fc_plot,
-  width = 10,
-  height = 5
+  plot = sccoda_figure,
+  width = 22,
+  height = 6.5,
+  device = cairo_pdf
 )
 
 # ==========================================================================

@@ -709,4 +709,315 @@ ggplot2::ggsave(
   height = 6
 )
 
-message("Saved composition plots and sccomp results to ", plot_dir)
+# 5b. sccomp forest plot + effects table (aligned with scCODA layout) ----
+# Empirical Log2 FC: log2(mean proportion in neural_bias / mean proportion in TLS)
+# per cell type (no compositional reference cell type; all five types shown).
+empirical_log2_sccomp <- tibble::tibble(
+  `Cell Type` = cell_type_levels,
+  log2_neural_bias_vs_TLS = log2(
+    (unlist(nb_means[cell_type_levels]) + eps) /
+      (unlist(tls_means[cell_type_levels]) + eps)
+  )
+)
+
+# Model ETI on log2 scale: sccomp estimates morphotype contrasts on the logit
+# scale (c_effect, c_lower, c_upper). We re-express these as log2 proportion
+# fold-changes at the empirical TLS mean proportion for each cell type:
+#   p_ref = TLS mean proportion (closure),
+#   logit_ref = qlogis(p_ref),
+#   p_contrast = plogis(logit_ref + c_*),
+#   log2 FC = log2(p_contrast / p_ref).
+tls_props <- tls_means[cell_type_levels]
+p_ref_safe <- pmin(pmax(unlist(tls_props), eps), 1 - eps)
+logit_ref <- stats::qlogis(p_ref_safe)
+
+sccomp_mean_n <- composition_counts |>
+  dplyr::group_by(.data$luque_cluster_annotation) |>
+  dplyr::summarise(`Exp Sample` = mean(.data$n_cells), .groups = "drop") |>
+  dplyr::rename(`Cell Type` = luque_cluster_annotation)
+
+sccomp_effects <- sccomp_result |>
+  dplyr::filter(.data$parameter == "Morphotypeneural_bias") |>
+  dplyr::rename(`Cell Type` = luque_cluster_annotation) |>
+  dplyr::left_join(sccomp_mean_n, by = "Cell Type") |>
+  dplyr::mutate(
+    p_low = stats::plogis(
+      logit_ref[match(as.character(.data$`Cell Type`), cell_type_levels)] +
+        .data$c_lower
+    ),
+    p_eff = stats::plogis(
+      logit_ref[match(as.character(.data$`Cell Type`), cell_type_levels)] +
+        .data$c_effect
+    ),
+    p_high = stats::plogis(
+      logit_ref[match(as.character(.data$`Cell Type`), cell_type_levels)] +
+        .data$c_upper
+    ),
+    relative_log2_low = log2(
+      .data$p_low /
+        p_ref_safe[match(as.character(.data$`Cell Type`), cell_type_levels)]
+    ),
+    relative_log2_effect = log2(
+      .data$p_eff /
+        p_ref_safe[match(as.character(.data$`Cell Type`), cell_type_levels)]
+    ),
+    relative_log2_high = log2(
+      .data$p_high /
+        p_ref_safe[match(as.character(.data$`Cell Type`), cell_type_levels)]
+    ),
+    `Incl Prob` = 1 - .data$c_pH0
+  )
+
+sccomp_plot_data <- sccomp_effects |>
+  dplyr::mutate(
+    cell_type = factor(
+      .data$`Cell Type`,
+      levels = cell_type_levels
+    ),
+    significant = .data$relative_log2_low > 0 | .data$relative_log2_high < 0,
+    xmin = pmin(.data$relative_log2_low, .data$relative_log2_high),
+    xmax = pmax(.data$relative_log2_low, .data$relative_log2_high),
+    star = ifelse(.data$significant, "*", ""),
+    star_x = ifelse(
+      .data$relative_log2_high < 0,
+      .data$xmin - 0.06,
+      .data$xmax + 0.06
+    ),
+    y_idx = as.numeric(.data$cell_type),
+    credible = .data$c_FDR < 0.05
+  ) |>
+  dplyr::left_join(empirical_log2_sccomp, by = "Cell Type")
+
+sccomp_table <- sccomp_plot_data |>
+  dplyr::transmute(
+    `Cell Type` = as.character(.data$cell_type),
+    `Log2 FC` = .data$log2_neural_bias_vs_TLS,
+    `ETI Low` = .data$relative_log2_low,
+    `ETI High` = .data$relative_log2_high,
+    `Exp Sample` = .data$`Exp Sample`,
+    `Incl Prob` = .data$`Incl Prob`,
+    `Credible` = ifelse(.data$credible, "Yes", "No"),
+    `ESS Bulk` = .data$c_ess_bulk,
+    `ESS Tail` = .data$c_ess_tail
+  )
+
+sccomp_flex <- sccomp_table |>
+  flextable::flextable() |>
+  flextable::colformat_double(
+    j = c("Log2 FC", "ETI Low", "ETI High"),
+    digits = 3
+  ) |>
+  flextable::colformat_double(j = "Exp Sample", digits = 1) |>
+  flextable::colformat_double(j = "Incl Prob", digits = 3) |>
+  flextable::colformat_double(j = c("ESS Bulk", "ESS Tail"), digits = 0) |>
+  flextable::align(align = "center", part = "all") |>
+  flextable::align(j = 1, align = "left", part = "body") |>
+  flextable::fontsize(size = 8, part = "all") |>
+  flextable::padding(padding = 2, part = "all") |>
+  flextable::autofit() |>
+  flextable::theme_vanilla() |>
+  flextable::footnote(
+    i = 1, j = 2, ref_symbols = "a",
+    value = flextable::as_paragraph(
+      "Log2 FC: empirical sample-mean log2(neural_bias / TLS) proportion."
+    ),
+    part = "header"
+  ) |>
+  flextable::footnote(
+    i = 1, j = 3, ref_symbols = "b",
+    value = flextable::as_paragraph(
+      "ETI Low: lower bound of 95% credible interval on log2 scale."
+    ),
+    part = "header"
+  ) |>
+  flextable::footnote(
+    i = 1, j = 4, ref_symbols = "c",
+    value = flextable::as_paragraph(
+      "ETI High: upper bound of 95% credible interval on log2 scale."
+    ),
+    part = "header"
+  ) |>
+  flextable::footnote(
+    i = 1, j = 5, ref_symbols = "d",
+    value = flextable::as_paragraph(
+      "Exp Sample: mean organoid cell count per cell type."
+    ),
+    part = "header"
+  ) |>
+  flextable::footnote(
+    i = 1, j = 6, ref_symbols = "e",
+    value = flextable::as_paragraph(
+      "Incl Prob: 1 - P(H0); posterior mass above sccomp null threshold."
+    ),
+    part = "header"
+  ) |>
+  flextable::footnote(
+    i = 1, j = 7, ref_symbols = "f",
+    value = flextable::as_paragraph(
+      "Credible: composition effect with FDR < 5% (sccomp_test)."
+    ),
+    part = "header"
+  ) |>
+  flextable::footnote(
+    i = 1, j = 8, ref_symbols = "g",
+    value = flextable::as_paragraph(
+      "ESS Bulk: effective sample size for the main posterior mass; higher is better."
+    ),
+    part = "header"
+  ) |>
+  flextable::footnote(
+    i = 1, j = 9, ref_symbols = "h",
+    value = flextable::as_paragraph(
+      "ESS Tail: effective sample size for posterior tails; higher is better."
+    ),
+    part = "header"
+  ) |>
+  flextable::fontsize(size = 7, part = "footer")
+
+sccomp_x_lim <- max(
+  abs(c(sccomp_plot_data$xmin, sccomp_plot_data$xmax)),
+  na.rm = TRUE
+) + 0.2
+sccomp_y_top <- nrow(sccomp_plot_data) + 0.85
+
+sccomp_l2fc_plot <- ggplot2::ggplot(sccomp_plot_data) +
+  ggplot2::geom_vline(
+    xintercept = 0,
+    linetype = "dashed",
+    colour = "grey30",
+    linewidth = 0.4
+  ) +
+  ggplot2::geom_errorbarh(
+    ggplot2::aes(
+      xmin = .data$xmin,
+      xmax = .data$xmax,
+      y = .data$y_idx,
+      colour = .data$cell_type
+    ),
+    height = 0.3,
+    linewidth = 0.85
+  ) +
+  ggplot2::geom_point(
+    ggplot2::aes(
+      x = .data$log2_neural_bias_vs_TLS,
+      y = .data$y_idx,
+      colour = .data$cell_type
+    ),
+    size = 3.6
+  ) +
+  ggplot2::geom_text(
+    ggplot2::aes(x = .data$star_x, y = .data$y_idx, label = .data$star),
+    size = 5,
+    colour = "grey20"
+  ) +
+  ggplot2::annotate(
+    "text",
+    x = -sccomp_x_lim * 0.92,
+    y = sccomp_y_top,
+    label = "TLS enriched",
+    hjust = 0,
+    size = 3.5
+  ) +
+  ggplot2::annotate(
+    "text",
+    x = sccomp_x_lim * 0.92,
+    y = sccomp_y_top,
+    label = "neural_bias enriched",
+    hjust = 1,
+    size = 3.5
+  ) +
+  ggplot2::annotate(
+    "segment",
+    x = -0.05,
+    xend = -0.35,
+    y = sccomp_y_top,
+    yend = sccomp_y_top,
+    arrow = grid::arrow(length = grid::unit(0.15, "cm"), ends = "last")
+  ) +
+  ggplot2::annotate(
+    "segment",
+    x = 0.05,
+    xend = 0.35,
+    y = sccomp_y_top,
+    yend = sccomp_y_top,
+    arrow = grid::arrow(length = grid::unit(0.15, "cm"), ends = "last")
+  ) +
+  ggplot2::geom_text(
+    ggplot2::aes(
+      x = -Inf,
+      y = .data$y_idx,
+      label = .data$cell_type,
+      colour = .data$cell_type
+    ),
+    hjust = 1.08,
+    size = 3.5,
+    show.legend = FALSE
+  ) +
+  ggplot2::scale_colour_manual(values = cell_type_colours) +
+  ggplot2::scale_x_continuous(
+    limits = c(-sccomp_x_lim, sccomp_x_lim),
+    breaks = scales::pretty_breaks(n = 5),
+    expand = ggplot2::expansion(mult = c(0.03, 0.03))
+  ) +
+  ggplot2::scale_y_continuous(
+    breaks = seq_len(nrow(sccomp_plot_data)),
+    labels = NULL,
+    limits = c(0.5, sccomp_y_top + 0.45)
+  ) +
+  ggplot2::coord_cartesian(clip = "off") +
+  ggplot2::labs(
+    x = expression(log[2] ~ "(neural_bias / TLS proportion)"),
+    y = NULL,
+    caption = paste(
+      "Luque GSE250136, 120h sccomp: neural_bias vs TLS (TLS reference morphotype).",
+      "Dots = empirical log2(mean proportion neural_bias / mean proportion TLS).",
+      "Whiskers = 95% credible interval on log2 scale, obtained by mapping",
+      "sccomp logit-scale contrasts (c_lower, c_effect, c_upper) through",
+      "plogis(logit(p_TLS) + c_*) and log2(p_contrast / p_TLS); no reference",
+      "cell type is used (all five cell types shown).",
+      "* = credible interval excludes 0; Credible = FDR < 5%."
+    )
+  ) +
+  ggplot2::theme_minimal(base_size = 12) +
+  ggplot2::theme(
+    legend.position = "none",
+    panel.grid.major.y = ggplot2::element_blank(),
+    panel.grid.minor = ggplot2::element_blank(),
+    axis.text.y = ggplot2::element_blank(),
+    axis.ticks.y = ggplot2::element_blank(),
+    plot.caption = ggplot2::element_text(
+      hjust = 0,
+      size = 8,
+      colour = "grey30",
+      margin = ggplot2::margin(t = 10)
+    ),
+    plot.margin = ggplot2::margin(t = 28, r = 15, b = 10, l = 200)
+  )
+
+sccomp_table_panel <- ggplot2::ggplot() +
+  ggplot2::theme_void() +
+  ggplot2::coord_cartesian(
+    xlim = c(0, 1),
+    ylim = c(0, 1),
+    expand = FALSE
+  ) +
+  patchwork::inset_element(
+    p = flextable::gen_grob(sccomp_flex),
+    left = 0,
+    right = 1,
+    bottom = 0.08,
+    top = 0.92,
+    align_to = "full"
+  )
+
+sccomp_figure <- sccomp_l2fc_plot |
+  sccomp_table_panel +
+  patchwork::plot_layout(widths = c(1.4, 1.1))
+
+ggplot2::ggsave(
+  filename = file.path(plot_dir, "sccomp_log2fc_morphotype.pdf"),
+  plot = sccomp_figure,
+  width = 22,
+  height = 7,
+  device = cairo_pdf
+)

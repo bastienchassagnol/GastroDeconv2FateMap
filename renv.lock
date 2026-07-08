@@ -513,6 +513,42 @@
       "Author": "Hervé Pagès [aut, cre], Patrick Aboyoun [aut], Robert Gentleman [aut], Saikat DebRoy [aut], Vince Carey [ctb], Nicolas Delhomme [ctb], Felix Ernst [ctb], Wolfgang Huber [ctb] ('matchprobes' vignette), Beryl Kanali [ctb] (Converted 'MultipleAlignments' vignette from Sweave to RMarkdown), Haleema Khan [ctb] (Converted 'matchprobes' vignette from Sweave to RMarkdown), Aidan Lakshman [ctb], Kieran O'Neill [ctb], Valerie Obenchain [ctb], Marcel Ramos [ctb], Albert Vill [ctb], Jen Wokaty [ctb] (Converted 'matchprobes' vignette from Sweave to RMarkdown), Erik Wright [ctb]",
       "Maintainer": "Hervé Pagès <hpages.on.github@gmail.com>"
     },
+    "ComplexUpset": {
+      "Package": "ComplexUpset",
+      "Version": "1.3.3",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Create Complex UpSet Plots Using 'ggplot2' Components",
+      "Authors@R": "person( \"Michał\", \"Krassowski\", email = \"krassowski.michal+r@gmail.com\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-9638-7785\"))",
+      "Description": "UpSet plots are an improvement over Venn Diagram for set overlap visualizations. Striving to bring the best of the 'UpSetR' and 'ggplot2', this package offers a way to create complex overlap visualisations, using simple and familiar tools, i.e. geoms of 'ggplot2'. For introduction to UpSet concept, see Lex et al. (2014) <doi:10.1109/TVCG.2014.2346248>.",
+      "License": "MIT + file LICENSE",
+      "Encoding": "UTF-8",
+      "URL": "https://github.com/krassowski/complex-upset, https://krassowski.github.io/complex-upset/",
+      "BugReports": "https://github.com/krassowski/complex-upset/issues",
+      "Suggests": [
+        "testthat (>= 2.1.0)",
+        "knitr",
+        "rmarkdown",
+        "covr",
+        "tibble",
+        "ggplot2movies",
+        "vdiffr",
+        "jsonlite",
+        "data.table"
+      ],
+      "Imports": [
+        "ggplot2",
+        "patchwork",
+        "scales",
+        "colorspace"
+      ],
+      "VignetteBuilder": "knitr",
+      "RoxygenNote": "7.1.1",
+      "NeedsCompilation": "no",
+      "Author": "Michał Krassowski [aut, cre] (<https://orcid.org/0000-0002-9638-7785>)",
+      "Maintainer": "Michał Krassowski <krassowski.michal+r@gmail.com>",
+      "Repository": "CRAN"
+    },
     "DBI": {
       "Package": "DBI",
       "Version": "1.3.0",
@@ -564,6 +600,69 @@
       "Author": "R Special Interest Group on Databases (R-SIG-DB) [aut], Hadley Wickham [aut], Kirill Müller [aut, cre] (ORCID: <https://orcid.org/0000-0002-1416-3412>), R Consortium [fnd]",
       "Maintainer": "Kirill Müller <kirill@cynkra.com>",
       "Repository": "RSPM"
+    },
+    "DESeq2": {
+      "Package": "DESeq2",
+      "Version": "1.52.0",
+      "Source": "Bioconductor",
+      "Type": "Package",
+      "Title": "Differential gene expression analysis based on the negative binomial distribution",
+      "Authors@R": "c( person(\"Michael\", \"Love\", email=\"michaelisaiahlove@gmail.com\", role = c(\"aut\",\"cre\")), person(\"Constantin\", \"Ahlmann-Eltze\", role = \"ctb\"), person(\"Anqi\", \"Zhu\", role = \"ctb\"), person(\"Nikolaos\", \"Ignatiadis\", role = \"ctb\"), person(\"Raphael\", \"Rossellini\", role = \"ctb\"), person(\"Kwame\", \"Forbes\", role = \"ctb\"), person(\"Simon\", \"Anders\", role = c(\"aut\",\"ctb\")), person(\"Wolfgang\", \"Huber\", role = c(\"aut\",\"ctb\")), person(\"RADIANT EU FP7\", role=\"fnd\"), person(\"NIH NHGRI\", role=\"fnd\"), person(\"CZI\", role=\"fnd\"))",
+      "Maintainer": "Michael Love <michaelisaiahlove@gmail.com>",
+      "Description": "Estimate variance-mean dependence in count data from high-throughput sequencing assays and test for differential expression based on a model using the negative binomial distribution.",
+      "License": "LGPL (>= 3)",
+      "VignetteBuilder": "knitr, rmarkdown",
+      "Imports": [
+        "BiocGenerics (>= 0.7.5)",
+        "Biobase",
+        "BiocParallel",
+        "matrixStats",
+        "methods",
+        "stats4",
+        "locfit",
+        "ggplot2 (>= 3.4.0)",
+        "Rcpp (>= 0.11.0)",
+        "MatrixGenerics"
+      ],
+      "Depends": [
+        "S4Vectors (>= 0.23.18)",
+        "IRanges",
+        "GenomicRanges",
+        "SummarizedExperiment (>= 1.1.6)"
+      ],
+      "Suggests": [
+        "testthat",
+        "knitr",
+        "rmarkdown",
+        "vsn",
+        "pheatmap",
+        "RColorBrewer",
+        "apeglm",
+        "ashr",
+        "tximport",
+        "tximeta",
+        "tximportData",
+        "readr",
+        "pbapply",
+        "airway",
+        "glmGamPoi",
+        "BiocManager"
+      ],
+      "LinkingTo": [
+        "Rcpp",
+        "RcppArmadillo"
+      ],
+      "URL": "https://github.com/thelovelab/DESeq2",
+      "biocViews": "Sequencing, RNASeq, ChIPSeq, GeneExpression, Transcription, Normalization, DifferentialExpression, Bayesian, Regression, PrincipalComponent, Clustering, ImmunoOncology",
+      "RoxygenNote": "7.3.3",
+      "Encoding": "UTF-8",
+      "git_url": "https://git.bioconductor.org/packages/DESeq2",
+      "git_branch": "RELEASE_3_23",
+      "git_last_commit": "16aeab6",
+      "git_last_commit_date": "2026-04-28",
+      "Repository": "Bioconductor 3.23",
+      "NeedsCompilation": "yes",
+      "Author": "Michael Love [aut, cre], Constantin Ahlmann-Eltze [ctb], Anqi Zhu [ctb], Nikolaos Ignatiadis [ctb], Raphael Rossellini [ctb], Kwame Forbes [ctb], Simon Anders [aut, ctb], Wolfgang Huber [aut, ctb], RADIANT EU FP7 [fnd], NIH NHGRI [fnd], CZI [fnd]"
     },
     "DelayedArray": {
       "Package": "DelayedArray",
@@ -640,6 +739,52 @@
       "Author": "Andrew Clausen [aut], Serguei Sokol [aut, cre] (ORCID: <https://orcid.org/0000-0002-5674-3327>), Andreas Rappold [ctb]",
       "Maintainer": "Serguei Sokol <sokol@insa-toulouse.fr>",
       "Repository": "RSPM"
+    },
+    "EnhancedVolcano": {
+      "Package": "EnhancedVolcano",
+      "Version": "1.30.0",
+      "Source": "Bioconductor",
+      "Type": "Package",
+      "Title": "Publication-ready volcano plots with enhanced colouring and labeling",
+      "Authors@R": "c( person(\"Kevin\", \"Blighe\", role = c(\"aut\")), person(\"Jared\", \"Andrews\", email = \"jared.andrews07@gmail.com\", role = c(\"cre\", \"ctb\"), comment = c(ORCID = \"0000-0002-0780-6248\")), person(\"Sharmila\", \"Rana\", role = c(\"aut\")), person(\"Emir\", \"Turkes\", role = c(\"ctb\")), person(\"Benjamin\", \"Ostendorf\", role = c(\"ctb\")), person(\"Andrea\", \"Grioni\", role = c(\"ctb\")), person(\"Myles\", \"Lewis\", role = c(\"aut\")))",
+      "Maintainer": "Jared Andrews <jared.andrews07@gmail.com>",
+      "Description": "Volcano plots represent a useful way to visualise the results of differential expression analyses. Here, we present a highly-configurable function that produces publication-ready volcano plots. EnhancedVolcano will attempt to fit as many point labels in the plot window as possible, thus avoiding 'clogging' up the plot with labels that could not otherwise have been read. Other functionality allows the user to identify up to 4 different types of attributes in the same plot space via colour, shape, size, and shade parameter configurations.",
+      "License": "GPL-3",
+      "Encoding": "UTF-8",
+      "Depends": [
+        "ggplot2",
+        "ggrepel"
+      ],
+      "Imports": [
+        "methods",
+        "scales",
+        "grid",
+        "grDevices"
+      ],
+      "Suggests": [
+        "RUnit",
+        "ggrastr",
+        "BiocGenerics",
+        "knitr",
+        "DESeq2",
+        "pasilla",
+        "airway",
+        "org.Hs.eg.db",
+        "gridExtra",
+        "magrittr",
+        "rmarkdown"
+      ],
+      "URL": "https://github.com/kevinblighe/EnhancedVolcano",
+      "biocViews": "RNASeq, GeneExpression, Transcription, DifferentialExpression, ImmunoOncology",
+      "VignetteBuilder": "knitr",
+      "RoxygenNote": "7.3.2",
+      "git_url": "https://git.bioconductor.org/packages/EnhancedVolcano",
+      "git_branch": "RELEASE_3_23",
+      "git_last_commit": "c40cfba",
+      "git_last_commit_date": "2026-04-28",
+      "Repository": "Bioconductor 3.23",
+      "NeedsCompilation": "no",
+      "Author": "Kevin Blighe [aut], Jared Andrews [cre, ctb] (ORCID: <https://orcid.org/0000-0002-0780-6248>), Sharmila Rana [aut], Emir Turkes [ctb], Benjamin Ostendorf [ctb], Andrea Grioni [ctb], Myles Lewis [aut]"
     },
     "FNN": {
       "Package": "FNN",

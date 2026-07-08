@@ -35,7 +35,7 @@ genomic coordinates. If multiple Ensembl records map to one gene symbol, the
 function concatenates text fields and averages gene lengths.
 }
 \details{
-Output structure matches \code{\link[=annotate_genes_local]{annotate_genes_local()}}.
+Output structure matches \code{annotate_genes_local()}.
 }
 \examples{
 \dontrun{

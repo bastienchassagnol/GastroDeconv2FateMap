@@ -2,6 +2,7 @@
 
 export(CoreAlg)
 export(aggregate_barcode_pseudo_bulk)
+export(aggregate_celltype_barcode_pseudo_bulk)
 export(annotate_genes_biomart)
 export(annotate_genes_local)
 export(cibersort)

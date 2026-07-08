@@ -3,7 +3,7 @@
 #' Minimal theme with black facet strips, inspired by the atlas feature
 #' selection benchmark plotting utilities.
 #'
-#' @param ... Additional arguments passed to [ggplot2::theme_minimal()].
+#' @param ... Additional arguments passed to `ggplot2::theme_minimal()`.
 #'
 #' @return A **ggplot2** `theme` object.
 #'
@@ -21,9 +21,9 @@ theme_features <- function(...) {
     )
 }
 
-#' Publication-sized variant of [theme_features()]
+#' Publication-sized variant of `theme_features()`
 #'
-#' @param ... Additional arguments passed to [theme_features()].
+#' @param ... Additional arguments passed to `theme_features()`.
 #'
 #' @return A **ggplot2** `theme` object.
 #' @export

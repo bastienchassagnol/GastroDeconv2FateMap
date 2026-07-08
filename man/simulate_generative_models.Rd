@@ -56,6 +56,6 @@ because Splatter already models library-size variation.
 Bulk aggregation: \deqn{Y_{gi} = \sum_{c \in \mathcal{C}_i} x_{gc}^{\mathrm{sim}}}
 }
 \seealso{
-\code{\link[=aggregate_barcode_pseudo_bulk]{aggregate_barcode_pseudo_bulk()}}, \code{\link[=simulate_bootstrap_samples]{simulate_bootstrap_samples()}},
+\code{aggregate_barcode_pseudo_bulk()}, \code{simulate_bootstrap_samples()},
 \url{https://oshlacklab.com/splatter/articles/splatter.html}
 }

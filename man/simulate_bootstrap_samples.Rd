@@ -51,5 +51,5 @@ before aggregation (strategy 3).}
 }
 }
 \seealso{
-\code{\link[=aggregate_barcode_pseudo_bulk]{aggregate_barcode_pseudo_bulk()}}, \code{\link[=simulate_generative_models]{simulate_generative_models()}}
+\code{aggregate_barcode_pseudo_bulk()}, \code{simulate_generative_models()}
 }

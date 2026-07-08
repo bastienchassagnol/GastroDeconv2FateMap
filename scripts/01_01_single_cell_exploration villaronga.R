@@ -102,6 +102,20 @@ GSE250136_merged <- merge(
   merge.data = FALSE
 )
 
+# Keep a strict guardrail for downstream pseudo-bulk DESeq2:
+# raw RNA counts must remain available as integer-like values after merge.
+merged_rna_counts <- SeuratObject::LayerData(
+  object = GSE250136_merged,
+  assay = "RNA",
+  layer = "counts"
+)
+if (is.null(merged_rna_counts)) {
+  stop("Merged object is missing RNA/counts; raw-count DE analysis would fail.")
+}
+if (!all(abs(merged_rna_counts@x - round(merged_rna_counts@x)) < 1e-8)) {
+  stop("Merged RNA/counts are not integer-like; check merge strategy.")
+}
+
 # 1.4: Finalise the merged object, adding timepoint and celltype annotations ----
 SeuratObject::DefaultAssay(GSE250136_merged) <- "RNA"
 Seurat::Idents(GSE250136_merged) <- "timepoint"
@@ -130,12 +144,25 @@ saveRDS(
 )
 
 
+GSE250136_merged <- readRDS(
+  file = "./data/intermediate/luque_single_cell_merged_2026-06-07.rds"
+)
+phenotype_data <- GSE250136_merged@meta.data
 tinytable::tt(
   phenotype_data |>
-    dplyr::group_by(.data$timepoint, .data$seurat_clusters) |>
+    dplyr::filter(.data$timepoint == "120h") |>
+    dplyr::group_by(
+      .data$Morphotype,
+      .data$luque_cluster_annotation,
+      .data$Sample.barcode
+    ) |>
     dplyr::summarise(n_cells = dplyr::n(), .groups = "drop") |>
-    dplyr::arrange(.data$timepoint, dplyr::desc(.data$n_cells)),
-  caption = "Number of cells per time point and Seurat cluster"
+    dplyr::arrange(
+      .data$Morphotype,
+      .data$luque_cluster_annotation,
+      .data$Sample.barcode
+    ),
+  caption = "Number of cells per Morphotype, luque_cluster_annotation and Sample.barcode for the 120h time point"
 )
 
 ### morphotype annotations per cell annotations per time point
@@ -147,6 +174,8 @@ tinytable::tt(
   caption = "Number of morphotype annotations per time point"
 )
 
+source("./R/utils.R")
+summarise_seurat_assays_layers(GSE250136_merged)
 
 # ==========================================================================
 # 2. Join luque_cluster_annotation onto per-time-point objects

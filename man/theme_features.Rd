@@ -7,7 +7,7 @@
 theme_features(...)
 }
 \arguments{
-\item{...}{Additional arguments passed to \code{\link[ggplot2:theme_minimal]{ggplot2::theme_minimal()}}.}
+\item{...}{Additional arguments passed to \code{ggplot2::theme_minimal()}.}
 }
 \value{
 A \strong{ggplot2} \code{theme} object.

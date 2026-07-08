@@ -2,25 +2,28 @@
 # 0. Filename settings ----
 # ============================================================================
 
-suppressPackageStartupMessages({
-  library(MAST)
-  library(SeuratObject)
-  library(Matrix)
-  library(S4Vectors)
-  library(dplyr)
-  library(tibble)
-  library(tidyr)
-  library(readr)
-  library(ggplot2)
-  library(EnhancedVolcano)
-  library(ComplexUpset)
-  library(cowplot)
-  library(gridExtra)
-  library(grid)
-})
+# bash command to run this script ----
+# nohup Rscript --no-save --no-restore \
+#   scripts/06_02_MAST_biological_exploration_transcriptomic_differential_analyses.R \
+#   > "logs/GSE250136_$(date +%F)_mast_hurdle_glmer.log" 2>&1 &
+
+library(MAST)
+library(SeuratObject)
+library(Matrix)
+library(S4Vectors)
+library(dplyr)
+library(tibble)
+library(tidyr)
+library(readr)
+library(ggplot2)
+library(EnhancedVolcano)
+library(ComplexUpset)
+library(cowplot)
+library(gridExtra)
+library(grid)
 
 study <- "GSE250136"
-technique <- "mast_hurdle_glmer"
+technique <- "mast"
 today <- format(Sys.Date(), "%Y-%m-%d")
 output_dir <- "outputs/biological-exploration/DEA-analyses"
 source("./R/utils.R")
@@ -28,6 +31,9 @@ source("./R/utils.R")
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
+
+# set the number of cores to use
+options(mc.cores = parallel::detectCores() %/% 2L)
 
 # ============================================================================
 # 1. Load merged object, subset to 120h, extract normalized expression ----
@@ -71,7 +77,7 @@ meta_120h$wellKey <- rownames(meta_120h)
 # 2. Gene filtering and MAST SingleCellAssay ----
 # ============================================================================
 
-min_detection_fraction <- 0.20
+min_detection_fraction <- 0.80
 keep_genes <- Matrix::rowMeans(expr_data > 0) >= min_detection_fraction
 expr_data <- expr_data[keep_genes, , drop = FALSE]
 expr_mat <- as.matrix(expr_data)
@@ -164,11 +170,16 @@ celltypes <- sort(unique(meta_120h$celltype))
 
 message("Fitting MAST hurdle mixed model for cell-type interaction...")
 zlm_celltype <- MAST::zlm(
-  formula = ~ 0 + celltype + celltype:Morphotype + cngeneson + (1 | Sample.barcode),
+  formula = ~ 0 +
+    celltype +
+    celltype:Morphotype +
+    cngeneson +
+    (1 | Sample.barcode),
   sca = sca,
   method = "glmer",
   ebayes = FALSE,
-  parallel = TRUE
+  parallel = TRUE,
+  silent = FALSE
 )
 
 extract_mast_celltype <- function(celltype_level) {
@@ -185,7 +196,10 @@ extract_mast_celltype <- function(celltype_level) {
     dplyr::left_join(compute_detection_freq(celltype_level), by = "gene")
 }
 
-de_celltype_long <- dplyr::bind_rows(lapply(celltypes, extract_mast_celltype)) |>
+de_celltype_long <- dplyr::bind_rows(lapply(
+  celltypes,
+  extract_mast_celltype
+)) |>
   dplyr::mutate(
     padj_global_BH = stats::p.adjust(pvalue, method = "BH"),
     study = study,
@@ -252,7 +266,14 @@ readr::write_csv(
   de_celltype_wide,
   file.path(
     output_dir,
-    paste0(study, "_", technique, "_120h_celltype_model_results_", today, ".csv")
+    paste0(
+      study,
+      "_",
+      technique,
+      "_120h_celltype_model_results_",
+      today,
+      ".csv"
+    )
   )
 )
 readr::write_csv(
@@ -270,10 +291,10 @@ readr::write_csv(
 p_raw_cutoff <- 0.05
 
 build_volcano <- function(
-    df_de,
-    plot_title,
-    padj_col,
-    show_legend = FALSE
+  df_de,
+  plot_title,
+  padj_col,
+  show_legend = FALSE
 ) {
   df_de <- df_de |>
     dplyr::mutate(neg_log10_p = -log10(pvalue))
@@ -297,8 +318,11 @@ build_volcano <- function(
 
   raw_label_y <- raw_line + 0.05 * y_limit
   padj_label_y <- padj_line + 0.15 * y_limit
-  if (is.finite(raw_label_y) && is.finite(padj_label_y) &&
-      abs(padj_label_y - raw_label_y) < 0.08 * y_limit) {
+  if (
+    is.finite(raw_label_y) &&
+      is.finite(padj_label_y) &&
+      abs(padj_label_y - raw_label_y) < 0.08 * y_limit
+  ) {
     padj_label_y <- raw_label_y + 0.12 * y_limit
   }
 
@@ -371,7 +395,11 @@ volcano_sample <- build_volcano(
 )
 
 volcano_legend_plot <- build_volcano(
-  df_de = de_celltype_long[de_celltype_long$celltype == celltypes[[1L]], , drop = FALSE],
+  df_de = de_celltype_long[
+    de_celltype_long$celltype == celltypes[[1L]],
+    ,
+    drop = FALSE
+  ],
   plot_title = celltypes[[1L]],
   padj_col = "padj_celltype_BH",
   show_legend = TRUE
@@ -422,10 +450,10 @@ ggplot2::ggsave(
 # ============================================================================
 
 build_pvalue_histogram <- function(
-    p_values,
-    plot_title,
-    p_label,
-    fill_colour
+  p_values,
+  plot_title,
+  p_label,
+  fill_colour
 ) {
   df_hist <- tibble::tibble(p_value = p_values) |>
     dplyr::filter(!is.na(p_value))
@@ -538,7 +566,14 @@ deg_hits <- de_celltype_long |>
 
 upset_file <- file.path(
   output_dir,
-  paste0(study, "_", technique, "_120h_celltype_model_deg_overlap_", today, ".pdf")
+  paste0(
+    study,
+    "_",
+    technique,
+    "_120h_celltype_model_deg_overlap_",
+    today,
+    ".pdf"
+  )
 )
 
 if (nrow(deg_hits) > 0) {

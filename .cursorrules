@@ -111,6 +111,8 @@ You are an R and Python programming assistant. Follow the practices below for ea
 
 ---
 
+To save graphs, prefer using the ggplot2::ggsave function, rather than grDevices
+
 # Python
 
 ## Project structure and file organisation

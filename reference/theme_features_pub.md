@@ -1,4 +1,4 @@
-# Publication-sized variant of [`theme_features()`](https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/theme_features.md)
+# Publication-sized variant of `theme_features()`
 
 Publication-sized variant of
 [`theme_features()`](https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/theme_features.md)

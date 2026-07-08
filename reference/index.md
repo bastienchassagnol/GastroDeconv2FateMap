@@ -8,6 +8,9 @@
 - [`aggregate_barcode_pseudo_bulk()`](https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/aggregate_barcode_pseudo_bulk.md)
   : Aggregate pseudo-bulk samples by barcode (organoid)
 
+- [`aggregate_celltype_barcode_pseudo_bulk()`](https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/aggregate_celltype_barcode_pseudo_bulk.md)
+  : Aggregate pseudo-bulk samples by cell type and barcode
+
 - [`annotate_genes_biomart()`](https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/annotate_genes_biomart.md)
   : Annotate mouse genes with Ensembl metadata
 

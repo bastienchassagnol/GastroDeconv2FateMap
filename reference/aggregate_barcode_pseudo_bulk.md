@@ -13,7 +13,8 @@ aggregate_barcode_pseudo_bulk(
   seurat_obj,
   phenotype_col = "Morphotype",
   barcode_col = "Sample.barcode",
-  assay = "RNA"
+  assay = "RNA",
+  cell_mask = NULL
 )
 ```
 
@@ -36,6 +37,11 @@ aggregate_barcode_pseudo_bulk(
 - assay:
 
   Assay name from which raw counts are read. Default `"RNA"`.
+
+- cell_mask:
+
+  Optional logical vector aligned with `seurat_obj` cells; when
+  provided, only these cells are aggregated.
 
 ## Value
 

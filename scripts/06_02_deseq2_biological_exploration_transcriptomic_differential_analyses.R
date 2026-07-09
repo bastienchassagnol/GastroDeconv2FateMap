@@ -8,6 +8,7 @@ today <- format(Sys.Date(), "%Y-%m-%d")
 output_dir <- "outputs/biological-exploration/DEA-analyses"
 source("./R/utils.R")
 source("./R/simulate_pseudo_bulk_samples.R")
+source("./R/filtering_unexpressed_genes.R")
 
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
@@ -48,52 +49,101 @@ pb_sample_barcode <- aggregate_barcode_pseudo_bulk(
 )
 
 # ============================================================================
-# 3. DESeq2: cell-type-specific model (~ 0 + group) ----
+# 3. DESeq2: per-cell-type pseudo-bulk models (~ Morphotype) ----
 # ============================================================================
 
-col_data_celltype <- as.data.frame(SummarizedExperiment::colData(pb_celltype_barcode))
+# Filter genes separately within each cell type after pseudo-bulk aggregation.
+# edgeR::filterByExpr() applies a design-aware CPM/count filter, preserving
+# genes that are sufficiently expressed in biological replicates of at least
+# one Morphotype instead of using a single global expression universe.
+min_pseudobulk_cells <- 10L
+deseq2_keep_genes_by_celltype <- filter_deseq2_unexpressed_genes(
+  seurat_obj = obj,
+  celltype_col = "luque_cluster_annotation",
+  phenotype_col = "Morphotype",
+  barcode_col = "Sample.barcode",
+  assay = "RNA",
+  cell_mask = cells_120h,
+  min_cells_per_sample = min_pseudobulk_cells,
+  min_count = 5L,
+  min_total_count = 15L
+)
+names(deseq2_keep_genes_by_celltype) <- make.names(names(
+  deseq2_keep_genes_by_celltype
+))
+
+col_data_celltype <- as.data.frame(SummarizedExperiment::colData(
+  pb_celltype_barcode
+))
 col_data_celltype$celltype <- make.names(col_data_celltype$celltype)
-col_data_celltype$Morphotype <- stats::relevel(
-  factor(col_data_celltype$Morphotype),
-  ref = "TLS"
-)
-col_data_celltype$group <- interaction(
-  col_data_celltype$celltype,
-  col_data_celltype$Morphotype,
-  sep = "__",
-  drop = TRUE
+count_data_celltype <- round(SummarizedExperiment::assay(
+  pb_celltype_barcode,
+  "counts"
+))
+
+selected_genes_celltype <- tibble::tibble(
+  celltype = names(deseq2_keep_genes_by_celltype),
+  n_selected_genes = lengths(deseq2_keep_genes_by_celltype)
 )
 
-dds_celltype <- DESeq2::DESeqDataSetFromMatrix(
-  countData = round(SummarizedExperiment::assay(pb_celltype_barcode, "counts")),
-  colData = col_data_celltype,
-  design = ~ 0 + group
-)
-dds_celltype <- DESeq2::DESeq(dds_celltype)
+# Run differential expression independently for each cell type. Each fit tests
+# neural_bias versus TLS within that cell type, using only the genes retained
+# by the cell-type-specific filter above.
+run_deseq2_celltype <- function(ct) {
+  keep_samples <- col_data_celltype$celltype == ct &
+    col_data_celltype$n_cells >= min_pseudobulk_cells
+  col_data_ct <- col_data_celltype[keep_samples, , drop = FALSE]
+  genes_ct <- deseq2_keep_genes_by_celltype[[ct]]
 
-extract_celltype_contrast <- function(dds, celltype_level) {
-  celltype_group <- make.names(celltype_level)
-  DESeq2::results(
-    dds,
-    contrast = c(
-      "group",
-      paste0(celltype_group, "__neural_bias"),
-      paste0(celltype_group, "__TLS")
-    )
+  if (nrow(col_data_ct) == 0L || length(genes_ct) == 0L) {
+    return(NULL)
+  }
+
+  col_data_ct$Morphotype <- stats::relevel(
+    factor(col_data_ct$Morphotype),
+    ref = "TLS"
   )
+  if (length(unique(col_data_ct$Morphotype)) < 2L) {
+    return(NULL)
+  }
+
+  count_data_ct <- count_data_celltype[
+    genes_ct,
+    rownames(col_data_ct),
+    drop = FALSE
+  ]
+  dds_ct <- DESeq2::DESeqDataSetFromMatrix(
+    countData = count_data_ct,
+    colData = col_data_ct,
+    design = ~Morphotype
+  )
+  dds_ct <- DESeq2::DESeq(
+    dds_ct,
+    test = "LRT",
+    reduced = ~1,
+    minmu = 1e-6,
+    minReplicatesForReplace = Inf
+  )
+
+  DESeq2::results(
+    dds_ct,
+    contrast = c("Morphotype", "neural_bias", "TLS"),
+    alpha = 0.05,
+    independentFiltering = TRUE
+  ) |>
+    as.data.frame() |>
+    tibble::rownames_to_column("gene") |>
+    dplyr::mutate(
+      celltype = ct,
+      n_selected_genes = length(genes_ct),
+      padj_celltype_BH = stats::p.adjust(pvalue, method = "BH")
+    )
 }
 
+celltypes <- sort(unique(col_data_celltype$celltype))
 de_celltype_long <- dplyr::bind_rows(lapply(
-  sort(unique(col_data_celltype$celltype)),
-  function(ct) {
-    extract_celltype_contrast(dds_celltype, ct) |>
-      as.data.frame() |>
-      tibble::rownames_to_column("gene") |>
-      dplyr::mutate(
-        celltype = ct,
-        padj_celltype_BH = stats::p.adjust(pvalue, method = "BH")
-      )
-  }
+  celltypes,
+  run_deseq2_celltype
 )) |>
   dplyr::mutate(
     padj_global_BH = stats::p.adjust(pvalue, method = "BH"),
@@ -115,18 +165,38 @@ de_celltype_wide <- de_celltype_long |>
 # 4. DESeq2: sample-level global model (~ Morphotype) ----
 # ============================================================================
 
-col_data_sample <- as.data.frame(SummarizedExperiment::colData(pb_sample_barcode))
+col_data_sample <- as.data.frame(SummarizedExperiment::colData(
+  pb_sample_barcode
+))
 col_data_sample$Morphotype <- stats::relevel(
   factor(col_data_sample$Morphotype),
   ref = "TLS"
 )
+count_data_sample <- round(SummarizedExperiment::assay(
+  pb_sample_barcode,
+  "counts"
+))
+sample_design <- stats::model.matrix(~Morphotype, data = col_data_sample)
+keep_genes_sample <- edgeR::filterByExpr(
+  y = count_data_sample,
+  design = sample_design,
+  min.count = 5L,
+  min.total.count = 15L
+)
+count_data_sample <- count_data_sample[keep_genes_sample, , drop = FALSE]
 
 dds_sample <- DESeq2::DESeqDataSetFromMatrix(
-  countData = round(SummarizedExperiment::assay(pb_sample_barcode, "counts")),
+  countData = count_data_sample,
   colData = col_data_sample,
-  design = ~ Morphotype
+  design = ~Morphotype
 )
-dds_sample <- DESeq2::DESeq(dds_sample)
+dds_sample <- DESeq2::DESeq(
+  dds_sample,
+  test = "LRT",
+  reduced = ~1,
+  minmu = 1e-6,
+  minReplicatesForReplace = Inf
+)
 
 de_sample <- DESeq2::results(
   dds_sample,
@@ -136,6 +206,7 @@ de_sample <- DESeq2::results(
   as.data.frame() |>
   tibble::rownames_to_column("gene") |>
   dplyr::mutate(
+    n_selected_genes = nrow(count_data_sample),
     padj_BH = stats::p.adjust(pvalue, method = "BH"),
     study = study,
     technique = technique,
@@ -148,10 +219,17 @@ de_sample <- DESeq2::results(
 # ============================================================================
 
 readr::write_csv(
-  de_celltype_wide,
+  de_celltype_long,
   file.path(
     output_dir,
-    paste0(study, "_", technique, "_120h_celltype_model_results_", today, ".csv")
+    paste0(
+      study,
+      "_",
+      technique,
+      "_120h_celltype_model_results_",
+      today,
+      ".csv"
+    )
   )
 )
 readr::write_csv(
@@ -169,13 +247,15 @@ readr::write_csv(
 p_raw_cutoff <- 0.05
 
 build_volcano <- function(
-    df_de,
-    plot_title,
-    padj_col,
-    show_legend = FALSE
+  df_de,
+  plot_title,
+  padj_col,
+  show_legend = FALSE
 ) {
   df_de <- df_de |>
     dplyr::mutate(neg_log10_p = -log10(pvalue))
+  n_selected <- unique(df_de$n_selected_genes)
+  n_selected <- n_selected[!is.na(n_selected)][[1L]]
 
   x_limit <- max(abs(df_de$log2FoldChange), na.rm = TRUE)
   x_limit <- max(0.6, x_limit)
@@ -196,8 +276,11 @@ build_volcano <- function(
 
   raw_label_y <- raw_line + 0.05 * y_limit
   padj_label_y <- padj_line + 0.15 * y_limit
-  if (is.finite(raw_label_y) && is.finite(padj_label_y) &&
-      abs(padj_label_y - raw_label_y) < 0.08 * y_limit) {
+  if (
+    is.finite(raw_label_y) &&
+      is.finite(padj_label_y) &&
+      abs(padj_label_y - raw_label_y) < 0.08 * y_limit
+  ) {
     padj_label_y <- raw_label_y + 0.12 * y_limit
   }
 
@@ -207,7 +290,7 @@ build_volcano <- function(
     x = "log2FoldChange",
     y = "pvalue",
     title = plot_title,
-    subtitle = paste0(study, " | ", technique),
+    subtitle = paste0(study, " | ", technique, " | tested genes: ", n_selected),
     xlab = bquote(Log[2] ~ "fold change (neural_bias vs TLS)"),
     ylab = bquote(-Log[10] ~ "p-value"),
     pCutoff = p_raw_cutoff,
@@ -273,7 +356,11 @@ volcano_sample <- build_volcano(
 )
 
 volcano_legend_plot <- build_volcano(
-  df_de = de_celltype_long[de_celltype_long$celltype == celltypes[[1L]], , drop = FALSE],
+  df_de = de_celltype_long[
+    de_celltype_long$celltype == celltypes[[1L]],
+    ,
+    drop = FALSE
+  ],
   plot_title = celltypes[[1L]],
   padj_col = "padj_celltype_BH",
   show_legend = TRUE
@@ -324,10 +411,11 @@ ggplot2::ggsave(
 # ============================================================================
 
 build_pvalue_histogram <- function(
-    p_values,
-    plot_title,
-    p_label,
-    fill_colour
+  p_values,
+  plot_title,
+  p_label,
+  fill_colour,
+  n_selected_genes
 ) {
   df_hist <- tibble::tibble(p_value = p_values) |>
     dplyr::filter(!is.na(p_value))
@@ -346,7 +434,7 @@ build_pvalue_histogram <- function(
     ) +
     ggplot2::labs(
       title = plot_title,
-      subtitle = p_label,
+      subtitle = paste0(p_label, " | tested genes: ", n_selected_genes),
       x = "p-value",
       y = "Gene count"
     ) +
@@ -359,18 +447,22 @@ build_pvalue_histogram <- function(
 
 build_celltype_hist_row <- function(ct) {
   df_ct <- de_celltype_long[de_celltype_long$celltype == ct, , drop = FALSE]
+  n_selected <- unique(df_ct$n_selected_genes)
+  n_selected <- n_selected[!is.na(n_selected)][[1L]]
   cowplot::plot_grid(
     build_pvalue_histogram(
       p_values = df_ct$pvalue,
       plot_title = ct,
       p_label = "raw p-value",
-      fill_colour = "#4C78A8"
+      fill_colour = "#4C78A8",
+      n_selected_genes = n_selected
     ),
     build_pvalue_histogram(
       p_values = df_ct$padj_celltype_BH,
       plot_title = ct,
       p_label = "BH adjusted p-value",
-      fill_colour = "#F58518"
+      fill_colour = "#F58518",
+      n_selected_genes = n_selected
     ),
     ncol = 2L,
     labels = c("raw", "adjusted")
@@ -395,13 +487,15 @@ hist_page_global <- cowplot::plot_grid(
     p_values = de_sample$pvalue,
     plot_title = "sample-level global",
     p_label = "raw p-value",
-    fill_colour = "#4C78A8"
+    fill_colour = "#4C78A8",
+    n_selected_genes = unique(de_sample$n_selected_genes)[[1L]]
   ),
   build_pvalue_histogram(
     p_values = de_sample$padj_BH,
     plot_title = "sample-level global",
     p_label = "BH adjusted p-value",
-    fill_colour = "#F58518"
+    fill_colour = "#F58518",
+    n_selected_genes = unique(de_sample$n_selected_genes)[[1L]]
   ),
   ncol = 2L,
   labels = c("raw", "adjusted")
@@ -443,7 +537,14 @@ deg_hits <- de_celltype_long |>
 
 upset_file <- file.path(
   output_dir,
-  paste0(study, "_", technique, "_120h_celltype_model_deg_overlap_", today, ".pdf")
+  paste0(
+    study,
+    "_",
+    technique,
+    "_120h_celltype_model_deg_overlap_",
+    today,
+    ".pdf"
+  )
 )
 
 if (nrow(deg_hits) > 0) {
@@ -484,4 +585,5 @@ if (nrow(deg_hits) > 0) {
 }
 
 message("Pseudo-bulk DESeq2 workflow completed.")
+
 

@@ -27,6 +27,7 @@ technique <- "mast"
 today <- format(Sys.Date(), "%Y-%m-%d")
 output_dir <- "outputs/biological-exploration/DEA-analyses"
 source("./R/utils.R")
+source("./R/filtering_unexpressed_genes.R")
 
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
@@ -74,35 +75,35 @@ meta_120h$Sample.barcode <- factor(meta_120h$Sample.barcode)
 meta_120h$wellKey <- rownames(meta_120h)
 
 # ============================================================================
-# 2. Gene filtering and MAST SingleCellAssay ----
+# 2. Cell-type-aware gene filtering ----
 # ============================================================================
 
-min_detection_fraction <- 0.80
-keep_genes <- Matrix::rowMeans(expr_data > 0) >= min_detection_fraction
-expr_data <- expr_data[keep_genes, , drop = FALSE]
-expr_mat <- as.matrix(expr_data)
+mast_keep_genes_by_celltype <- filter_mast_unexpressed_genes(
+  seurat_obj = obj,
+  celltype_col = "luque_cluster_annotation",
+  phenotype_col = "Morphotype",
+  barcode_col = "Sample.barcode",
+  assay = "RNA",
+  layer = "data",
+  cell_mask = cells_120h,
+  min_cell_detection = 0.05,
+  min_sample_fraction = 0.50,
+  min_total_positive_cells = 20L,
+  min_cells_per_group = 10L
+)
+names(mast_keep_genes_by_celltype) <- make.names(names(
+  mast_keep_genes_by_celltype
+))
+
+selected_genes_celltype <- tibble::tibble(
+  celltype = names(mast_keep_genes_by_celltype),
+  n_selected_genes = lengths(mast_keep_genes_by_celltype)
+)
 
 message(
-  "Retained ",
-  nrow(expr_mat),
-  " genes detected in >= ",
-  100 * min_detection_fraction,
-  "% of 120h cells (n = ",
-  ncol(expr_mat),
-  ")."
-)
-
-meta_120h$cngeneson <- scale(Matrix::colSums(expr_mat > 0))[, 1]
-
-fdata <- S4Vectors::DataFrame(
-  primerid = rownames(expr_mat),
-  row.names = rownames(expr_mat)
-)
-sca <- MAST::FromMatrix(
-  exprsArray = expr_mat,
-  cData = meta_120h,
-  fData = fdata,
-  check_sanity = FALSE
+  "Computed MAST sample-aware detection filters for ",
+  nrow(selected_genes_celltype),
+  " cell types."
 )
 
 # ============================================================================
@@ -118,27 +119,33 @@ mast_pvalue_col <- function(df) {
   hits[[1L]]
 }
 
-# Summarise how often each gene is detected within the selected cell type.
-compute_detection_freq <- function(celltype_level) {
-  idx_ct <- meta_120h$celltype == celltype_level
-  idx_tls <- idx_ct & meta_120h$Morphotype == "TLS"
-  idx_nb <- idx_ct & meta_120h$Morphotype == "neural_bias"
+# Build a MAST SingleCellAssay after filtering, with cngeneson recomputed.
+make_mast_sca <- function(expr_subset, meta_subset) {
+  expr_mat <- as.matrix(expr_subset)
+  meta_subset$cngeneson <- scale(Matrix::colSums(expr_subset > 0))[, 1]
+  fdata <- S4Vectors::DataFrame(
+    primerid = rownames(expr_mat),
+    row.names = rownames(expr_mat)
+  )
+  sca <- MAST::FromMatrix(
+    exprsArray = expr_mat,
+    cData = meta_subset,
+    fData = fdata,
+    check_sanity = FALSE
+  )
+  list(sca = sca, expr_mat = expr_mat, meta = meta_subset)
+}
+
+# Summarise how often each gene is detected within a filtered expression matrix.
+compute_detection_freq <- function(expr_mat, meta_subset) {
+  idx_tls <- meta_subset$Morphotype == "TLS"
+  idx_nb <- meta_subset$Morphotype == "neural_bias"
   tibble::tibble(
     gene = rownames(expr_mat),
     pct_TLS = Matrix::rowMeans(expr_mat[, idx_tls, drop = FALSE] > 0),
     pct_neural_bias = Matrix::rowMeans(expr_mat[, idx_nb, drop = FALSE] > 0),
-    detection_freq = Matrix::rowMeans(expr_mat[, idx_ct, drop = FALSE] > 0)
+    detection_freq = Matrix::rowMeans(expr_mat > 0)
   )
-}
-
-# Build the likelihood-ratio test coefficient name for a cell-type interaction.
-morphotype_lrt_name <- function(celltype_level) {
-  paste0("celltype", celltype_level, ":Morphotypeneural_bias")
-}
-
-# Build the matching log-fold-change contrast name for a cell-type interaction.
-morphotype_lfc_contrast <- function(celltype_level) {
-  paste0("celltype", celltype_level, ":Morphotypeneural_bias")
 }
 
 # Extract hurdle p-values and log-fold changes into a gene-level result table.
@@ -170,35 +177,41 @@ extract_mast_hurdle <- function(zlm_fit, summary_fit, lfc_contrast) {
 celltypes <- sort(unique(meta_120h$celltype))
 
 # ============================================================================
-# 4. MAST: cell-type interaction model ----
+# 4. MAST: per-cell-type hurdle mixed models ----
 # ============================================================================
 
-message("Fitting MAST hurdle mixed model for cell-type interaction...")
-zlm_celltype <- MAST::zlm(
-  formula = ~ 0 +
-    celltype +
-    celltype:Morphotype +
-    cngeneson +
-    (1 | Sample.barcode),
-  sca = sca,
-  method = "glmer",
-  ebayes = FALSE,
-  parallel = TRUE,
-  silent = FALSE
-)
-
 extract_mast_celltype <- function(celltype_level) {
-  message("Extracting results for cell type: ", celltype_level)
-  lrt_term <- morphotype_lrt_name(celltype_level)
-  lfc_term <- morphotype_lfc_contrast(celltype_level)
-  summary_fit <- summary(zlm_celltype, doLRT = lrt_term)
+  message("Fitting MAST hurdle mixed model for cell type: ", celltype_level)
+  genes_ct <- mast_keep_genes_by_celltype[[celltype_level]]
+  idx_ct <- meta_120h$celltype == celltype_level
+  meta_ct <- meta_120h[idx_ct, , drop = FALSE]
+  expr_ct <- expr_data[genes_ct, idx_ct, drop = FALSE]
 
-  extract_mast_hurdle(zlm_celltype, summary_fit, lfc_term) |>
+  if (length(genes_ct) == 0L || ncol(expr_ct) == 0L) {
+    return(NULL)
+  }
+
+  sca_ct <- make_mast_sca(expr_ct, meta_ct)
+  zlm_ct <- MAST::zlm(
+    formula = ~ Morphotype + cngeneson + (1 | Sample.barcode),
+    sca = sca_ct$sca,
+    method = "glmer",
+    ebayes = FALSE,
+    parallel = TRUE,
+    silent = FALSE
+  )
+  summary_ct <- summary(zlm_ct, doLRT = "Morphotypeneural_bias")
+
+  extract_mast_hurdle(zlm_ct, summary_ct, "Morphotypeneural_bias") |>
     dplyr::mutate(
       celltype = celltype_level,
+      n_selected_genes = length(genes_ct),
       padj_celltype_BH = stats::p.adjust(pvalue, method = "BH")
     ) |>
-    dplyr::left_join(compute_detection_freq(celltype_level), by = "gene")
+    dplyr::left_join(
+      compute_detection_freq(sca_ct$expr_mat, sca_ct$meta),
+      by = "gene"
+    )
 }
 
 de_celltype_long <- dplyr::bind_rows(lapply(
@@ -233,9 +246,14 @@ de_celltype_wide <- de_celltype_long |>
 # ============================================================================
 
 message("Fitting MAST hurdle mixed model for sample-level global contrast...")
+sample_genes <- sort(unique(unlist(mast_keep_genes_by_celltype, use.names = FALSE)))
+sca_sample <- make_mast_sca(
+  expr_data[sample_genes, , drop = FALSE],
+  meta_120h
+)
 zlm_sample <- MAST::zlm(
   formula = ~ Morphotype + cngeneson + (1 | Sample.barcode),
-  sca = sca,
+  sca = sca_sample$sca,
   method = "glmer",
   ebayes = FALSE,
   parallel = TRUE
@@ -249,17 +267,15 @@ de_sample <- extract_mast_hurdle(
   "Morphotypeneural_bias"
 ) |>
   dplyr::mutate(
+    n_selected_genes = length(sample_genes),
     padj_BH = stats::p.adjust(pvalue, method = "BH"),
-    pct_TLS = Matrix::rowMeans(
-      expr_mat[, meta_120h$Morphotype == "TLS", drop = FALSE] > 0
-    ),
-    pct_neural_bias = Matrix::rowMeans(
-      expr_mat[, meta_120h$Morphotype == "neural_bias", drop = FALSE] > 0
-    ),
-    detection_freq = Matrix::rowMeans(expr_mat > 0),
     study = study,
     technique = technique,
     analysis_level = "sample_single_cell"
+  ) |>
+  dplyr::left_join(
+    compute_detection_freq(sca_sample$expr_mat, sca_sample$meta),
+    by = "gene"
   ) |>
   dplyr::relocate(study, technique, analysis_level, .before = gene)
 
@@ -268,7 +284,7 @@ de_sample <- extract_mast_hurdle(
 # ============================================================================
 
 readr::write_csv(
-  de_celltype_wide,
+  de_celltype_long,
   file.path(
     output_dir,
     paste0(
@@ -303,6 +319,8 @@ build_volcano <- function(
 ) {
   df_de <- df_de |>
     dplyr::mutate(neg_log10_p = -log10(pvalue))
+  n_selected <- unique(df_de$n_selected_genes)
+  n_selected <- n_selected[!is.na(n_selected)][[1L]]
 
   x_limit <- max(abs(df_de$log2FoldChange), na.rm = TRUE)
   x_limit <- max(0.6, x_limit)
@@ -337,7 +355,7 @@ build_volcano <- function(
     x = "log2FoldChange",
     y = "pvalue",
     title = plot_title,
-    subtitle = paste0(study, " | ", technique),
+    subtitle = paste0(study, " | ", technique, " | tested genes: ", n_selected),
     xlab = bquote(Log[2] ~ "fold change (neural_bias vs TLS)"),
     ylab = bquote(-Log[10] ~ "hurdle p-value"),
     pCutoff = p_raw_cutoff,
@@ -458,7 +476,8 @@ build_pvalue_histogram <- function(
   p_values,
   plot_title,
   p_label,
-  fill_colour
+  fill_colour,
+  n_selected_genes
 ) {
   df_hist <- tibble::tibble(p_value = p_values) |>
     dplyr::filter(!is.na(p_value))
@@ -477,7 +496,7 @@ build_pvalue_histogram <- function(
     ) +
     ggplot2::labs(
       title = plot_title,
-      subtitle = p_label,
+      subtitle = paste0(p_label, " | tested genes: ", n_selected_genes),
       x = "p-value",
       y = "Gene count"
     ) +
@@ -490,18 +509,22 @@ build_pvalue_histogram <- function(
 
 build_celltype_hist_row <- function(ct) {
   df_ct <- de_celltype_long[de_celltype_long$celltype == ct, , drop = FALSE]
+  n_selected <- unique(df_ct$n_selected_genes)
+  n_selected <- n_selected[!is.na(n_selected)][[1L]]
   cowplot::plot_grid(
     build_pvalue_histogram(
       p_values = df_ct$pvalue,
       plot_title = ct,
       p_label = "raw hurdle p-value",
-      fill_colour = "#4C78A8"
+      fill_colour = "#4C78A8",
+      n_selected_genes = n_selected
     ),
     build_pvalue_histogram(
       p_values = df_ct$padj_celltype_BH,
       plot_title = ct,
       p_label = "BH adjusted p-value",
-      fill_colour = "#F58518"
+      fill_colour = "#F58518",
+      n_selected_genes = n_selected
     ),
     ncol = 2L,
     labels = c("raw", "adjusted")
@@ -526,13 +549,15 @@ hist_page_global <- cowplot::plot_grid(
     p_values = de_sample$pvalue,
     plot_title = "sample-level global",
     p_label = "raw hurdle p-value",
-    fill_colour = "#4C78A8"
+    fill_colour = "#4C78A8",
+    n_selected_genes = unique(de_sample$n_selected_genes)[[1L]]
   ),
   build_pvalue_histogram(
     p_values = de_sample$padj_BH,
     plot_title = "sample-level global",
     p_label = "BH adjusted p-value",
-    fill_colour = "#F58518"
+    fill_colour = "#F58518",
+    n_selected_genes = unique(de_sample$n_selected_genes)[[1L]]
   ),
   ncol = 2L,
   labels = c("raw", "adjusted")

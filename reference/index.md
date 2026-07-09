@@ -41,6 +41,12 @@
 - [`eval_hrRMSE()`](https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/eval_hrRMSE.md)
   : Hierarchical relative RMSE against a shared compositional reference
 
+- [`filter_deseq2_unexpressed_genes()`](https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/filter_deseq2_unexpressed_genes.md)
+  : Filter pseudo-bulk genes for DESeq2 by cell type
+
+- [`filter_mast_unexpressed_genes()`](https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/filter_mast_unexpressed_genes.md)
+  : Filter single-cell genes for MAST by cell type
+
 - [`read_double_gz_rds()`](https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/read_double_gz_rds.md)
   : Read a doubly gzip-compressed RDS file
 

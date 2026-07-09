@@ -109,6 +109,7 @@ sca <- MAST::FromMatrix(
 # 3. MAST helpers ----
 # ============================================================================
 
+# Find the MAST hurdle p-value column, which can vary by package output naming.
 mast_pvalue_col <- function(df) {
   hits <- grep("Pr.*Chisq", colnames(df), value = TRUE)
   if (length(hits) == 0L) {
@@ -117,6 +118,7 @@ mast_pvalue_col <- function(df) {
   hits[[1L]]
 }
 
+# Summarise how often each gene is detected within the selected cell type.
 compute_detection_freq <- function(celltype_level) {
   idx_ct <- meta_120h$celltype == celltype_level
   idx_tls <- idx_ct & meta_120h$Morphotype == "TLS"
@@ -129,14 +131,17 @@ compute_detection_freq <- function(celltype_level) {
   )
 }
 
+# Build the likelihood-ratio test coefficient name for a cell-type interaction.
 morphotype_lrt_name <- function(celltype_level) {
   paste0("celltype", celltype_level, ":Morphotypeneural_bias")
 }
 
+# Build the matching log-fold-change contrast name for a cell-type interaction.
 morphotype_lfc_contrast <- function(celltype_level) {
   paste0("celltype", celltype_level, ":Morphotypeneural_bias")
 }
 
+# Extract hurdle p-values and log-fold changes into a gene-level result table.
 extract_mast_hurdle <- function(zlm_fit, summary_fit, lfc_contrast) {
   res_dt <- summary_fit$datatable
   res_h <- res_dt[res_dt$component == "H", , drop = FALSE]

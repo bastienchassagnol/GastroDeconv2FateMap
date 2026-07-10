@@ -1,0 +1,209 @@
+---
+title: "Why MAST and pseudobulk DESeq2 return distinct sets of differentially expressed genes"
+format:
+  html:
+    toc: true
+    code-fold: true
+    embed-resources: true
+    html-math-method: mathjax
+execute:
+  echo: false
+tbl-cap-location: bottom
+number-sections: true
+---
+
+## Why MAST and pseudobulk DESeq2 return near-disjoint DEG sets {#sec-overview}
+
+This note explains why the MAST and pseudobulk DESeq2 workflows in
+`scripts/06_02_MAST_biological_exploration_transcriptomic_differential_analyses.R`
+and `scripts/06_02_deseq2_biological_exploration_transcriptomic_differential_analyses.R`
+return largely non-overlapping differentially expressed gene (DEG) sets, as
+summarised in the Venn comparison (`scripts/06_02_compare_DEGs.R`).
+
+### The fundamental mismatch: statistical unit of inference {#sec-unit}
+
+The root cause is that the two frameworks define the **experimental unit**
+differently (@tbl-statistical-unit).
+
+| Framework | Statistical unit | $n$ (neural, per group) |
+|-----------|-----------------|--------------------------|
+| Pseudobulk DESeq2 | Organoid (sample barcode) | 12 |
+| MAST (current implementation) | Cell | ~3,700–3,800 |
+
+: Statistical unit and effective sample size for the neural cell type {#tbl-statistical-unit}
+
+Crowell et al. term this the distinction between *cell-level* and
+*sample-level* inference. They write explicitly:
+
+> *"Most current scRNA-seq differential expression methods are designed to test
+> one set of cells against another … In such statistical models, the cells are
+> the experimental units … [but] the goal shifts to making sample-level
+> inferences (i.e., experimental units are samples), in order to account for
+> sample-to-sample as well as cell-to-cell variability."*
+
+The MAST hurdle model fitted per cell type is:
+
+$$
+\underbrace{\text{logit}\,P(Y_{ic} > 0)}_{\text{discrete (D)}} = \alpha + \beta_{\text{Morph}}\,x_i + \beta_{\text{cdr}}\,\text{cngeneson}_{ic}
+$$ {#eq-mast-discrete}
+
+$$
+\underbrace{E[Y_{ic} \mid Y_{ic} > 0]}_{\text{continuous (C)}} = \mu + \beta_{\text{Morph}}\,x_i + \beta_{\text{cdr}}\,\text{cngeneson}_{ic}
+$$ {#eq-mast-continuous}
+
+where $c$ indexes **cells** (~7,479 for neural). No random effect for
+`Sample.barcode` is included (`formula = ~ Morphotype + cngeneson`,
+`method = "glm"`). This means cells from the same organoid are treated as if
+they were independent biological replicates — a form of **pseudoreplication**.
+
+The DESeq2 model, by contrast, works on sum-of-counts per
+(cell type $\times$ sample) pseudo-bulk and tests:
+
+$$
+Y_{gs} \sim \text{NB}(\mu_{gs},\,\phi_g), \quad \log\mu_{gs} = \beta_{g0} + \beta_{g,\text{Morph}}\,x_s + \log s_s
+$$ {#eq-deseq2-nb}
+
+where $s$ indexes **organoids** (12 per group). The likelihood-ratio test (LRT)
+compares $\sim\text{Morphotype}$ vs $\sim 1$, with $\sim 22$ effective degrees
+of freedom.
+
+Together, @eq-mast-discrete, @eq-mast-continuous, and @eq-deseq2-nb formalise
+the core design difference summarised in @tbl-statistical-unit: MAST conditions
+on cell-level covariates and treats cells as replicates, whereas DESeq2 models
+sample-level count variation.
+
+### Artificial inflation of statistical power in MAST {#sec-power}
+
+The hurdle LRT statistic is:
+
+$$
+\Lambda = 2\bigl[\ell(\hat{\boldsymbol{\beta}}_{\text{full}}) - \ell(\hat{\boldsymbol{\beta}}_{\text{reduced}})\bigr] \xrightarrow{H_0} \chi^2_1
+$$ {#eq-mast-lrt}
+
+Under standard regression, power scales with $\sqrt{n}$. When
+$n = n_{\text{cells}} \approx 7{,}479$ rather than $n = n_{\text{samples}} = 24$,
+the effective standard error of $\hat\beta_{\text{Morph}}$ shrinks by roughly
+$\sqrt{7{,}479 / 24} \approx 18$-fold. Even biological noise shared across
+cells within the same organoid gets treated as if it were independent signal,
+inflating $\Lambda$ in @eq-mast-lrt and producing very small p-values for
+effects that would be invisible with sample-level replication. This is precisely
+what Crowell et al. demonstrate (Fig. 3):
+
+> *"Most isolated intersections, i.e., hits unique to a certain method, were
+> genes that had been stimulated to be EE [equally expressed] and thus false
+> discoveries … AD, MAST, and scDD methods report large numbers of isolated
+> hits"*
+
+The Venn results are entirely consistent with this: MAST returns 41
+FDR-significant DEGs in neural cells; DESeq2 returns 0. The 41 MAST-specific
+hits are the expected pattern of inflated false positives from pseudoreplication.
+
+### Why DESeq2 returns no FDR-significant DEGs after correction {#sec-fdr}
+
+With 12 vs 12 organoids and $m \approx 11{,}352$ tested genes, the
+Benjamini–Hochberg (BH) threshold for the $k$-th ranked p-value is:
+
+$$
+p_{(k)} \leq \frac{k}{m}\,q = \frac{k}{11{,}352} \times 0.05
+$$ {#eq-bh-threshold}
+
+The data show 575 genes with raw $p < 0.05$ in neural, but the minimum
+adjusted p-value is 0.133. This means the raw p-value distribution is only
+weakly enriched below 0.05 — consistent with a real but weak signal that is
+**below the power resolution** of 12 biological replicates. For a gene to
+survive BH at position $k = 1$, @eq-bh-threshold requires:
+
+$$
+p_{\min} \leq \frac{1}{11{,}352} \times 0.05 \approx 4.4 \times 10^{-6}
+$$ {#eq-bh-min}
+
+The observed minimum raw p-value is $\approx 9.8 \times 10^{-6}$, just above
+the bound in @eq-bh-min. DESeq2 is not failing to detect biology; it is
+correctly acknowledging that 12 organoids do not provide enough statistical
+power to confidently separate signal from noise at genome-wide FDR 5%, given
+the effect sizes present. As Crowell et al. note:
+
+> *"there is a clear gain in power for larger subpopulations, while FDR control
+> can vary greatly with the number of cells. Going forward, it would be of
+> interest to further explore the origins of this instability."*
+
+### Different model assumptions and input data {#sec-assumptions}
+
+Beyond replication, the two workflows differ in likelihood, input scale, and
+covariate handling (@tbl-model-comparison).
+
+| Aspect | MAST | DESeq2 pseudobulk |
+|--------|------|-------------------|
+| Input data | Log-normalised expression (`data` layer) | Raw integer counts |
+| Distribution | Zero-inflated hurdle GLM (logistic + Gaussian/GLM) | Negative binomial |
+| LFC scale | $\log_e$ of log-normalised values | $\log_2$ fold-change on count scale |
+| Per-cell covariate | `cngeneson` (scaled CDR) | None |
+| Shrinkage | None (`ebayes = FALSE`) | DESeq2 MAP shrinkage (LRT here) |
+
+: Comparison of MAST and pseudobulk DESeq2 modelling assumptions {#tbl-model-comparison}
+
+The `cngeneson` covariate (cellular detection rate,
+$\text{CDR}_c = \text{scale}(\sum_g \mathbf{1}[Y_{gc} > 0])$) absorbs variation
+in sequencing depth at the cell level:
+
+$$
+\text{cngeneson}_c = \frac{\text{n\_detected}_c - \overline{\text{n\_detected}}}{\text{SD}(\text{n\_detected})}
+$$ {#eq-cngeneson}
+
+This is important: if cells from `neural_bias` organoids have systematically
+higher CDR, some of its coefficient in @eq-mast-discrete and @eq-mast-continuous
+may absorb transcriptome-wide differences that are morphotype-driven. Conversely,
+it may also partially remove confounding from uneven capture efficiency.
+
+DESeq2 handles depth differently through the size factor $s_s$ in
+@eq-deseq2-nb, which normalises at the sample (pseudo-bulk) level rather than
+the cell level. As summarised in @tbl-model-comparison, MAST therefore models
+detection and expression on a log-normalised, cell-level scale, whereas DESeq2
+models count overdispersion on a pseudo-bulk count scale.
+
+Additionally, applying log-normalisation before a GLM on log-normalised values
+means MAST is working on a doubly-transformed scale. Crowell et al. show
+(Supplementary Fig. 5) that mixed-model and MAST methods on log counts
+**systematically underestimate logFCs** compared to NB pseudobulk methods applied
+to raw counts.
+
+### Summary of contributing causes, ranked by importance {#sec-summary}
+
+1. **Pseudoreplication (dominant effect).** MAST without a
+   `(1|Sample.barcode)` random effect treats $n \approx 7{,}500$ dependent
+   cells as independent replicates, inflating the LRT in @eq-mast-lrt by a
+   factor of $\sim n_{\text{cells}}/n_{\text{samples}} \approx 300$. This alone
+   explains the large number of MAST-specific hits and why none overlap with
+   DESeq2.
+
+2. **Low biological replication in DESeq2.** With 12 organoids per group and
+   ~11,000 genes, DESeq2 is correctly conservative: the signal is real (575 genes
+   pass $p < 0.05$) but weak relative to the multiple testing burden in
+   @eq-bh-threshold. The minimum padj of 0.133 is not a model failure — it is
+   the honest answer given the data.
+
+3. **Different likelihoods and input data.** MAST's hurdle GLM on
+   log-normalised data and DESeq2's NB model on raw counts capture different
+   aspects of expression variability (@tbl-model-comparison). Their LFCs are not
+   on the same scale and are not expected to rank genes identically even in the
+   absence of the replication issue.
+
+4. **`cngeneson` covariate.** MAST regresses out cellular CDR at the individual
+   cell level via @eq-cngeneson, modifying which genes appear significant
+   relative to DESeq2, which normalises only at the sample level.
+
+### What this means for interpretation {#sec-interpretation}
+
+The MAST results should be treated with caution as they reflect largely
+cell-level variation without accounting for organoid-to-organoid variability.
+The biologically conservative, replication-aware estimate is DESeq2's: the
+effect sizes in the data are below what 12 organoid replicates can resolve at
+genome-wide FDR, as formalised in @eq-bh-threshold and @eq-bh-min.
+
+The raw-$p$ overlap observed in the Venn comparison (4 genes at the sample level,
+3–4 at cell type level) represents the small set where both frameworks agree
+after loosening thresholds — these are the most credible candidates. If you
+want to increase power with DESeq2, the options are more biological replicates,
+or a model that borrows strength across cell types (e.g.,
+[muscat](https://bioconductor.org/packages/muscat) with its `pbDS` wrapper
+around edgeR/DESeq2 using shared dispersion).

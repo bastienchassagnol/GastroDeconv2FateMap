@@ -267,7 +267,11 @@ use_adjusted_pvalue_for_plot <- function(obj) {
 }
 
 # Collect all non-empty enrichment objects for one method across databases.
-collect_method_objects <- function(method_list, method_label, needs_termsim = FALSE) {
+collect_method_objects <- function(
+  method_list,
+  method_label,
+  needs_termsim = FALSE
+) {
   objs <- list()
   for (db in names(method_list)) {
     obj <- method_list[[db]]
@@ -1104,3 +1108,12 @@ if (FALSE) {
     )
 }
 
+# temp_enrichment <- readRDS(
+#   "outputs/biological-exploration/enrichment-analyses/GSE250136_mast_clusterprofiler_enrichment_results.rds"
+# )
+# temp_enrichment_long <- temp_enrichment$enrichment_long
+
+# readr::write_csv(
+#   temp_enrichment_long,
+#   "temp_GSE250136_mast_clusterprofiler.csv"
+# )

@@ -3,10 +3,12 @@
 # ============================================================================
 
 study <- "GSE250136"
-de_method <- "pseudobulk_deseq2"
+# de_method <- "pseudobulk_deseq2"
+de_method <- "mast"
 technique <- paste("clusterprofiler_enrichment", de_method, sep = "_")
 output_prefix <- paste(study, de_method, sep = "_")
 de_input_dir <- "outputs/biological-exploration/DEA-analyses"
+results_date <- "2026-07-09"
 output_dir <- "outputs/biological-exploration/enrichment-analyses"
 results_rds_file <- file.path(
   output_dir,
@@ -50,7 +52,24 @@ reactome_organism <- "mouse"
 min_gs_size <- 10
 max_gs_size <- 500
 show_category <- 20
-input_de_file <- "outputs/biological-exploration/DEA-analyses/GSE250136_pseudobulk_deseq2_120h_celltype_model_results_2026-07-09.csv"
+# input_de_file <- file.path(
+#   de_input_dir,
+#   paste0(
+#     study,
+#     "_pseudobulk_deseq2_120h_celltype_model_results_",
+#     results_date,
+#     ".csv"
+#   )
+# )
+input_de_file <- file.path(
+  de_input_dir,
+  paste0(
+    study,
+    "_mast_120h_celltype_model_results_",
+    results_date,
+    ".csv"
+  )
+)
 
 # ============================================================================
 # 1. Standardise DE table to one row per gene and cell type ----
@@ -1042,7 +1061,11 @@ message("clusterProfiler enrichment workflow completed.")
 # Minimal Manhattan plot reconstruction from the saved compact RDS.
 if (FALSE) {
   enrichment_test <- readRDS(
-    "outputs/biological-exploration/enrichment-analyses/GSE250136_pseudobulk_deseq2_clusterprofiler_enrichment_results.rds"
+    # "outputs/biological-exploration/enrichment-analyses/GSE250136_pseudobulk_deseq2_clusterprofiler_enrichment_results.rds"
+    file.path(
+      output_dir,
+      paste0(output_prefix, "_clusterprofiler_enrichment_results.rds")
+    )
   )
 
   celltype_for_test <- "neuromesodermal.progenitors"
@@ -1081,15 +1104,3 @@ if (FALSE) {
     )
 }
 
-
-enrichment_file <- readRDS("outputs/biological-exploration/enrichment-analyses/GSE250136_pseudobulk_deseq2_clusterprofiler_enrichment_results.rds")
-
-tinytable::tt(
-  enrichment_file$enrichment_long |>
-    head(20)
-)
-
-readr::write_csv(
-  enrichment_file$enrichment_long,
-  "temp_enrichment_file.csv"
-)

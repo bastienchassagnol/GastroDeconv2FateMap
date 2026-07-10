@@ -39,6 +39,26 @@ Reactome analyses.
 
 : Interpretation guide for variables in the enrichment result table {#tbl-enrichment-variables}
 
+## Villaronga-Luque reference model {#sec-vl-paper}
+
+The original Villaronga-Luque study is not a direct `neural_bias` vs `TLS`
+differential-expression comparison. It integrates imaging and scRNA-seq to link
+early molecular state to divergent end-state morphologies. The central claim is
+that imbalance between **oxidative phosphorylation and glycolysis** drives
+aberrant morphology and neural lineage bias, and that metabolic interventions
+can tune phenotypic outcome.
+
+In day-4 NMPs the authors report **positive enrichment for glycolysis** and
+**negative enrichment for OXPHOS**, with glycolysis/OXPHOS module scores
+tracking TmCH fraction. Lower day-3 TmCH associates with OXPHOS signatures;
+higher day-3 TmCH predicts glycolysis and mesodermal output. The paper further
+proposes a **glycolysis–WNT/FGF axis** influencing NMP decision-making, axial
+patterning, and morphogenesis — glycolysis as a metabolic signal activating
+WNT-related programs and biasing NMP output toward mesoderm.
+
+This reference frame is used below to interpret enrichment from MAST and
+pseudobulk DESeq2 at 120 h (@sec-mast, @sec-deseq2, @sec-comparison).
+
 ## MAST enrichment interpretation {#sec-mast}
 
 These results are enrichment downstream of a **single-cell hurdle MAST framework**,
@@ -54,7 +74,9 @@ glucose metabolism / oxidative phosphorylation.
 ### Neural cluster: mitochondrial respiration {#sec-mast-neural}
 
 The clearest MAST signal is in **neural** cells, where ORA highlights
-mitochondrial and respiratory-chain processes (@tbl-mast-neural-ora).
+mitochondrial and respiratory-chain processes (@tbl-mast-neural-ora). This
+localises a strong OXPHOS-like signature in the neural compartment, whereas
+the original paper emphasised NMP metabolic state as an upstream driver.
 
 | Cell type | Method | Database | Term | Directional score | FDR |
 | --------- | -----: | -------: | ---- | ----------------: | --: |
@@ -67,17 +89,15 @@ mitochondrial and respiratory-chain processes (@tbl-mast-neural-ora).
 : Top ORA mitochondrial and respiratory terms in neural cells (MAST) {#tbl-mast-neural-ora}
 
 **Biological reading:** MAST emphasises a **mitochondrial bioenergetic shift**
-in neural_bias neural cells (electron transport, proton transport, ATP synthesis,
-Complex IV). Because MAST is sensitive to cell-level detection and expression,
-this may reflect a metabolic state shift, a difference in metabolically active
-cells, or both. Retinoic acid and chemiosmotic ATP terms appear in GSEA summaries
-but lack the ORA support; treat **neural RA signalling** as secondary.
+in neural_bias neural cells. Retinoic acid terms appear in GSEA summaries but
+lack ORA support; treat **neural RA signalling** as secondary.
 
 ### Neuromesodermal progenitors: synaptic translation and gap junctions {#sec-mast-nmp}
 
 NMP-like cells show strong GO GSEA for **translation at synapse/presynapse/postsynapse**
 (positive NES, neural_bias side) alongside **gap junction degradation** (negative
-NES, TLS side; @tbl-mast-nmp-gsea).
+NES, TLS side; @tbl-mast-nmp-gsea). This is finer-grained than the original
+paper's bulked NMP metabolic modules and may reflect a subset of NMP-like cells.
 
 | Cell type | Method | Database | Term | NES | FDR |
 | --------- | -----: | -------: | ---- | --: | --: |
@@ -89,15 +109,14 @@ NES, TLS side; @tbl-mast-nmp-gsea).
 : Synaptic translation and gap-junction terms in NMP cells (MAST) {#tbl-mast-nmp-gsea}
 
 **Biological reading:** neural_bias NMPs show stronger synaptic/local-translation
-annotations, whereas TLS retains gap-junction turnover. Glucose/glycolysis terms
-are visible but weaker than translation and gap-junction signals.
+annotations; TLS retains gap-junction turnover. Glucose/glycolysis terms are
+visible but weaker.
 
 ### Pluripotent cluster: membrane fusion {#sec-mast-pluripotent}
 
-Pluripotent-like cells have strong GO GSEA for **translation at
-synapse/presynapse/postsynapse** and **negative regulation of syncytium/myoblast
-fusion** (@tbl-mast-pluripotent-gsea). HS-GAG and syndecan terms appear in tree
-summaries but not as top low-FDR GSEA hits.
+Pluripotent-like cells have strong GO GSEA for **synaptic translation** and
+**negative regulation of syncytium/myoblast fusion** (@tbl-mast-pluripotent-gsea).
+HS-GAG and syndecan terms appear in tree summaries but not as top low-FDR hits.
 
 | Cell type | Method | Database | Term | NES | FDR |
 | --------- | -----: | -------: | ---- | --: | --: |
@@ -108,15 +127,13 @@ summaries but not as top low-FDR GSEA hits.
 
 : Synaptic translation and membrane-fusion terms in pluripotent cells (MAST) {#tbl-mast-pluripotent-gsea}
 
-**Biological reading:** the robust claim is a **membrane-organisation / cell-fusion
-regulation program**, with weaker HS-GAG/syndecan support. Glycosylation remains
-exploratory relative to synaptic/fusion terms.
+**Biological reading:** robust signal is **membrane-organisation / cell-fusion
+regulation**; glycosylation remains exploratory.
 
 ### Somitic cluster: glucose metabolism {#sec-mast-somitic}
 
-Somitic cells show a clear carbohydrate-metabolism signal (@tbl-mast-somitic):
-ORA highlights **gluconeogenesis**, **glycolysis**, and **glucose metabolism**;
-GSEA is directionally consistent but weaker.
+Somitic cells show carbohydrate-metabolism enrichment (@tbl-mast-somitic) — one
+of the clearest links to the original paper's glycolysis–mesoderm model.
 
 | Cell type | Method | Database | Term | Score | FDR |
 | --------- | -----: | -------: | ---- | ----: | --: |
@@ -129,17 +146,14 @@ GSEA is directionally consistent but weaker.
 
 : Carbohydrate metabolism terms in somitic cells (MAST) {#tbl-mast-somitic}
 
-**Biological reading:** MAST points to **metabolic remodelling** in somitic cells,
-unlike DESeq2 pseudo-bulk which emphasised FGFR signalling. Retinoic acid and
-respiratory electron transport appear in tree structure but are secondary to
-glucose/carbohydrate metabolism.
+**Biological reading:** **metabolic remodelling** in somitic cells, contrasting
+with DESeq2's FGFR emphasis (@sec-deseq2-somitic).
 
 ### Unknown cluster: junctions and retinoic acid {#sec-mast-unknown}
 
-The unknown cluster shows coherent Reactome patterns but should be interpreted
-cautiously (@tbl-mast-unknown). GSEA yields near-threshold negative NES for
-cell-junction terms; RA signalling is stronger by ORA but driven by a small gene
-count.
+The unknown cluster shows coherent but low-confidence Reactome patterns
+(@tbl-mast-unknown). RA signalling is stronger by ORA but driven by a small
+gene count.
 
 | Cell type | Method | Database | Term | NES / z-score | FDR |
 | --------- | -----: | -------: | ---- | ------------: | --: |
@@ -152,35 +166,28 @@ count.
 
 : Junction and retinoic acid terms in the unknown cluster (MAST) {#tbl-mast-unknown}
 
-**Biological reading:** a small state with **retinoid activity and junctional
-remodelling** is plausible, but leading-edge genes and identity markers should be
-checked before strong claims.
+**Biological reading:** a small **retinoid and junctional remodelling** state is
+plausible but requires validation.
 
 ### Cross-cell-type synthesis {#sec-mast-synthesis}
 
-The MAST landscape differs from DESeq2 pseudo-bulk enrichment. Four axes dominate:
-
-1. **Mitochondrial respiration / OXPHOS in neural cells** — the strongest
-   MAST-specific signal (GO and Reactome ORA).
-2. **Cell-cell communication and junction remodelling** — gap-junction degradation
-   in NMPs; cadherin/junction terms in unknown cells.
-3. **Retinoic acid / nuclear receptor signalling** — strongest ORA support in
-   unknown; elsewhere mainly pathway-context hypotheses.
-4. **Carbohydrate/glucose metabolism** — significant in somitic cells; HS-GAG terms
-   weaker in pluripotent/neural tree structures.
-
-**Concise message:** the neural_bias vs TLS contrast reflects **cell-state and
-communication remodelling**, not only lineage shifts. The most robust MAST-specific
-signature is **neural mitochondrial OXPHOS**; other compartments show junctional,
-synaptic/local-translation, and glucose-metabolism modules. Retinoic acid
-signalling is a secondary candidate unless supported by leading-edge genes.
+MAST recovers a **metabolic, membrane, transport, and signalling landscape**:
+neural OXPHOS, somitic glucose metabolism, NMP gap-junction remodelling, and
+unknown-cluster RA/junction terms. Four axes dominate: mitochondrial respiration
+in neural cells; junction/communication remodelling; retinoic acid (mainly
+unknown); carbohydrate metabolism in somitic cells.
 
 ## Pseudobulk DESeq2 enrichment interpretation {#sec-deseq2}
 
+DESeq2 enrichment is comparatively sparse but biologically coherent. It mainly
+detects **coordinated, organoid-level developmental programs** rather than the
+glycolysis/OXPHOS axis emphasised in @sec-vl-paper.
+
 ### Neural cluster: regionalization {#sec-deseq2-neural}
 
-Within neural cells, TLS shows stronger **regionalization and pattern-specification**
-programs (@tbl-deseq2-neural).
+TLS shows stronger **regionalization and pattern-specification** programs
+(@tbl-deseq2-neural), consistent with coordinated axial organisation in
+successful TLS-like outcomes.
 
 | Cell type | Database | Term | NES | FDR | Direction |
 | --------- | -------: | ---- | --: | --: | --------- |
@@ -189,13 +196,14 @@ programs (@tbl-deseq2-neural).
 
 : GO regionalization terms in neural cells (DESeq2 pseudo-bulk) {#tbl-deseq2-neural}
 
-**Biological reading:** TLS may preserve broader axial/neural patterning, whereas
-neural_bias shifts away from regionalization programs.
+**Biological reading:** TLS retains broader axial/neural patterning; neural_bias
+shifts away from regionalization programs.
 
 ### Somitic cluster: FGFR signalling {#sec-deseq2-somitic}
 
-The strongest overall DESeq2 signal is **FGFR ligand-binding and activation** in
-somitic cells (@tbl-deseq2-somitic).
+The strongest DESeq2 signal is **FGFR ligand-binding and activation** in somitic
+cells (@tbl-deseq2-somitic), compatible with the original paper's FGF/WNT axis
+in posterior axial progenitors and somitogenesis.
 
 | Cell type | Database | Term | NES | FDR | Direction |
 | --------- | -------: | ---- | --: | --: | --------- |
@@ -207,15 +215,13 @@ somitic cells (@tbl-deseq2-somitic).
 
 : FGFR signalling terms in somitic cells (DESeq2 pseudo-bulk) {#tbl-deseq2-somitic}
 
-**Biological reading:** TLS somitic cells show stronger FGF-responsive programs,
-consistent with roles of FGF in axial elongation and somitogenesis. Neural_bias
-may attenuate FGFR-driven somitic signalling.
+**Biological reading:** TLS somitic cells show stronger FGF-responsive programs;
+neural_bias may attenuate FGFR-driven somitic signalling.
 
 ### Neuromesodermal progenitors: immune signal {#sec-deseq2-nmp}
 
-No GSEA terms pass strict FDR $< 0.05$ in NMPs. Near-threshold immune GO terms
-are positive on the neural_bias side (@tbl-deseq2-nmp); small-count ORA hits for
-haematopoietic homeostasis are exploratory.
+No GSEA terms pass strict FDR $< 0.05$ in NMPs (@tbl-deseq2-nmp). Small-count
+ORA hits for haematopoietic homeostasis are exploratory.
 
 | Cell type | Database | Term | NES | FDR | Direction |
 | --------- | -------: | ---- | --: | --: | --------- |
@@ -224,23 +230,62 @@ haematopoietic homeostasis are exploratory.
 
 : Near-threshold immune terms in NMP cells (DESeq2 pseudo-bulk) {#tbl-deseq2-nmp}
 
-**Biological reading:** a weak neural_bias-associated immune annotation shift is
-possible but not a robust GSEA conclusion.
-
 ### Pluripotent and unknown clusters {#sec-deseq2-other}
 
 Pluripotent cells lack strong low-FDR GSEA signals (top GO carbohydrate-import
 terms at FDR $\approx 0.29$). The unknown cluster has a borderline NK-cell
-differentiation term (FDR $\approx 0.054$) in a low-confidence compartment.
-Avoid strong mechanistic claims for these two clusters.
+differentiation term (FDR $\approx 0.054$). Avoid strong mechanistic claims
+outside neural and somitic compartments.
 
 ### Summary {#sec-deseq2-summary}
 
-Two robust TLS-side programs drive the DESeq2 enrichment landscape:
+Two robust TLS-side programs drive DESeq2 enrichment: **neural regionalization**
+and **somitic FGFR signalling**. Neural_bias does not uniformly increase neural
+biology; the strongest signals suggest remodelling of TLS-associated patterning
+and FGFR-driven somitic programs.
 
-1. **Neural cells:** regionalization and pattern-specification programs.
-2. **Somitic cells:** FGFR ligand-binding and receptor-activation modules.
+## Comparison across three approaches {#sec-comparison}
 
-Neural_bias does not uniformly increase neural biology; the strongest pathway-level
-signals suggest **relative loss or remodelling of TLS-associated patterning and
-FGFR-driven somitic programs**.
+@tbl-three-way-comparison summarises how each biological axis appears in the
+original Villaronga-Luque study (@sec-vl-paper), pseudobulk DESeq2 enrichment
+(@sec-deseq2), and MAST enrichment (@sec-mast). Detailed term-level evidence
+is in @tbl-mast-neural-ora, @tbl-mast-somitic, @tbl-deseq2-neural, and
+@tbl-deseq2-somitic.
+
+| Biological axis | Villaronga-Luque | DESeq2 pseudo-bulk | MAST | Synthesis |
+| --- | --- | --- | --- | --- |
+| Glycolysis / OXPHOS balance | Central mechanism: glycolysis vs OXPHOS controls phenotypic outcome and neural bias. | Weak or not dominant in top hits. | Strong: neural OXPHOS/electron transport; somitic glucose/glycolysis/gluconeogenesis. | MAST recovers cell-level metabolic heterogeneity; DESeq2 may miss subset shifts. |
+| Spatial regionalization / axial patterning | Phenotypic success depends on coordinated axial development and TmCH/T-domain organisation. | Strong neural TLS-side regionalization and pattern specification. | Less central; appears indirectly via signalling modules. | DESeq2 captures organoid-level spatial organisation programs. |
+| FGF/WNT/NMP signalling | FGF/WNT/glycolysis axis influences NMP decision-making and mesoderm output. | Strong TLS-side FGFR ligand-binding/activation in somitic cells. | MAPK/VEGF/RHO/EPH/gap-junction modules in NMP/somitic contexts. | DESeq2 sees coherent FGFR programs; MAST sees downstream communication remodelling. |
+| Retinoic acid signalling | RA among variable axial-patterning/NMP-related pathways. | Present in tree/dotplot outputs but not a dominant low-FDR hit. | Strongest in unknown cluster by ORA; also in neural/somitic Reactome structures. | RA may mark a small substate, better detected by MAST. |
+| Cell-cell communication / ECM / junctions | Morphogenesis central but not the main enrichment headline. | Some ECM/communication terms but not dominant. | Stronger: gap junctions, adherens junctions, cadherin/STAT3, L1CAM, EPH–Ephrin, non-integrin ECM. | MAST is more sensitive to membrane/junctional programs in cell subsets. |
+| Glycosylation / HS-GAG / syndecan | Not central; PPP/HBP scores not associated with TmCH. | Weak O-linked glycosylation, keratan sulfate, fat-soluble metabolism terms. | HS-GAG biosynthesis/degradation and syndecan interactions in tree modules; weaker than OXPHOS or glucose metabolism. | Plausible but secondary; better framed as modulatory. |
+
+: Comparison of biological axes across Villaronga-Luque, DESeq2, and MAST enrichment {#tbl-three-way-comparison}
+
+## Integrated interpretation {#sec-integrated}
+
+The three analyses observe the same biological system at different resolutions
+and are not incompatible.
+
+1. **Villaronga-Luque (@sec-vl-paper):** early NMP metabolic state biases the
+   fate landscape — higher glycolysis supports TLS and mesodermal/somitic output;
+   lower glycolysis and/or compensatory OXPHOS associates with neural-biased
+   outcomes.
+2. **DESeq2 (@sec-deseq2):** at 120 h, differences manifest as organoid-level
+   programs — TLS retains **neural regionalization** and **somitic FGFR
+   signalling**.
+3. **MAST (@sec-mast):** the same phenotype decomposes into cell-state modules —
+   neural OXPHOS, somitic glucose metabolism, and junctional/retinoid substates
+   in NMP, pluripotent, and unknown compartments.
+
+> Pseudo-bulk DESeq2 recovers the **tissue-level transcriptional consequences**
+> of morphotype divergence — regionalization and FGFR-associated somitic
+> organisation — whereas MAST resolves **cell-state metabolic and signalling
+> heterogeneity**, especially OXPHOS, glucose metabolism, and cell-cell
+> communication. Both are compatible with metabolic imbalance preceding, and
+> likely helping drive, the neural-biased versus TLS-like phenotypic landscape.
+
+**Take-home:** present DESeq2 as the **primary organoid-level differential-state
+analysis** and MAST as a **cell-level mechanistic decomposition** localising
+which compartments carry metabolic and communication shifts (@tbl-three-way-comparison).

@@ -14,6 +14,9 @@ if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
 
+# see also https://rdrr.io/bioc/muscat/man/pbDS.html, describing distinct pseudo-bulk strategies
+# at sample, or cell-type elvel, using traditional bulk approaches
+
 # ============================================================================
 # 1. Load merged object and subset to 120h ----
 # ============================================================================
@@ -585,5 +588,3 @@ if (nrow(deg_hits) > 0) {
 }
 
 message("Pseudo-bulk DESeq2 workflow completed.")
-
-

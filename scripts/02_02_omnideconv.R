@@ -6,8 +6,10 @@ source("R/utils.R")
 
 # run this instruction in non-interactive way
 # both stdout and stderr are redirected to the log file
-# nohup Rscript --no-save --no-restore scripts/02_02_omnideconv.R --config_path configs/omnideconv.yml 2>&1 | tee "logs/suppinger_$(date +%F)_omnideconv.log"
-# parse arguments
+# nohup Rscript --no-save --no-restore scripts/02_02_omnideconv.R \
+#   --config_path data/configs/omnideconv.yml \
+#   > "logs/suppinger_$(date +%F)_omnideconv.log" 2>&1 &
+
 parser <- argparse::ArgumentParser()
 parser$add_argument("--config_path", type = "character", required = FALSE)
 args <- parser$parse_args()
@@ -47,10 +49,10 @@ bulk_treatment_column <- config$columns$bulk_treatment
 if (is.null(bulk_treatment_column) || identical(bulk_treatment_column, "")) {
   bulk_treatment_column <- "treatment_status"
 }
-bulk_control_value <- config$filters$bulk_treatment_value
-if (is.null(bulk_control_value) || identical(bulk_control_value, "")) {
-  bulk_control_value <- "control"
-}
+bulk_treatment_values <- config$filters$bulk_treatment_value |>
+  unlist() |>
+  unique() |>
+  as.character()
 
 single_cell_time_point_column <- config$columns$single_cell_time_point
 if (
@@ -182,10 +184,10 @@ if (!dir.exists(dirname(output_file))) {
 bulk_omics <- readRDS(bulk_omics_path)
 single_cell_omics <- readRDS(single_cell_omics_path)
 
-# 1.1. Pre-loop filtering: drop early-treatment bulk samples ----
+# 1.1. Pre-loop filtering: keep selected bulk treatment statuses ----
 bulk_omics <- bulk_omics[,
-  SummarizedExperiment::colData(bulk_omics)[[bulk_treatment_column]] ==
-    bulk_control_value
+  SummarizedExperiment::colData(bulk_omics)[[bulk_treatment_column]] %in%
+    bulk_treatment_values
 ]
 # Shared time points between control bulk and single-cell
 shared_timepoints <- intersect(

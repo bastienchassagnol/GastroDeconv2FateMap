@@ -3,6 +3,10 @@
 .Rapp.history
 temp_commands.R
 
+# Environement configuration files
+.env
+
+
 # Session Data files
 .RData
 .RDataTmp

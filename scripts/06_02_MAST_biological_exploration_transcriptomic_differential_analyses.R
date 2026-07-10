@@ -5,7 +5,7 @@
 # bash command to run this script ----
 # nohup Rscript --no-save --no-restore \
 #   scripts/06_02_MAST_biological_exploration_transcriptomic_differential_analyses.R \
-#   > "logs/GSE250136_$(date +%F)_mast_hurdle_glmer.log" 2>&1 &
+#   > "logs/GSE250136_$(date +%F)_mast_hurdle_glm.log" 2>&1 &
 
 library(MAST)
 library(SeuratObject)
@@ -43,8 +43,8 @@ options(mc.cores = parallel::detectCores() %/% 2L)
 # Methodological note:
 # MAST models log-normalised single-cell expression with a hurdle GLM
 # (Finak et al., Genome Biology 2015). We use RNA/data (not raw counts),
-# adjust for cellular detection rate (cngeneson), and include organoid-level
-# random effects to avoid pseudo-replication.
+# adjust for cellular detection rate (cngeneson). We use a hurdle GLM
+# (no random effects) for numerical stability at scale.
 obj <- readRDS("./data/intermediate/luque_single_cell_merged_2026-06-07.rds")
 SeuratObject::DefaultAssay(obj) <- "RNA"
 
@@ -177,11 +177,11 @@ extract_mast_hurdle <- function(zlm_fit, summary_fit, lfc_contrast) {
 celltypes <- sort(unique(meta_120h$celltype))
 
 # ============================================================================
-# 4. MAST: per-cell-type hurdle mixed models ----
+# 4. MAST: per-cell-type hurdle GLM models ----
 # ============================================================================
 
 extract_mast_celltype <- function(celltype_level) {
-  message("Fitting MAST hurdle mixed model for cell type: ", celltype_level)
+  message("Fitting MAST hurdle GLM for cell type: ", celltype_level)
   genes_ct <- mast_keep_genes_by_celltype[[celltype_level]]
   idx_ct <- meta_120h$celltype == celltype_level
   meta_ct <- meta_120h[idx_ct, , drop = FALSE]
@@ -193,9 +193,9 @@ extract_mast_celltype <- function(celltype_level) {
 
   sca_ct <- make_mast_sca(expr_ct, meta_ct)
   zlm_ct <- MAST::zlm(
-    formula = ~ Morphotype + cngeneson + (1 | Sample.barcode),
+    formula = ~ Morphotype + cngeneson,
     sca = sca_ct$sca,
-    method = "glmer",
+    method = "glm",
     ebayes = FALSE,
     parallel = TRUE,
     silent = FALSE
@@ -245,16 +245,19 @@ de_celltype_wide <- de_celltype_long |>
 # 5. MAST: sample-level global model (~ Morphotype) ----
 # ============================================================================
 
-message("Fitting MAST hurdle mixed model for sample-level global contrast...")
-sample_genes <- sort(unique(unlist(mast_keep_genes_by_celltype, use.names = FALSE)))
+message("Fitting MAST hurdle GLM for sample-level global contrast...")
+sample_genes <- sort(unique(unlist(
+  mast_keep_genes_by_celltype,
+  use.names = FALSE
+)))
 sca_sample <- make_mast_sca(
   expr_data[sample_genes, , drop = FALSE],
   meta_120h
 )
 zlm_sample <- MAST::zlm(
-  formula = ~ Morphotype + cngeneson + (1 | Sample.barcode),
+  formula = ~ Morphotype + cngeneson,
   sca = sca_sample$sca,
-  method = "glmer",
+  method = "glm",
   ebayes = FALSE,
   parallel = TRUE
 )
@@ -643,4 +646,4 @@ if (nrow(deg_hits) > 0) {
   )
 }
 
-message("MAST hurdle mixed-model workflow completed.")
+message("MAST hurdle GLM workflow completed.")

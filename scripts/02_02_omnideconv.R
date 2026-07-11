@@ -1,5 +1,6 @@
 library(omnideconv)
 source("R/utils.R")
+source("R/deconvolution_scorings.R")
 # ==========================================================================
 # 0. Command-line configuration; and parse arguments ----
 # ==========================================================================

@@ -53,6 +53,9 @@ naive_pseudo_bulk <- aggregate_barcode_pseudo_bulk(
   barcode_col = "Sample.barcode"
 )
 
+
+summarise_seurat_assays_layers(GSE250136_120h)
+
 saveRDS(
   naive_pseudo_bulk,
   file = glue::glue(
@@ -61,111 +64,107 @@ saveRDS(
 )
 
 
-# ==========================================================================
-# 3. Strategy 2 — phenotype-stratified bootstrap ----
-# ==========================================================================
+# # ==========================================================================
+# # 3. Strategy 2 — phenotype-stratified bootstrap ----
+# # ==========================================================================
 
-pb_boot_bio <- simulate_bootstrap_samples(
-  seurat_obj = GSE250136_120h,
-  phenotype_col = "Morphotype",
-  barcode_col = "Sample.barcode",
-  n_samples = n_simulated,
-  replicate_type = "biological",
-  seed = 42L
-)
+# pb_boot_bio <- simulate_bootstrap_samples(
+#   seurat_obj = GSE250136_120h,
+#   phenotype_col = "Morphotype",
+#   barcode_col = "Sample.barcode",
+#   n_samples = n_simulated,
+#   replicate_type = "biological",
+#   seed = 42L
+# )
 
-message(
-  "Strategy 2 (bootstrap biological): ",
-  ncol(pb_boot_bio),
-  " samples; phenotypes: ",
-  paste(table(SummarizedExperiment::colData(pb_boot_bio)$Morphotype),
-        collapse = ", ")
-)
+# message(
+#   "Strategy 2 (bootstrap biological): ",
+#   ncol(pb_boot_bio),
+#   " samples; phenotypes: ",
+#   paste(table(SummarizedExperiment::colData(pb_boot_bio)$Morphotype),
+#         collapse = ", ")
+# )
 
+# # ==========================================================================
+# # 4. Strategy 3 — organoid-preserving bootstrap ----
+# # ==========================================================================
 
-# ==========================================================================
-# 4. Strategy 3 — organoid-preserving bootstrap ----
-# ==========================================================================
+# pb_boot_tech <- simulate_bootstrap_samples(
+#   seurat_obj = GSE250136_120h,
+#   phenotype_col = "Morphotype",
+#   barcode_col = "Sample.barcode",
+#   n_samples = n_simulated,
+#   replicate_type = "technical",
+#   seed = 42L
+# )
 
-pb_boot_tech <- simulate_bootstrap_samples(
-  seurat_obj = GSE250136_120h,
-  phenotype_col = "Morphotype",
-  barcode_col = "Sample.barcode",
-  n_samples = n_simulated,
-  replicate_type = "technical",
-  seed = 42L
-)
+# message(
+#   "Strategy 3 (bootstrap technical): ",
+#   ncol(pb_boot_tech),
+#   " samples; phenotypes: ",
+#   paste(table(SummarizedExperiment::colData(pb_boot_tech)$Morphotype),
+#         collapse = ", ")
+# )
 
-message(
-  "Strategy 3 (bootstrap technical): ",
-  ncol(pb_boot_tech),
-  " samples; phenotypes: ",
-  paste(table(SummarizedExperiment::colData(pb_boot_tech)$Morphotype),
-        collapse = ", ")
-)
+# # ==========================================================================
+# # 5. Strategy 7 — generative log-normal pseudo-bulk ----
+# # ==========================================================================
 
+# pb_gen_lognorm <- simulate_generative_models(
+#   seurat_obj = GSE250136_120h,
+#   phenotype_col = "Morphotype",
+#   barcode_col = "Sample.barcode",
+#   n_samples = n_simulated,
+#   model = "lognormal",
+#   seed = 42L
+# )
 
-# ==========================================================================
-# 5. Strategy 7 — generative log-normal pseudo-bulk ----
-# ==========================================================================
+# message(
+#   "Strategy 7 (generative log-normal): ",
+#   ncol(pb_gen_lognorm),
+#   " samples; phenotypes: ",
+#   paste(table(SummarizedExperiment::colData(pb_gen_lognorm)$Morphotype),
+#         collapse = ", ")
+# )
 
-pb_gen_lognorm <- simulate_generative_models(
-  seurat_obj = GSE250136_120h,
-  phenotype_col = "Morphotype",
-  barcode_col = "Sample.barcode",
-  n_samples = n_simulated,
-  model = "lognormal",
-  seed = 42L
-)
+# # ==========================================================================
+# # 6. Strategy 10 — Splatter-style negative-binomial pseudo-bulk ----
+# # ==========================================================================
 
-message(
-  "Strategy 7 (generative log-normal): ",
-  ncol(pb_gen_lognorm),
-  " samples; phenotypes: ",
-  paste(table(SummarizedExperiment::colData(pb_gen_lognorm)$Morphotype),
-        collapse = ", ")
-)
+# pb_gen_nb <- simulate_generative_models(
+#   seurat_obj = GSE250136_120h,
+#   phenotype_col = "Morphotype",
+#   barcode_col = "Sample.barcode",
+#   n_samples = n_simulated,
+#   model = "negative_binomial",
+#   seed = 42L
+# )
 
-
-# ==========================================================================
-# 6. Strategy 10 — Splatter-style negative-binomial pseudo-bulk ----
-# ==========================================================================
-
-pb_gen_nb <- simulate_generative_models(
-  seurat_obj = GSE250136_120h,
-  phenotype_col = "Morphotype",
-  barcode_col = "Sample.barcode",
-  n_samples = n_simulated,
-  model = "negative_binomial",
-  seed = 42L
-)
-
-message(
-  "Strategy 10 (generative negative binomial): ",
-  ncol(pb_gen_nb),
-  " samples; phenotypes: ",
-  paste(table(SummarizedExperiment::colData(pb_gen_nb)$Morphotype),
-        collapse = ", ")
-)
-
+# message(
+#   "Strategy 10 (generative negative binomial): ",
+#   ncol(pb_gen_nb),
+#   " samples; phenotypes: ",
+#   paste(table(SummarizedExperiment::colData(pb_gen_nb)$Morphotype),
+#         collapse = ", ")
+# )
 
 # ==========================================================================
 # 7. Save SummarizedExperiment objects ----
 # ==========================================================================
 
-pseudo_bulk_outputs <- list(
-  barcode_aggregation = pb_barcode,
-  bootstrap_biological = pb_boot_bio,
-  bootstrap_technical = pb_boot_tech,
-  generative_lognormal = pb_gen_lognorm,
-  generative_negative_binomial = pb_gen_nb
-)
+# pseudo_bulk_outputs <- list(
+#   barcode_aggregation = pb_barcode,
+#   bootstrap_biological = pb_boot_bio,
+#   bootstrap_technical = pb_boot_tech,
+#   generative_lognormal = pb_gen_lognorm,
+#   generative_negative_binomial = pb_gen_nb
+# )
 
-saveRDS(
-  pseudo_bulk_outputs,
-  file = glue::glue(
-    "./data/intermediate/{study}_pseudo_bulk_simulations_{today}.rds"
-  )
-)
+# saveRDS(
+#   pseudo_bulk_outputs,
+#   file = glue::glue(
+#     "./data/intermediate/{study}_pseudo_bulk_simulations_{today}.rds"
+#   )
+# )
 
-message("Saved pseudo-bulk simulations to data/intermediate/")
+# message("Saved pseudo-bulk simulations to data/intermediate/")

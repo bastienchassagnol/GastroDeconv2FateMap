@@ -59,22 +59,47 @@ local({
   )
 })
 
-# R 4.6 no longer calls `.First.sys()`. Ensure VS Code session watcher can
-# still attach when an interactive terminal session starts.
-# local({
-#   if (identical(Sys.getenv("TERM_PROGRAM"), "vscode")) {
-#     old_first <- get0(".First", envir = .GlobalEnv, mode = "function")
-#     assign(
-#       ".First",
-#       function() {
-#         if (is.function(old_first)) {
-#           old_first()
-#         }
-#         if (exists(".vsc.attach", mode = "function", inherits = TRUE)) {
-#           try(.vsc.attach(), silent = TRUE)
-#         }
-#       },
-#       envir = .GlobalEnv
-#     )
-#   }
-# })
+# VS Code / Cursor R session watcher (R 4.6+).
+# - Do not source the Python .venv here; that is handled by uv for Python only.
+# - Source the vscode-R init script so variables appear in the R workspace pane.
+# - R 4.6 may not call `.First`; call `init_last()` explicitly after sourcing.
+local({
+  is_ide_terminal <- Sys.getenv("TERM_PROGRAM") %in% c("vscode", "cursor")
+  if (!interactive() || !is_ide_terminal) {
+    return(invisible(NULL))
+  }
+
+  # Skip attach for one-shot `R -e` / `Rscript` invocations (would hang).
+  args <- commandArgs(trailingOnly = FALSE)
+  if (any(grepl("^--file=", args)) || any(grepl("^-e$", args))) {
+    return(invisible(NULL))
+  }
+
+  # vscode-R init.R only recognises TERM_PROGRAM == "vscode".
+  if (identical(Sys.getenv("TERM_PROGRAM"), "cursor")) {
+    Sys.setenv(TERM_PROGRAM = "vscode")
+  }
+
+  init_r <- path.expand("~/.vscode-R/init.R")
+  if (!file.exists(init_r)) {
+    return(invisible(NULL))
+  }
+
+  tryCatch(
+    {
+      source(init_r, local = FALSE)
+      if (exists("init_last", mode = "function", inherits = TRUE)) {
+        init_last()
+      } else if (exists(".vsc.attach", mode = "function", inherits = TRUE)) {
+        .vsc.attach()
+      }
+    },
+    error = function(err) {
+      message(
+        "vscode-R session watcher could not attach: ",
+        conditionMessage(err)
+      )
+    }
+  )
+  invisible(NULL)
+})

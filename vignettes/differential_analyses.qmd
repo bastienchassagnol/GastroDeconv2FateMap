@@ -12,13 +12,32 @@ tbl-cap-location: bottom
 number-sections: true
 ---
 
+
+
 ## Why MAST and pseudobulk DESeq2 return near-disjoint DEG sets {#sec-overview}
 
-This note explains why the MAST and pseudobulk DESeq2 workflows in
+The MAST and pseudobulk DESeq2 workflows in
 `scripts/06_02_MAST_biological_exploration_transcriptomic_differential_analyses.R`
 and `scripts/06_02_deseq2_biological_exploration_transcriptomic_differential_analyses.R`
-return largely non-overlapping differentially expressed gene (DEG) sets, as
-summarised in the Venn comparison (`scripts/06_02_compare_DEGs.R`).
+test the same morphotype contrast but define different experimental units,
+inputs, and likelihoods (@tbl-mast-deseq2-overview). The sections below explain
+why they return largely non-overlapping differentially expressed gene (DEG)
+sets, as summarised in the Venn comparison (`scripts/06_02_compare_DEGs.R`).
+
+| Feature | MAST | DESeq2 pseudo-bulk |
+| --- | --- | --- |
+| Unit of analysis | Single cells | Organoid-level pseudo-bulk samples |
+| Input | Log-normalised expression (`data` layer) | Raw integer counts |
+| Distribution | Two-part hurdle (logistic + Gaussian) | Negative-binomial count GLM |
+| Zeros | Explicit detection component | Absorbed as low counts under NB |
+| Replicate handling | Requires random effects or sample covariates to avoid pseudoreplication | Organoid is the natural replicate unit |
+| Nuisance adjustment | Cellular detection rate (`cngeneson`) | Size factors and dispersion trend |
+| LFC scale | $\log_e$ on log-normalised values | $\log_2$ on count scale |
+| Shrinkage | None (`ebayes = FALSE`) | DESeq2 MAP shrinkage (LRT here) |
+| Best suited to | Cell-level detection and expression shifts | Sample-level biological DE |
+| Main risk | Anti-conservative if sample structure is ignored | Loses cell-level distributional detail |
+
+: Conceptual comparison of the MAST and pseudobulk DESeq2 workflows {#tbl-mast-deseq2-overview}
 
 ### Notation and indices {#sec-notation}
 
@@ -58,7 +77,7 @@ does not use @eq-pseudobulk-sum.
 ### The fundamental mismatch: statistical unit of inference {#sec-unit}
 
 The root cause is that the two frameworks define the **experimental unit**
-differently (@tbl-statistical-unit, @tbl-notation).
+differently (@tbl-mast-deseq2-overview, @tbl-statistical-unit, @tbl-notation).
 
 | Framework | Statistical unit | $n$ (neural, per group) |
 |-----------|-----------------|--------------------------|
@@ -157,20 +176,9 @@ FDR 5% given the effect sizes present.
 
 ### Different model assumptions and input data {#sec-assumptions}
 
-Beyond replication, the workflows differ in likelihood, input scale, and
-covariate handling (@tbl-model-comparison).
-
-| Aspect | MAST | DESeq2 pseudobulk |
-|--------|------|-------------------|
-| Input data | Log-normalised expression (`data` layer) | Raw integer counts |
-| Distribution | Zero-inflated hurdle GLM (logistic + Gaussian/GLM) | Negative binomial |
-| LFC scale | $\log_e$ of log-normalised values | $\log_2$ fold-change on count scale |
-| Per-cell covariate | `cngeneson` (scaled CDR) | None |
-| Shrinkage | None (`ebayes = FALSE`) | DESeq2 MAP shrinkage (LRT here) |
-
-: Comparison of MAST and pseudobulk DESeq2 modelling assumptions {#tbl-model-comparison}
-
-The `cngeneson` covariate absorbs sequencing-depth variation at the cell level:
+Beyond replication, the likelihoods, input scale, and covariate handling
+summarised in @tbl-mast-deseq2-overview are formalised below. The `cngeneson`
+covariate absorbs sequencing-depth variation at the cell level:
 
 $$
 \text{cngeneson}_i = \frac{\text{n\_detected}_i - \overline{\text{n\_detected}}}{\text{SD}(\text{n\_detected})}
@@ -245,10 +253,10 @@ inflate significance.
    @eq-deseq2-nb favour organoid-coherent patterning programs; @eq-mast-discrete
    and @eq-mast-continuous favour cell-state heterogeneity (@sec-resolution).
 
-4. **Different likelihoods and input data.** MAST's hurdle GLM on log-normalised
-   data and DESeq2's NB model on raw counts capture different aspects of
-   expression variability (@tbl-model-comparison). LFCs are not on the same scale
-   and are not expected to rank genes identically.
+4. **Different likelihoods and input data.** As in @tbl-mast-deseq2-overview,
+   MAST's hurdle GLM on log-normalised data and DESeq2's NB model on raw counts
+   capture different aspects of expression variability. LFCs are not on the same
+   scale and are not expected to rank genes identically.
 
 5. **`cngeneson` covariate.** MAST regresses out cellular CDR via @eq-cngeneson,
    modifying which genes appear significant relative to DESeq2.

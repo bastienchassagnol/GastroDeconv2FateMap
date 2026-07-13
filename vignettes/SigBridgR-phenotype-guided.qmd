@@ -1,0 +1,109 @@
+---
+title: "Phenotype-guided single-cell approaches"
+from: markdown+emoji
+format:
+  html:
+    toc: true
+    code-fold: true
+    embed-resources: true
+    html-math-method: mathjax
+execute:
+  echo: false
+tbl-cap-location: bottom
+---
+
+
+# Phenotype-guided single-cell approaches
+
+::: {.callout-note}
+Shared notation used across the table:
+
+$$
+Y_i \in \{0,1\}, \qquad i=1,\ldots,n
+$$
+
+where $Y_i=1$ denotes the positive bulk-level phenotype, for example successful trunk-like gastruloid differentiation, and $Y_i=0$ denotes failed differentiation with neuroectodermal output.
+
+$$
+X^{\mathrm{bulk}} \in \mathbb{R}^{\hat{G}\times n},
+\qquad
+X^{\mathrm{sc}} \in \mathbb{R}^{G\times K}
+$$
+
+where $\hat{G}$ is the set of genes shared between bulk and single-cell data, $n$ is the number of bulk samples, and $K$ is the number of single-cell profiles.
+
+$$
+A \in \mathbb{R}^{n\times K}
+$$
+
+is the bulk-to-single-cell similarity or correlation matrix, with entry $A_{ik}$ measuring the similarity between bulk sample $i$ and single cell $k$.
+
+$$
+\eta=(\eta_1,\ldots,\eta_K)^\top
+$$
+
+is the cell-association coefficient vector. A positive coefficient indicates a cell positively associated with $Y=1$, a negative coefficient indicates inverse association, and a zero coefficient indicates weak or no association. Unless otherwise stated, $\lambda$ denotes an $L_1$-type sparsity penalty.
+:::
+
+
+
+| Algorithm | Expected single-cell normalization | Expected bulk normalization | Supported phenotype types | Output type | Theoretical framework, short description | Core objective / score in shared notation |
+|---|---|---|---|---|---|---|
+| **Scissor** | Seurat-style normalized and scaled expression after QC; commonly log-normalized counts restricted to genes shared with bulk. | Preprocessed bulk expression matrix with samples matched to phenotype labels; genes aligned to scRNA-seq. | `binary`, `survival`, `continuous` | **Positive / Negative / Neutral** | Network-regularized regression. First computes bulk–cell similarity $A$, then fits phenotype $Y$ using sparse cell coefficients while encouraging similar cells to receive similar coefficients. | $$\hat{\eta}=\arg\min_{\eta}\mathcal{L}(Y,A\eta)+\lambda\left[\alpha\|\eta\|_1+(1-\alpha)\eta^\top L_{\mathrm{cell}}\eta\right]$$ $\eta_k>0 \Rightarrow$ Positive; $\eta_k<0 \Rightarrow$ Negative; $\eta_k\approx0 \Rightarrow$ Neutral. |
+| **DEGAS** | Single-cell expression transformed into model-ready input; often normalized expression with optional phenotype column for cells if available. | Bulk expression transformed into the deep transfer-learning input space; matched to phenotype labels. | `binary`, `survival`, `continuous` | **Positive / Other** after thresholding | Deep multitask transfer learning with domain adaptation. Learns latent representations of bulk and single-cell profiles and transfers disease or phenotype impressions from bulk samples to cells. | $$\min_{\theta}\mathcal{L}_{\mathrm{task}}\{Y,f_\theta(X^{\mathrm{bulk}})\}+\gamma\,\mathrm{MMD}\{h_\theta(X^{\mathrm{bulk}}),h_\theta(X^{\mathrm{sc}})\}+\Omega(\theta)$$ Cells receive continuous phenotype-impression scores; thresholding gives Positive versus Other. |
+| **scAB** | Normalized single-cell expression; used to construct bulk–cell similarity and cell graph terms. | Preprocessed bulk expression matrix matched to clinical or binary phenotype labels. | `binary`, `survival` | **Positive / Other** | Knowledge- and graph-guided non-negative matrix factorization. Decomposes bulk–cell similarity into latent factors regularized by phenotype and cell–cell similarity. | $$\min_{W,H\ge0}\|A-WH\|_F^2+\alpha\,\mathcal{R}_{\mathrm{pheno}}(H,Y)+\alpha_2\,\mathrm{tr}(HL_{\mathrm{cell}}H^\top)$$ High phenotype-associated factor scores are mapped to Positive; remaining cells are Other. |
+| **LP_SGL** | Single-cell data are normalized and clustered; Leiden communities define cell groups. | Preprocessed bulk expression matrix matched to phenotype vector or survival data. | `binary`, `survival`, `continuous` | **Positive / Negative / Neutral** | Sparse group lasso with community structure. Uses Leiden-derived cell groups to impose both cell-level sparsity and group-level sparsity. | $$\hat{\eta}=\arg\min_{\eta}\mathcal{L}(Y,A\eta)+\lambda\left[(1-\alpha)\sum_g\sqrt{p_g}\|\eta_g\|_2+\alpha\|\eta\|_1\right]$$ Groups $g$ are Leiden communities; selected positive and negative coefficients define cell classes. |
+
+
+| Algorithm | Expected single-cell normalization | Expected bulk normalization | Supported phenotype types | Output type | Theoretical framework, short description | Core objective / score in shared notation |
+|---|---|---|---|---|---|---|
+| **SCIPAC** | Normalized single-cell matrix; highly variable genes, PCA, clustering and optional batch correction are used. | Preprocessed bulk expression projected into the same reduced feature space or used to estimate phenotype coefficients. | `binary`, `survival`, `continuous` | **Positive / Negative / Neutral** | Quantitative association estimation. Clusters cells, fits elastic-net regression on bulk data, and maps bulk-derived coefficients back to single-cell profiles to estimate cell–phenotype association strength. | $$\hat{\beta}=\arg\min_{\beta}\mathcal{L}(Y,Z^{\mathrm{bulk}}\beta)+\lambda\left[\alpha_{\mathrm{EN}}\|\beta\|_1+\frac{1-\alpha_{\mathrm{EN}}}{2}\|\beta\|_2^2\right]$$ $$s_k=(z^{\mathrm{sc}}_k)^\top\hat{\beta}$$ Bootstrap-derived intervals or p-values classify cells. |
+| **PIPET** | Optional log-normalization and scaling before similarity matching; may filter genes by cell detection frequency. | Bulk expression used for differential expression and phenotype-specific feature-vector construction. | `binary`, `continuous` | **Positive / Negative / Neutral** in SigBridgeR harmonization | Phenotype-guided similarity matching. Constructs phenotype feature vectors from bulk-derived DEGs and scores each cell by similarity to phenotype-associated templates. | Define marker/template vector $m_+$ for $Y=1$ and $m_-$ for $Y=0$. $$s_k=d(x^{\mathrm{sc}}_k,m_-)-d(x^{\mathrm{sc}}_k,m_+)$$ Large positive $s_k$ indicates Positive association; negative values indicate inverse association. |
+| **scPAS** | Normalized single-cell expression; selects features and derives gene–gene similarity network from scRNA-seq or bulk. | Preprocessed bulk expression matrix matched to phenotype labels. | `binary`, `survival`, `continuous` | **Positive / Negative / Neutral** | Network-regularized sparse regression with permutation testing. Similar to sparse regression on $A$, but explicitly regularizes gene or cell network structure and estimates significance through permutation. | $$\hat{\eta}=\arg\min_{\eta}\mathcal{L}(Y,A\eta)+\lambda\|\eta\|_1+\rho\,\eta^\top L_{\mathrm{network}}\eta$$ Permutation-derived null distributions provide p-values or FDR-controlled cell labels. |
+| **scPP** | Normalized single-cell expression ranked per cell; AUCell-style ranking is used for marker enrichment. | Bulk data used to identify phenotype-associated marker genes by differential expression or association testing. | `binary`, `survival`, `continuous` | **Positive / Negative / Neutral** | Marker projection via AUCell enrichment. Finds phenotype-associated markers in bulk and evaluates whether each cell ranks those markers highly. | For marker set $M_+$, compute AUCell-like enrichment: $$\mathrm{AUC}_{k,+}=\sum_{r\le R} I\{g_r^{(k)}\in M_+\}\,w_r$$ Cells in the high quantile for $M_+$ and low quantile for opposite markers are Positive. |
+
+## Practical comparison table
+
+
+| Algorithm | General category | Core SigBridgeR function | Core hyper-parameters in `Screen()` | Parameter tuning approach | Main pros | Main cons | GitHub / CRAN / web | Reported release / table date | Bibliographic reference |
+|---|---|---|---|---|---|---|---|---|---|
+| **Scissor** | Regression-based; network-regularized sparse model | `Screen(..., screen_method = "Scissor")`; backend `DoScissor()` | `alpha`, `cutoff`, `path2load_scissor_cache`, `path2save_scissor_inputs`, `reliability_test`, `reliability_test.nfold`, `reliability_test.n`, `cell_evaluation`, `cell_evaluation.FDR`, `cell_evaluation.bootstrap_n` | Cross-validation and grid-like search over sparsity/network balance. Reliability testing can permute phenotype labels and compare actual prediction performance against a null distribution. | Highly interpretable; links each cell to positive, negative, or neutral phenotype association; robust first-choice method. | Depends on quality of bulk–cell correlation matrix; selected cells can be sensitive to $\alpha$, cutoff and phenotype strength. | <https://github.com/sunduanchen/Scissor> | 2021-11-11 | Sun et al., *Nature Biotechnology* 2022. DOI: 10.1038/s41587-021-01001-7 |
+| **DEGAS** | Deep learning; transfer learning; domain adaptation | `Screen(..., screen_method = "DEGAS")`; backend `DoDEGAS()` | `sc_data.pheno_colname`, `select_fraction`, `tmp_dir`, `env_params`, `degas_params`, `normality_test_method` | Tune neural-network and training settings through `degas_params`; SigBridgeR study used post hoc thresholds, e.g. score differential and top-fraction rules, to obtain Positive versus Other labels. | Can model nonlinear relationships; explicitly addresses bulk-to-single-cell domain shift. | Computationally heavy; hyperparameter-sensitive; labels may require post hoc thresholding. | <https://github.com/tsteelejohnson91/DEGAS> | 2022-02-01 | Johnson et al., *Genome Medicine* 2022. DOI: 10.1186/s13073-022-01046-4 |
+| **scAB** | Matrix factorization; graph-guided NMF | `Screen(..., screen_method = "scAB")`; backend `DoscAB()` | `alpha`, `alpha_2`, `maxiter`, `tred` | Uses phenotype and cell–cell graph regularization strengths; default settings are often used, with `tred` controlling z-score thresholding. | Robust; interpretable latent factors; relatively consistent across datasets. | No continuous phenotype support in SigBridgeR; output is two-class Positive/Other. | <https://github.com/jinworks/scAB> | 2022-11-28 | Zhang et al., *Nucleic Acids Research* 2022. DOI: 10.1093/nar/gkac1109 |
+| **LP_SGL** | Regression-based; sparse group lasso; community-aware | `Screen(..., screen_method = "LP_SGL")`; backend `DoLP_SGL()` | `resolution`, `alpha`, `nfold`, `dge_analysis` with `run`, `logFC_threshold`, `pval_threshold` | Leiden resolution controls cell groups; `alpha` balances group and $L_1$ sparsity; `nfold` controls cross-validation. | Strong binary-phenotype performance; explicitly uses cell-community structure. | Can be memory intensive on large datasets; dependent on Leiden grouping and SGL implementation. | <https://github.com/hongmeizhanghm/LP_SGL> | 2023-11-22 | Li et al., *Briefings in Bioinformatics* 2024. DOI: 10.1093/bib/bbad424 |
+
+
+| Algorithm | General category | Core SigBridgeR function | Core hyper-parameters in `Screen()` | Parameter tuning approach | Main pros | Main cons | GitHub / CRAN / web | Reported release / table date | Bibliographic reference |
+|---|---|---|---|---|---|---|---|---|---|
+| **SCIPAC** | Regression-based; elastic net; quantitative association estimation | `Screen(..., screen_method = "SCIPAC")`; backend `DoSCIPAC()` | `hvg`, `do_pca_sc`, `n_pc`, `sc_batch_col`, `resolution`, `ela_net_alpha`, `bt_size`, `ncore`, `ci_alpha`, `nfold`, `assay`, `seed` | Tunes PCA, clustering resolution, elastic-net mixing, bootstrap size and cross-validation folds. | Provides quantitative cell–phenotype association scores and p-values; strong under binary phenotypes. | Can be less reliable under survival phenotypes; depends on clustering and regression design. | <https://github.com/RavenGan/SCIPAC> | 2024-05-13 | Gan et al., *Genome Biology* 2024. DOI: 10.1186/s13059-024-03263-1 |
+| **PIPET** | Similarity-based; phenotype-guided template matching | `Screen(..., screen_method = "PIPET")`; backend `DoPIPET()` | `group`, `discretize_method`, `cutoff`, `log2FC`, `p_adjust`, `show_log2FC`, `freq_counts`, `normalize`, `scale`, `nPerm`, `distance`, `seed`, `parallel` | Differential-expression thresholds define bulk phenotype markers; `distance` and permutation number control similarity scoring and significance. | Conceptually direct; useful when bulk phenotype has strong DEG signal. | Sensitive to number and quality of bulk-derived markers; limited to binary/continuous in SigBridgeR. | <https://github.com/ruan2ruan/PIPET> | 2024-05-23 | Ruan et al., *Briefings in Bioinformatics* 2024. DOI: 10.1093/bib/bbae260 |
+| **scPAS** | Regression-based; network-regularized sparse regression with permutation testing | `Screen(..., screen_method = "scPAS")`; backend `DoscPAS()` | `assay`, `imputation`, `nfeature`, `alpha`, `independent`, `network_class`, `permutation_times`, `FDR_threshold` | Selects features, chooses single-cell or bulk network class, and estimates significance by permutation with FDR thresholding. | Statistically grounded p-values; incorporates gene–gene similarity network. | Can miss signals when phenotype effect is weak or bulk–scRNA overlap is limited; permutation-heavy. | <https://github.com/aiminXie/scPAS> | 2024-11-22 | Xie et al., *Briefings in Bioinformatics* 2024. DOI: 10.1093/bib/bbae655 |
+| **scPP** | Enrichment-based; marker projection using AUCell | `Screen(..., screen_method = "scPP")`; backend `DoscPP()` | `ref_group`, `Log2FC_cutoff`, `estimate_cutoff`, `probs` | Bulk-derived marker thresholds define phenotype gene sets; AUCell score quantiles classify cells. | Fast, simple and interpretable; directly projects phenotype markers into single cells. | Highly dependent on differential-expression marker quality; can fail if bulk markers are weak or sparse. | <https://github.com/WangX-Lab/ScPP> | Unknown in supplied table | He et al., preprint/article record; DOI not reliably resolved from supplied table. |
+
+
+
+
+| Algorithm | Sparsity / regularization strength | Network / graph weighting | Cell-selection threshold | CV folds | Feature number / HVG selection | Clustering resolution | PCA dimensions | DE logFC threshold | DE p/FDR threshold | Marker / reference group | Permutation count | Bootstrap / CI | Distance / similarity metric | Normalization / scaling switch | Parallelization | Reliability / post-hoc evaluation | Deep-learning training parameters |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| *Purpose* | *Controls penalty strength or mixing, e.g. `alpha`* | *Controls cell/gene network contribution* | *Defines Positive/Other cutoff or quantile* | *Cross-validation tuning* | *Controls selected genes/features* | *Controls cell communities/clusters* | *Controls low-dimensional embedding* | *Marker effect-size threshold* | *Marker/significance threshold* | *Defines phenotype marker baseline* | *Null or permutation testing* | *Uncertainty estimation* | *Template/similarity scoring* | *Method-level preprocessing switch* | *Runtime scaling* | *Reliability or cell-level validation* | *Neural model/environment settings* |
+| **Scissor** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ |
+| **DEGAS** | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| **scAB** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **LP_SGL** | ✅ | ✅ | ❌ | ✅ | ❌ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **SCIPAC** | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| **PIPET** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| **scPAS** | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **scPP** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+
+
+
+::: {.callout-note}
+### Parameter grouping used in this table
+
+- **Sparsity / regularization strength** groups parameters such as `alpha`, `alpha_2`, `ela_net_alpha`, and method-specific penalty controls.
+- **Network / graph weighting** covers cell-cell, gene-gene, or community-structure regularization.
+- **Cell-selection threshold** covers parameters such as `cutoff`, `tred`, `select_fraction`, `estimate_cutoff`, and quantile-like thresholds.
+- **DE logFC threshold** merges `log2FC`, `Log2FC_cutoff`, and `logFC_threshold`.
+- **DE p/FDR threshold** merges `p_adjust`, `pval_threshold`, `FDR_threshold`, and related significance cutoffs.
+- Infrastructure-only parameters such as `seed`, `assay`, `tmp_dir`, cache paths, and low-level environment paths were intentionally excluded.
+:::

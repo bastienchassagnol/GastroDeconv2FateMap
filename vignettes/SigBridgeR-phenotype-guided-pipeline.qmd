@@ -1,0 +1,2040 @@
+---
+title: "Phenotype-guided SigBridgeR pipeline"
+subtitle: "Neural-biased morphotype: preprocessing, four-method screening, consensus, and visualisation"
+from: markdown+emoji
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: show
+    code-tools: true
+    embed-resources: true
+    html-math-method: mathjax
+execute:
+  echo: true
+  warning: true
+  message: true
+  error: false
+  freeze: auto
+tbl-cap-location: bottom
+fig-cap-location: bottom
+---
+
+::: {.callout-important}
+## Scope and assumptions
+
+This tutorial is configured for a **binary bulk phenotype**, with the **Neural-biased Morphotype encoded as `1`** and all other morphotypes encoded as `0`. Thus, `Positive` cells are interpreted as associated with the Neural-biased phenotype, while `Negative` cells are associated with the non-neural reference group.
+
+The single-cell object already contains biological cell-type/state labels in
+`luque_cluster_annotation`; no cell-type annotation step is run. Mouse gene
+symbols are already present, so gene-symbol conversion is disabled.
+
+The four screening methods are **scPP**, **LP-SGL**, **DEGAS**, and
+**Scissor** only.
+:::
+
+# 0. Configuration: files, columns, and all hyperparameters
+
+All paths, column names, randomisation controls, thresholds, and
+method-specific settings are defined here. Change this section rather than
+editing values later in the workflow.
+
+## 0.1 File locations
+
+```{r}
+#| label: configuration-paths
+
+PATHS <- list(
+  # Input files ---------------------------------------------------------------
+  sc_seurat = file.path("data", "single_cell", "luque_seurat.rds"),
+  bulk_summarized_experiment = file.path(
+    "data", "bulk", "bulk_counts_summarized_experiment.rds"
+  ),
+
+  # Required only because Scissor cell evaluation is enabled.
+  # This must be an .RData benchmark file accepted by DoScissorCellEval().
+  scissor_benchmark = file.path(
+    "data", "benchmarks", "Scissor_benchmark.RData"
+  ),
+
+  # Persistent project outputs -----------------------------------------------
+  output_dir = file.path("results", "SigBridgeR_neural_morphotype"),
+  figures_dir = file.path(
+    "results", "SigBridgeR_neural_morphotype", "figures"
+  ),
+  tables_dir = file.path(
+    "results", "SigBridgeR_neural_morphotype", "tables"
+  ),
+  objects_dir = file.path(
+    "results", "SigBridgeR_neural_morphotype", "objects"
+  ),
+
+  # Temporary/cached intermediates. These disappear with the R session.
+  tmp_root = file.path(tempdir(), "SigBridgeR_neural_morphotype"),
+
+  # Local uv project for DEGAS Python dependencies ----------------------------
+  degas_uv_project = file.path(".uv", "degas")
+)
+
+PATHS$degas_venv <- file.path(PATHS$degas_uv_project, ".venv")
+PATHS$degas_python <- if (.Platform$OS.type == "windows") {
+  file.path(PATHS$degas_venv, "Scripts", "python.exe")
+} else {
+  file.path(PATHS$degas_venv, "bin", "python")
+}
+
+PATHS$preprocessed_sc <- file.path(
+  PATHS$objects_dir, "single_cell_preprocessed.rds"
+)
+PATHS$preprocessed_bulk_counts <- file.path(
+  PATHS$objects_dir, "bulk_filtered_counts.rds"
+)
+PATHS$preprocessed_bulk_expression <- file.path(
+  PATHS$objects_dir, "bulk_logCPM_for_screening.rds"
+)
+PATHS$phenotype <- file.path(
+  PATHS$objects_dir, "neural_biased_phenotype.rds"
+)
+PATHS$screen_results <- file.path(
+  PATHS$objects_dir, "screen_results.rds"
+)
+PATHS$merged_result <- file.path(
+  PATHS$objects_dir, "merged_weighted_vote.rds"
+)
+
+invisible(lapply(
+  unique(c(
+    PATHS$output_dir,
+    PATHS$figures_dir,
+    PATHS$tables_dir,
+    PATHS$objects_dir,
+    PATHS$tmp_root,
+    PATHS$degas_uv_project
+  )),
+  dir.create,
+  recursive = TRUE,
+  showWarnings = FALSE
+))
+```
+
+## 0.2 Data columns and global controls
+
+```{r}
+#| label: configuration-columns-global
+
+COL <- list(
+  # Existing single-cell metadata annotation
+  cell_annotation = "luque_cluster_annotation",
+
+  # SummarizedExperiment::colData() column containing the bulk morphotype
+  bulk_morphotype = "Morphotype",
+
+  # Optional batch column in colData(); use NULL when absent
+  bulk_batch = NULL,
+
+  # Assay containing raw bulk counts
+  bulk_assay = "counts",
+
+  # Input and output Seurat assays
+  sc_input_assay = "RNA",
+  sc_analysis_assay = "SCT"
+)
+
+CFG <- list(
+  project_name = "SigBridgeR_NeuralBiased",
+  phenotype_name = "NeuralBiasedMorphotype",
+  positive_label = "Neural-biased Morphotype",
+  positive_code = 1L,
+  reference_code = 0L,
+  phenotype_class = "binary",
+
+  seed = 20260713L,
+  cv_folds = 5L,
+  bootstrap_n = 100L,
+
+  p_value = 0.05,
+  fdr = 0.05,
+  log2fc = 0.5,
+  penalty_mix = 0.5,
+  selection_fraction = 0.20,
+
+  min_common_genes = 500L,
+  minimum_samples_per_class = 5L,
+
+  # Half of all currently available cores
+  cpu_budget = max(
+    1L,
+    floor(parallelly::availableCores() / 2L)
+  ),
+  future_globals_max_bytes = 16 * 1024^3,
+
+  # DEGAS: uv/pip is more likely to resolve TensorFlow 2.4.1 with Python 3.8.
+  # Override this path/version for platforms without a compatible wheel.
+  degas_python_version = "3.8.18",
+  degas_python_packages = c(
+    "tensorflow==2.4.1",
+    "protobuf==3.20.3",
+    "numpy==1.19.5"
+  )
+)
+
+CFG$n_r_workers <- min(3L, CFG$cpu_budget)
+CFG$threads_per_worker <- max(
+  1L,
+  floor(CFG$cpu_budget / CFG$n_r_workers)
+)
+
+set.seed(CFG$seed)
+```
+
+## 0.3 Preprocessing hyperparameters
+
+There is **no explicit `ScaleData()` step**. `SCTransform()` performs its own
+variance-stabilising transformation and stores Pearson residuals in the SCT
+assay, but the separate Seurat scaling step is omitted.
+
+Mitochondrial and ribosomal percentages are calculated for QC. They are not
+used as automatic exclusion thresholds because mitochondrial and ribosomal
+programmes can be biologically meaningful in developmental cell lines.
+
+```{r}
+#| label: configuration-preprocessing
+
+PREPROCESS <- list(
+  single_cell = list(
+    # Create -> SCTransform -> PCA -> neighbours -> UMAP.
+    # No ScaleData and no re-clustering.
+    pipeline = "orpeu",
+
+    create = list(
+      project = CFG$project_name,
+      min.cells = 400L,
+      min.features = 0L
+    ),
+
+    sctransform = list(
+      vst.flavor = "v2",
+      variable.features.n = 3000L,
+      return.only.var.genes = FALSE,
+      vars.to.regress = NULL,
+      conserve.memory = FALSE,
+      verbose = FALSE
+    ),
+
+    pca = list(
+      npcs = 50L,
+      verbose = FALSE
+    ),
+
+    neighbours = list(
+      dims = 1:30,
+      verbose = FALSE
+    ),
+
+    umap = list(
+      dims = 1:30,
+      seed.use = CFG$seed,
+      verbose = FALSE
+    ),
+
+    # Mouse-style symbols
+    qc_patterns = c("^mt-", "^Rp[sl]"),
+
+    # QCFilter merges its own defaults into this list. Explicit thresholds
+    # above 100 disable mitochondrial/ribosomal exclusion while retaining the
+    # calculated QC columns and their reports.
+    data_filter = list(
+      assay = "RNA",
+      nFeature_thresh = c(200L, 6000L),
+      nCount_thresh = c(500L, 50000L),
+      percent.mt = 101,
+      percent.rp = 101
+    )
+  ),
+
+  bulk = list(
+    gene_symbol_conversion = FALSE,
+    check = TRUE,
+    min_count_threshold = 10L,
+    min_gene_expressed = 3L,
+    min_total_reads = 1e6L,
+    min_genes_detected = 10000L,
+
+    # Keep the correlation QC report, but do not remove samples by correlation.
+    # Pearson correlations cannot be lower than -1.
+    min_correlation = -1,
+
+    n_top_genes = 500L,
+    show_plot_results = TRUE,
+
+    # Screening expression transform; this is normalization, not gene-ID
+    # standardization or per-gene z-scoring.
+    screening_transform = "edgeR_logCPM",
+    log_cpm_prior_count = 1
+  )
+)
+```
+
+::: {.callout-note}
+`min.cells = 400` is retained because it is the SigBridgeR default. For a
+small dataset or a study focused on rare developmental states, review the
+number of genes removed and lower this value only through the configuration
+section; do not change it silently downstream.
+:::
+
+## 0.4 Screening hyperparameters
+
+```{r}
+#| label: configuration-screening
+
+SCREEN <- list(
+  shared = list(
+    assay = COL$sc_analysis_assay,
+    seed = CFG$seed,
+    verbose = TRUE,
+    cv_folds = CFG$cv_folds,
+    bootstrap_n = CFG$bootstrap_n,
+    p_value = CFG$p_value,
+    fdr = CFG$fdr,
+    log2fc = CFG$log2fc,
+    penalty_mix = CFG$penalty_mix,
+    selection_fraction = CFG$selection_fraction
+  ),
+
+  scPP = list(
+    ref_group = CFG$reference_code,
+    Log2FC_cutoff = CFG$log2fc,
+    estimate_cutoff = 0.2,
+    probs = CFG$selection_fraction,
+    parallel = TRUE
+  ),
+
+  LP_SGL = list(
+    family = "logit",
+    resolution = 0.6,
+    alpha = CFG$penalty_mix,
+    nfold = CFG$cv_folds,
+    dge_analysis = list(
+      run = TRUE,
+      logFC_threshold = CFG$log2fc,
+      pval_threshold = CFG$p_value
+    )
+  ),
+
+  Scissor = list(
+    family = "binomial",
+
+    # Equal emphasis on L1 and network penalties.
+    alpha = CFG$penalty_mix,
+
+    # Retained for completeness. In Scissor, cutoff is used only when
+    # alpha = NULL, so it is not active with alpha = 0.5.
+    cutoff = CFG$selection_fraction,
+
+    reliability_test = list(
+      run = TRUE,
+      n = CFG$bootstrap_n,
+      nfold = CFG$cv_folds
+    ),
+
+    cell_evaluation = list(
+      run = TRUE,
+      benchmark_data = PATHS$scissor_benchmark,
+      FDR_cutoff = CFG$fdr,
+      bootstrap_n = CFG$bootstrap_n
+    ),
+
+    intermediate_dir = PATHS$tmp_root
+  ),
+
+  DEGAS = list(
+    phenotype_class = "binary",
+    sc_data.pheno_colname = COL$cell_annotation,
+
+    select_fraction = CFG$selection_fraction,
+    min_thresh = 0.4,
+    normality_test_method = "jarque-bera",
+
+    # Correct interpretation of the requested "StandardClass + FeedForward":
+    # ClassClass uses both the cell annotations and bulk binary labels.
+    # Standard is the feed-forward architecture.
+    degas_params = list(
+      DEGAS.model_type = "ClassClass",
+      DEGAS.architecture = "Standard",
+      DEGAS.ff_depth = 3L,
+      DEGAS.bag_depth = CFG$bootstrap_n,
+      DEGAS.pyloc = PATHS$degas_python,
+      DEGAS.train_steps = 2000L,
+      DEGAS.scbatch_sz = 200L,
+      DEGAS.patbatch_sz = 50L,
+      DEGAS.hidden_feats = 50L,
+      DEGAS.do_prc = 0.5,
+
+      # Equal coefficients, as requested. These are regularisation
+      # coefficients, not probabilities that must sum to one.
+      DEGAS.lambda1 = CFG$penalty_mix,
+      DEGAS.lambda2 = CFG$penalty_mix,
+      DEGAS.lambda3 = CFG$penalty_mix,
+
+      DEGAS.seed = CFG$seed
+    )
+  ),
+
+  consensus = list(
+    method_weights = c(
+      scPP = 0.25,
+      LP_SGL = 0.25,
+      DEGAS = 0.25,
+      Scissor = 0.25
+    ),
+    ties.method = "random"
+  )
+)
+```
+
+::: {.callout-warning}
+## Limits of cross-method harmonisation
+
+The four methods do not expose equivalent controls.
+
+- A literal common fold assignment cannot be supplied: LP-SGL and the Scissor
+  reliability procedure accept only `nfold`, not a shared `foldid`. The same
+  seed and five folds are therefore used wherever supported.
+- scPP and DEGAS do not expose five-fold CV through the SigBridgeR interface.
+- The 20% threshold maps to `scPP::probs` and
+  `DEGAS::select_fraction`. Scissor's `cutoff` is inactive when a fixed
+  `alpha` is supplied, and LP-SGL has no corresponding cell-fraction cutoff.
+- FDR, p-value, and log-fold-change thresholds are passed only to algorithms
+  that expose them.
+:::
+
+## 0.5 Display the complete configuration
+
+```{r}
+#| label: configuration-table
+
+flatten_config <- function(x, parent = "") {
+  purrr::imap_dfr(x, function(value, name) {
+    full_name <- if (nzchar(parent)) paste(parent, name, sep = ".") else name
+
+    if (is.list(value)) {
+      return(flatten_config(value, full_name))
+    }
+
+    tibble::tibble(
+      parameter = full_name,
+      value = if (is.null(value)) {
+        "NULL"
+      } else {
+        paste(as.character(value), collapse = ", ")
+      }
+    )
+  })
+}
+
+config_table <- dplyr::bind_rows(
+  flatten_config(PATHS, "PATHS"),
+  flatten_config(COL, "COL"),
+  flatten_config(CFG, "CFG"),
+  flatten_config(PREPROCESS, "PREPROCESS"),
+  flatten_config(SCREEN, "SCREEN")
+)
+
+knitr::kable(config_table, caption = "Complete pipeline configuration")
+```
+
+## 0.6 One-time package installation
+
+Run this chunk only when creating the project environment. The four
+algorithm packages are the remotes declared by the current SigBridgeR
+package.
+
+```{r}
+#| label: package-installation
+#| eval: false
+
+install.packages(c(
+  "pak",
+  "BiocManager",
+  "future",
+  "future.apply",
+  "parallelly",
+  "ggplot2",
+  "patchwork",
+  "ggupset",
+  "readr",
+  "knitr"
+))
+
+BiocManager::install(c(
+  "SummarizedExperiment",
+  "edgeR",
+  "limma"
+))
+
+pak::pkg_install(c(
+  "WangLabCSU/SigBridgeR",
+  "Exceret/DEGAS",
+  "Exceret/LPSGL",
+  "Exceret/Scissor",
+  "Exceret/ScPP"
+))
+```
+
+## 0.7 Packages and reproducible execution settings
+
+```{r}
+#| label: packages
+
+required_packages <- c(
+  "SigBridgeR",
+  "SigBridgeRUtils",
+  "Seurat",
+  "SeuratObject",
+  "SummarizedExperiment",
+  "S4Vectors",
+  "Matrix",
+  "data.table",
+  "dplyr",
+  "tibble",
+  "purrr",
+  "ggplot2",
+  "patchwork",
+  "future",
+  "future.apply",
+  "parallelly",
+  "reticulate",
+  "DEGAS",
+  "ScPP",
+  "LPSGL",
+  "Scissor",
+  "limma",
+  "edgeR",
+  "ggupset",
+  "readr",
+  "knitr"
+)
+
+missing_packages <- required_packages[
+  !vapply(required_packages, requireNamespace, logical(1), quietly = TRUE)
+]
+
+if (length(missing_packages) > 0L) {
+  stop(
+    "Install the following packages before running the pipeline: ",
+    paste(missing_packages, collapse = ", ")
+  )
+}
+
+suppressPackageStartupMessages({
+  library(SigBridgeR)
+  library(Seurat)
+  library(SummarizedExperiment)
+  library(Matrix)
+  library(data.table)
+  library(dplyr)
+  library(purrr)
+  library(ggplot2)
+  library(patchwork)
+})
+
+if (utils::packageVersion("SigBridgeR") < "3.8.1") {
+  warning(
+    "This tutorial targets the current 3.8.1-era API. ",
+    "Update SigBridgeR or re-check function signatures."
+  )
+}
+
+options(future.globals.maxSize = CFG$future_globals_max_bytes)
+set.seed(CFG$seed)
+
+# Configure no more than half the available cores before TensorFlow is imported.
+SigBridgeR::setThreads(
+  threads = CFG$cpu_budget,
+  tf_config = list(
+    inter_op = max(1L, floor(CFG$cpu_budget / 4L)),
+    intra_op = CFG$cpu_budget
+  ),
+  verbose = TRUE
+)
+
+package_versions <- tibble::tibble(
+  package = required_packages,
+  version = vapply(
+    required_packages,
+    function(pkg) as.character(utils::packageVersion(pkg)),
+    character(1)
+  )
+)
+
+knitr::kable(package_versions, caption = "Package versions")
+```
+
+# 1. Data preprocessing
+
+::: {.callout-note appearance="simple"}
+## Preprocessing design
+
+1. Map the Neural-biased bulk morphotype to `1`.
+2. Rebuild the single-cell analysis from the raw-count layer of the original
+   Seurat object while retaining all original metadata.
+3. Use `SCTransform()` without a separate `ScaleData()` step.
+4. Calculate mouse mitochondrial and ribosomal QC metrics, but do not exclude
+   cells using those percentages.
+5. Process raw bulk counts from a `SummarizedExperiment`.
+6. Run `PhenoPreProcess()` last to validate and align bulk samples and labels.
+:::
+
+## 1.1 Load and validate the two source objects
+
+```{r}
+#| label: load-inputs
+
+stopifnot(file.exists(PATHS$sc_seurat))
+stopifnot(file.exists(PATHS$bulk_summarized_experiment))
+
+sc_original <- readRDS(PATHS$sc_seurat)
+bulk_se <- readRDS(PATHS$bulk_summarized_experiment)
+
+stopifnot(inherits(sc_original, "Seurat"))
+stopifnot(inherits(bulk_se, "SummarizedExperiment"))
+stopifnot(COL$cell_annotation %in% colnames(sc_original[[]]))
+stopifnot(COL$bulk_morphotype %in% colnames(SummarizedExperiment::colData(bulk_se)))
+stopifnot(COL$bulk_assay %in% SummarizedExperiment::assayNames(bulk_se))
+
+if (anyNA(sc_original[[]][[COL$cell_annotation]])) {
+  stop("Missing values detected in `", COL$cell_annotation, "`.")
+}
+```
+
+## 1.2 Build the binary phenotype with `PhenoMap()`
+
+```{r}
+#| label: phenotype-map
+
+bulk_counts_raw <- SummarizedExperiment::assay(
+  bulk_se,
+  COL$bulk_assay
+)
+bulk_counts_raw <- as.matrix(bulk_counts_raw)
+
+if (is.null(colnames(bulk_counts_raw)) || anyDuplicated(colnames(bulk_counts_raw))) {
+  stop("Bulk sample names must be present and unique.")
+}
+
+bulk_coldata <- as.data.frame(
+  SummarizedExperiment::colData(bulk_se)
+)
+
+morphotype_raw <- stats::setNames(
+  as.character(bulk_coldata[[COL$bulk_morphotype]]),
+  colnames(bulk_counts_raw)
+)
+
+phenotype_mapped <- SigBridgeR::PhenoMap(
+  morphotype_raw,
+  morphotype_raw == CFG$positive_label ~ CFG$positive_code,
+  .default = CFG$reference_code
+)
+
+phenotype_mapped <- as.integer(phenotype_mapped)
+names(phenotype_mapped) <- colnames(bulk_counts_raw)
+
+phenotype_counts <- table(
+  Morphotype = morphotype_raw,
+  Encoded = phenotype_mapped
+)
+
+phenotype_counts
+```
+
+```{r}
+#| label: phenotype-balance
+
+class_counts <- table(phenotype_mapped)
+
+if (length(class_counts) != 2L) {
+  stop("The mapped bulk phenotype is not binary.")
+}
+
+if (any(class_counts < CFG$minimum_samples_per_class)) {
+  stop(
+    "At least one phenotype class contains fewer than ",
+    CFG$minimum_samples_per_class,
+    " samples."
+  )
+}
+
+class_fractions <- prop.table(class_counts)
+class_fractions
+
+if (diff(range(class_fractions)) > 0.10) {
+  warning(
+    "The bulk classes differ by more than 10 percentage points; ",
+    "reconsider whether class weighting is required."
+  )
+}
+```
+
+## 1.3 Single-cell preprocessing with `SCPreProcess()`
+
+Passing an existing Seurat object directly to `SCPreProcess()` only validates
+and optionally repairs it. To rerun the requested SigBridgeR preprocessing,
+the raw-count layer and the existing metadata are passed explicitly.
+
+```{r}
+#| label: single-cell-preprocess
+
+sc_counts <- SeuratObject::LayerData(
+  sc_original,
+  assay = COL$sc_input_assay,
+  layer = "counts"
+)
+
+sc_metadata <- sc_original[[]]
+sc_metadata <- sc_metadata[colnames(sc_counts), , drop = FALSE]
+
+sc_data <- SigBridgeR::SCPreProcess(
+  sc = sc_counts,
+  pipeline = PREPROCESS$single_cell$pipeline,
+
+  params = list(
+    o = c(
+      PREPROCESS$single_cell$create,
+      list(meta.data = sc_metadata)
+    ),
+    r = PREPROCESS$single_cell$sctransform,
+    p = PREPROCESS$single_cell$pca,
+    e = PREPROCESS$single_cell$neighbours,
+    u = PREPROCESS$single_cell$umap
+  ),
+
+  quality_control = list(
+    pattern = PREPROCESS$single_cell$qc_patterns
+  ),
+
+  data_filter = PREPROCESS$single_cell$data_filter,
+  column2only_tumor = NULL,
+  verbose = TRUE
+)
+
+SeuratObject::DefaultAssay(sc_data) <- COL$sc_analysis_assay
+
+stopifnot(COL$cell_annotation %in% colnames(sc_data[[]]))
+stopifnot("umap" %in% names(sc_data@reductions))
+
+saveRDS(sc_data, PATHS$preprocessed_sc)
+```
+
+### Single-cell QC report
+
+```{r}
+#| label: single-cell-qc
+#| fig-width: 12
+#| fig-height: 8
+
+qc_columns <- intersect(
+  c(
+    "nFeature_RNA",
+    "nCount_RNA",
+    "percent.mt",
+    "percent.rp",
+    "percent.mt_rp"
+  ),
+  colnames(sc_data[[]])
+)
+
+if (length(qc_columns) > 0L) {
+  print(
+    Seurat::VlnPlot(
+      sc_data,
+      features = qc_columns,
+      group.by = COL$cell_annotation,
+      pt.size = 0,
+      ncol = min(3L, length(qc_columns))
+    ) +
+      patchwork::plot_annotation(
+        title = "Single-cell QC by existing biological annotation"
+      )
+  )
+}
+
+sc_qc_summary <- sc_data[[]] |>
+  dplyr::group_by(.data[[COL$cell_annotation]]) |>
+  dplyr::summarise(
+    n_cells = dplyr::n(),
+    dplyr::across(
+      dplyr::all_of(qc_columns),
+      list(
+        median = ~ stats::median(.x, na.rm = TRUE),
+        q05 = ~ stats::quantile(.x, 0.05, na.rm = TRUE),
+        q95 = ~ stats::quantile(.x, 0.95, na.rm = TRUE)
+      ),
+      .names = "{.col}_{.fn}"
+    ),
+    .groups = "drop"
+  )
+
+readr::write_csv(
+  sc_qc_summary,
+  file.path(PATHS$tables_dir, "single_cell_qc_summary.csv")
+)
+
+knitr::kable(sc_qc_summary, caption = "Single-cell QC summary")
+```
+
+## 1.4 Bulk preprocessing from raw `SummarizedExperiment` counts
+
+`min_correlation = -1` leaves the correlation QC calculation and PCA report
+enabled while preventing correlation-based sample removal. `BulkPreProcess()`
+returns filtered counts, which are preserved as a separate object. A log-CPM
+matrix is then created for phenotype screening; no per-gene z-scoring is
+applied.
+
+```{r}
+#| label: bulk-preprocess
+#| fig-width: 8
+#| fig-height: 6
+
+sample_info <- data.frame(
+  sample = colnames(bulk_counts_raw),
+  condition = phenotype_mapped,
+  stringsAsFactors = FALSE
+)
+
+if (
+  !is.null(COL$bulk_batch) &&
+  COL$bulk_batch %in% colnames(bulk_coldata)
+) {
+  sample_info$batch <- bulk_coldata[
+    match(sample_info$sample, rownames(bulk_coldata)),
+    COL$bulk_batch
+  ]
+}
+
+bulk_counts_filtered <- SigBridgeR::BulkPreProcess(
+  data = list(
+    count_matrix = bulk_counts_raw,
+    sample_info = sample_info
+  ),
+  gene_symbol_conversion = PREPROCESS$bulk$gene_symbol_conversion,
+  check = PREPROCESS$bulk$check,
+  min_count_threshold = PREPROCESS$bulk$min_count_threshold,
+  min_gene_expressed = PREPROCESS$bulk$min_gene_expressed,
+  min_total_reads = PREPROCESS$bulk$min_total_reads,
+  min_genes_detected = PREPROCESS$bulk$min_genes_detected,
+  min_correlation = PREPROCESS$bulk$min_correlation,
+  n_top_genes = PREPROCESS$bulk$n_top_genes,
+  show_plot_results = PREPROCESS$bulk$show_plot_results,
+  seed = CFG$seed,
+  verbose = TRUE
+)
+
+# Keep the filtered integer counts for auditability and count-aware follow-up.
+saveRDS(
+  bulk_counts_filtered,
+  PATHS$preprocessed_bulk_counts
+)
+
+# SigBridgeR's screening examples use transformed expression. Convert the
+# filtered counts to log2 counts-per-million without per-gene z-scoring.
+matched_bulk <- edgeR::cpm(
+  bulk_counts_filtered,
+  log = TRUE,
+  prior.count = PREPROCESS$bulk$log_cpm_prior_count,
+  normalized.lib.sizes = TRUE
+)
+
+saveRDS(
+  matched_bulk,
+  PATHS$preprocessed_bulk_expression
+)
+```
+
+### Bulk QC summary
+
+```{r}
+#| label: bulk-qc
+
+bulk_qc_summary <- tibble::tibble(
+  sample = colnames(bulk_counts_filtered),
+  total_reads = Matrix::colSums(bulk_counts_filtered),
+  genes_detected = Matrix::colSums(bulk_counts_filtered > 0),
+  phenotype = phenotype_mapped[colnames(bulk_counts_filtered)]
+)
+
+readr::write_csv(
+  bulk_qc_summary,
+  file.path(PATHS$tables_dir, "bulk_qc_summary.csv")
+)
+
+knitr::kable(bulk_qc_summary, caption = "Bulk QC summary after preprocessing")
+```
+
+## 1.5 Final alignment and validation with `PhenoPreProcess()`
+
+```{r}
+#| label: phenotype-preprocess-validation
+
+phenotype <- SigBridgeR::PhenoPreProcess(
+  bulk = matched_bulk,
+  phenotype = phenotype_mapped,
+  phenotype_class = CFG$phenotype_class,
+  verbose = TRUE
+)
+
+# PhenoPreProcess retains common samples. Reorder both bulk representations.
+matched_bulk <- matched_bulk[, names(phenotype), drop = FALSE]
+bulk_counts_filtered <- bulk_counts_filtered[
+  ,
+  names(phenotype),
+  drop = FALSE
+]
+
+stopifnot(
+  identical(colnames(matched_bulk), names(phenotype)),
+  length(unique(phenotype)) == 2L,
+  !anyNA(matched_bulk),
+  !anyNA(phenotype)
+)
+
+sc_expression <- SeuratObject::LayerData(
+  sc_data,
+  assay = COL$sc_analysis_assay,
+  layer = "data"
+)
+
+bulk_genes_after_filtering <- nrow(matched_bulk)
+
+common_genes <- intersect(
+  rownames(matched_bulk),
+  rownames(sc_expression)
+)
+
+if (length(common_genes) < CFG$min_common_genes) {
+  stop(
+    "Only ", length(common_genes),
+    " genes overlap between bulk and single-cell data; expected at least ",
+    CFG$min_common_genes, "."
+  )
+}
+
+matched_bulk <- matched_bulk[common_genes, , drop = FALSE]
+bulk_counts_filtered <- bulk_counts_filtered[
+  intersect(common_genes, rownames(bulk_counts_filtered)),
+  ,
+  drop = FALSE
+]
+
+saveRDS(
+  bulk_counts_filtered,
+  PATHS$preprocessed_bulk_counts
+)
+saveRDS(
+  matched_bulk,
+  PATHS$preprocessed_bulk_expression
+)
+saveRDS(phenotype, PATHS$phenotype)
+
+input_validation <- tibble::tibble(
+  item = c(
+    "Single cells",
+    "Bulk samples",
+    "Bulk genes after filtering",
+    "Shared genes used",
+    "Positive bulk samples",
+    "Reference bulk samples"
+  ),
+  value = c(
+    ncol(sc_data),
+    ncol(matched_bulk),
+    bulk_genes_after_filtering,
+    length(common_genes),
+    sum(phenotype == CFG$positive_code),
+    sum(phenotype == CFG$reference_code)
+  )
+)
+
+knitr::kable(input_validation, caption = "Validated SigBridgeR inputs")
+```
+
+# 2. Screen with scPP, LP-SGL, DEGAS, and Scissor
+
+::: {.callout-important}
+## DEGAS model choice
+
+`StandardClass` is not a valid DEGAS model type. Because both the existing
+single-cell labels and the binary bulk labels are used, this workflow sets:
+
+- `DEGAS.model_type = "ClassClass"`
+- `DEGAS.architecture = "Standard"`
+
+The latter is DEGAS's standard feed-forward network rather than DenseNet.
+:::
+
+## 2.1 Create or reuse the local DEGAS `uv` environment
+
+SigBridgeR's environment helper officially recognises Conda and `venv`, not
+`uv`. The workflow therefore lets `uv` create the local virtual environment
+and passes the resulting Python executable directly to DEGAS.
+
+```{r}
+#| label: degas-uv-environment
+
+run_system_checked <- function(command, args) {
+  output <- system2(
+    command,
+    args = args,
+    stdout = TRUE,
+    stderr = TRUE
+  )
+
+  status <- attr(output, "status")
+  if (is.null(status)) {
+    status <- 0L
+  }
+
+  if (!identical(as.integer(status), 0L)) {
+    stop(
+      "Command failed: ",
+      command, " ", paste(args, collapse = " "),
+      "\n", paste(output, collapse = "\n")
+    )
+  }
+
+  invisible(output)
+}
+
+if (!file.exists(PATHS$degas_python)) {
+  uv_path <- Sys.which("uv")
+
+  if (!nzchar(uv_path)) {
+    stop(
+      "`uv` is not installed or is not on PATH. ",
+      "Install uv, or set PATHS$degas_python to an existing compatible Python."
+    )
+  }
+
+  dir.create(
+    PATHS$degas_uv_project,
+    recursive = TRUE,
+    showWarnings = FALSE
+  )
+
+  run_system_checked(
+    uv_path,
+    c(
+      "venv",
+      "--python", CFG$degas_python_version,
+      PATHS$degas_venv
+    )
+  )
+
+  run_system_checked(
+    uv_path,
+    c(
+      "pip", "install",
+      "--python", PATHS$degas_python,
+      CFG$degas_python_packages
+    )
+  )
+}
+
+stopifnot(file.exists(PATHS$degas_python))
+
+reticulate::use_python(PATHS$degas_python, required = TRUE)
+reticulate::py_config()
+```
+
+::: {.callout-caution}
+TensorFlow 2.4.1 is an old dependency and compatible wheels are
+platform-specific. On platforms where `uv` cannot resolve it, point
+`PATHS$degas_python` to a tested local Python environment and keep the rest of
+the workflow unchanged.
+:::
+
+## 2.2 Define validated screening executors
+
+The wrappers expose the common SigBridgeR screening interface, keep all
+method-specific settings in the first section, and return a literal list with
+`scRNA_data` as required by `ValidateScreenFunc()`.
+
+### scPP executor
+
+```{r}
+#| label: executor-scpp
+
+screen_scPP_core <- function(
+    sc_data,
+    matched_bulk,
+    phenotype,
+    label_type,
+    phenotype_class,
+    verbose = TRUE,
+    ...) {
+
+  out <- SigBridgeR::DoscPP(
+    matched_bulk = matched_bulk,
+    sc_data = sc_data,
+    phenotype = phenotype,
+    label_type = label_type,
+    phenotype_class = phenotype_class,
+    ref_group = SCREEN$scPP$ref_group,
+    Log2FC_cutoff = SCREEN$scPP$Log2FC_cutoff,
+    estimate_cutoff = SCREEN$scPP$estimate_cutoff,
+    probs = SCREEN$scPP$probs,
+    assay = SCREEN$shared$assay,
+    seed = SCREEN$shared$seed,
+    parallel = SCREEN$scPP$parallel,
+    verbose = verbose
+  )
+
+  list(
+    scRNA_data = out$scRNA_data,
+    result = out
+  )
+}
+```
+
+### LP-SGL executor with differential-expression analysis
+
+```{r}
+#| label: executor-lpsgl
+
+screen_LP_SGL_core <- function(
+    sc_data,
+    matched_bulk,
+    phenotype,
+    label_type,
+    phenotype_class,
+    verbose = TRUE,
+    ...) {
+
+  if (!identical(phenotype_class, "binary")) {
+    stop("This configured LP-SGL executor expects a binary phenotype.")
+  }
+
+  out <- SigBridgeR::DoLP_SGL(
+    matched_bulk = matched_bulk,
+    sc_data = sc_data,
+    phenotype = phenotype,
+    label_type = label_type,
+    family = SCREEN$LP_SGL$family,
+    resolution = SCREEN$LP_SGL$resolution,
+    alpha = SCREEN$LP_SGL$alpha,
+    nfold = SCREEN$LP_SGL$nfold,
+    dge_analysis = SCREEN$LP_SGL$dge_analysis,
+    assay = SCREEN$shared$assay,
+    seed = SCREEN$shared$seed,
+    verbose = verbose
+  )
+
+  list(
+    scRNA_data = out$scRNA_data,
+    result = out
+  )
+}
+```
+
+### Scissor executor with reliability testing and cell evaluation
+
+This wrapper calls the same Scissor backend and QC functions used by
+SigBridgeR, but writes the first-run intermediate `.RData` file directly under
+`tempdir()`. This avoids the deprecated cache argument names shown in older
+vignettes and keeps the tutorial independent of cache-path fallback behaviour.
+
+```{r}
+#| label: executor-scissor
+
+screen_Scissor_core <- function(
+    sc_data,
+    matched_bulk,
+    phenotype,
+    label_type,
+    phenotype_class,
+    verbose = TRUE,
+    ...) {
+
+  if (!identical(phenotype_class, "binary")) {
+    stop("This configured Scissor executor expects a binary phenotype.")
+  }
+
+  if (
+    isTRUE(SCREEN$Scissor$cell_evaluation$run) &&
+    !file.exists(SCREEN$Scissor$cell_evaluation$benchmark_data)
+  ) {
+    stop(
+      "Scissor cell evaluation is enabled, but the benchmark file does not exist: ",
+      SCREEN$Scissor$cell_evaluation$benchmark_data
+    )
+  }
+
+  dir.create(
+    SCREEN$Scissor$intermediate_dir,
+    recursive = TRUE,
+    showWarnings = FALSE
+  )
+
+  scissor_input_file <- tempfile(
+    pattern = "Scissor_inputs_",
+    tmpdir = SCREEN$Scissor$intermediate_dir,
+    fileext = ".RData"
+  )
+
+  tag <- c(
+    paste0(label_type, "_Negative"),
+    paste0(label_type, "_Positive")
+  )
+
+  set.seed(SCREEN$shared$seed)
+
+  infos <- Scissor::Scissor.v5.optimized(
+    bulk_dataset = matched_bulk,
+    sc_dataset = sc_data,
+    phenotype = phenotype,
+    tag = tag,
+    alpha = SCREEN$Scissor$alpha,
+    cutoff = SCREEN$Scissor$cutoff,
+    family = SCREEN$Scissor$family,
+    Save_file = scissor_input_file,
+    Load_file = NULL,
+    assay = SCREEN$shared$assay,
+    seed = SCREEN$shared$seed,
+    verbose = verbose
+  )
+
+  scissor_metadata <- data.frame(
+    scissor = rep("Neutral", ncol(sc_data)),
+    row.names = colnames(sc_data)
+  )
+  scissor_metadata$scissor[
+    rownames(scissor_metadata) %in% infos$Scissor_pos
+  ] <- "Positive"
+  scissor_metadata$scissor[
+    rownames(scissor_metadata) %in% infos$Scissor_neg
+  ] <- "Negative"
+
+  selected_cell_n <- length(infos$Scissor_pos) + length(infos$Scissor_neg)
+
+  set.seed(SCREEN$shared$seed)
+
+  reliability_result <- if (
+    isTRUE(SCREEN$Scissor$reliability_test$run) &&
+    length(unique(infos$Y)) >= 2L &&
+    selected_cell_n > 0L
+  ) {
+    Scissor::reliability.test(
+      X = infos$X,
+      Y = infos$Y,
+      network = infos$network,
+      alpha = infos$para$alpha,
+      family = SCREEN$Scissor$family,
+      cell_num = selected_cell_n,
+      n = SCREEN$Scissor$reliability_test$n,
+      nfold = SCREEN$Scissor$reliability_test$nfold,
+      verbose = verbose
+    )
+  } else {
+    NULL
+  }
+
+  set.seed(SCREEN$shared$seed)
+
+  cell_evaluation <- if (
+    isTRUE(SCREEN$Scissor$cell_evaluation$run)
+  ) {
+    Scissor::evaluate.cell(
+      Load_file = SCREEN$Scissor$cell_evaluation$benchmark_data,
+      Scissor_result = infos,
+      FDR_cutoff = SCREEN$Scissor$cell_evaluation$FDR_cutoff,
+      bootstrap_n = SCREEN$Scissor$cell_evaluation$bootstrap_n
+    )
+  } else {
+    NULL
+  }
+
+  sc_out <- SeuratObject::AddMetaData(
+    sc_data,
+    metadata = scissor_metadata
+  )
+
+  sc_out <- SigBridgeRUtils::AddMisc(
+    seurat_obj = sc_out,
+    scissor_type = label_type,
+    scissor_para = c(
+      infos$para,
+      list(reliability_test = reliability_result)
+    ),
+    cover = FALSE
+  )
+
+  list(
+    scRNA_data = sc_out,
+    result = list(
+      scRNA_data = sc_out,
+      scissor_result = infos,
+      reliability_result = reliability_result,
+      cell_evaluation = cell_evaluation,
+      intermediate_file = scissor_input_file
+    )
+  )
+}
+```
+
+### uv-backed DEGAS executor
+
+The current public `DoDEGAS()` interface still contains a soft-deprecated
+`tmp_dir` argument and couples it to cache fallback logic. The following thin
+adapter calls the same current DEGAS backend used by SigBridgeR while:
+
+1. using the local `uv` Python executable;
+2. keeping transient model files under `tempdir()`;
+3. using `ClassClass` and the `Standard` feed-forward architecture;
+4. returning the same main output structure.
+
+```{r}
+#| label: executor-degas-backend
+
+run_DEGAS_uv_backend <- function(
+    sc_data,
+    matched_bulk,
+    phenotype,
+    label_type,
+    phenotype_class,
+    verbose = TRUE) {
+
+  if (!identical(phenotype_class, "binary")) {
+    stop("This configured DEGAS executor expects a binary phenotype.")
+  }
+
+  p <- SCREEN$DEGAS
+  d <- p$degas_params
+
+  stopifnot(file.exists(d$DEGAS.pyloc))
+  reticulate::use_python(d$DEGAS.pyloc, required = TRUE)
+
+  sc_meta <- sc_data[[]]
+  if (!p$sc_data.pheno_colname %in% colnames(sc_meta)) {
+    stop(
+      "DEGAS single-cell label column is missing: ",
+      p$sc_data.pheno_colname
+    )
+  }
+
+  pheno_df <- DEGAS::Vec2sparse(
+    phenotype,
+    col_prefix = label_type
+  )
+
+  sc_pheno <- DEGAS::Vec2sparse(
+    sc_meta[[p$sc_data.pheno_colname]]
+  )
+
+  sc_mat <- SeuratObject::LayerData(
+    sc_data,
+    assay = SCREEN$shared$assay,
+    layer = "data"
+  )
+
+  common <- intersect(rownames(matched_bulk), rownames(sc_mat))
+  if (length(common) < CFG$min_common_genes) {
+    stop("Too few shared genes for DEGAS: ", length(common))
+  }
+
+  t_sc_mat <- Matrix::t(sc_mat[common, , drop = FALSE])
+  t_bulk <- Matrix::t(matched_bulk[common, , drop = FALSE])
+
+  degas_tmp <- tempfile(
+    pattern = "DEGAS_",
+    tmpdir = PATHS$tmp_root
+  )
+  dir.create(degas_tmp, recursive = TRUE, showWarnings = FALSE)
+  degas_tmp <- paste0(normalizePath(degas_tmp), .Platform$file.sep)
+
+  # DEGAS's current backend reads several settings from the global environment.
+  d$path.data <- degas_tmp
+  d$path.result <- degas_tmp
+  degas_package_root <- system.file(package = "DEGAS")
+  d$DEGAS.toolsPath <- paste0(
+    file.path(degas_package_root, "DEGAS_tools"),
+    .Platform$file.sep
+  )
+
+  global_names <- names(d)
+  existed_before <- vapply(
+    global_names,
+    exists,
+    logical(1),
+    envir = .GlobalEnv,
+    inherits = FALSE
+  )
+
+  old_globals <- if (any(existed_before)) {
+    mget(
+      global_names[existed_before],
+      envir = .GlobalEnv,
+      inherits = FALSE
+    )
+  } else {
+    list()
+  }
+
+  list2env(d, envir = .GlobalEnv)
+
+  on.exit({
+    current_globals <- intersect(global_names, ls(envir = .GlobalEnv))
+    if (length(current_globals) > 0L) {
+      rm(list = current_globals, envir = .GlobalEnv)
+    }
+    if (length(old_globals) > 0L) {
+      list2env(old_globals, envir = .GlobalEnv)
+    }
+    unlink(degas_tmp, recursive = TRUE, force = TRUE)
+    gc(verbose = FALSE)
+  }, add = TRUE)
+
+  set.seed(SCREEN$shared$seed)
+
+  if (verbose) {
+    message(
+      "Training DEGAS: ClassClass + Standard, ",
+      d$DEGAS.bag_depth, " bootstrap models."
+    )
+  }
+
+  model <- DEGAS::runCCMTLBag.optimized(
+    scExp = t_sc_mat,
+    scLab = sc_pheno,
+    patExp = t_bulk,
+    patLab = pheno_df,
+    tmpDir = degas_tmp,
+    model_type = d$DEGAS.model_type,
+    architecture = d$DEGAS.architecture,
+    FFdepth = d$DEGAS.ff_depth,
+    Bagdepth = d$DEGAS.bag_depth,
+    DEGAS.seed = d$DEGAS.seed,
+    verbose = verbose
+  )
+
+  names(model) <- paste0(
+    "ccModel_",
+    seq_len(d$DEGAS.bag_depth)
+  )
+
+  prediction <- data.table::as.data.table(
+    DEGAS::predClassBag.optimized(
+      ccModel = model,
+      Exp = t_sc_mat,
+      scORpat = "pat"
+    )
+  )
+
+  data.table::setnames(
+    prediction,
+    old = names(prediction),
+    new = colnames(pheno_df)
+  )
+
+  prediction[, cell_id := rownames(t_sc_mat)]
+
+  prediction <- DEGAS::LabelBinaryCells(
+    pred_dt = prediction,
+    pheno_colnames = colnames(pheno_df),
+    select_fraction = p$select_fraction,
+    test_method = p$normality_test_method,
+    min_threshold = p$min_thresh,
+    verbose = verbose
+  )
+
+  metadata <- prediction[
+    ,
+    !names(prediction) %in% c("cell_id", "diff"),
+    with = FALSE
+  ]
+
+  data.table::setnames(
+    metadata,
+    old = names(metadata),
+    new = ifelse(
+      names(metadata) == "label",
+      "DEGAS",
+      paste0("DEGAS_", names(metadata))
+    )
+  )
+
+  metadata <- as.data.frame(metadata)
+  rownames(metadata) <- prediction$cell_id
+
+  sc_out <- SeuratObject::AddMetaData(
+    sc_data,
+    metadata = metadata
+  )
+
+  sc_out <- SigBridgeRUtils::AddMisc(
+    seurat_obj = sc_out,
+    DEGAS_type = label_type,
+    DEGAS_para = d,
+    cover = FALSE
+  )
+
+  list(
+    scRNA_data = sc_out,
+    model = model,
+    DEGAS_prediction = prediction
+  )
+}
+
+screen_DEGAS_uv_core <- function(
+    sc_data,
+    matched_bulk,
+    phenotype,
+    label_type,
+    phenotype_class,
+    verbose = TRUE,
+    ...) {
+
+  out <- run_DEGAS_uv_backend(
+    sc_data = sc_data,
+    matched_bulk = matched_bulk,
+    phenotype = phenotype,
+    label_type = label_type,
+    phenotype_class = phenotype_class,
+    verbose = verbose
+  )
+
+  list(
+    scRNA_data = out$scRNA_data,
+    result = out
+  )
+}
+```
+
+## 2.3 Validate and register the four executors
+
+The current function is `ValidateScreenFunc()`, not `ScreenValFunc()`.
+
+```{r}
+#| label: validate-register
+
+executors <- list(
+  scPP_core = screen_scPP_core,
+  LP_SGL_core = screen_LP_SGL_core,
+  DEGAS_uv_core = screen_DEGAS_uv_core,
+  Scissor_core = screen_Scissor_core
+)
+
+invisible(
+  lapply(executors, SigBridgeR::ValidateScreenFunc)
+)
+
+SigBridgeR::Register(
+  scPP_core = screen_scPP_core,
+  supported_phenotypes = "binary",
+  overwrite = TRUE,
+  registry = "ScreenStrategy"
+)
+
+SigBridgeR::Register(
+  LP_SGL_core = screen_LP_SGL_core,
+  supported_phenotypes = "binary",
+  overwrite = TRUE,
+  registry = "ScreenStrategy"
+)
+
+SigBridgeR::Register(
+  DEGAS_uv_core = screen_DEGAS_uv_core,
+  supported_phenotypes = "binary",
+  overwrite = TRUE,
+  registry = "ScreenStrategy"
+)
+
+SigBridgeR::Register(
+  Scissor_core = screen_Scissor_core,
+  supported_phenotypes = "binary",
+  overwrite = TRUE,
+  registry = "ScreenStrategy"
+)
+
+stopifnot(all(names(executors) %in% names(SigBridgeR::ScreenStrategy)))
+```
+
+## 2.4 Run the four screens
+
+The three R-oriented methods are dispatched concurrently. Each worker receives
+a share of the half-core budget. DEGAS then runs in the main R process to avoid
+forking or serialising a TensorFlow/reticulate session and receives the whole
+half-core budget.
+
+```{r}
+#| label: run-screens
+
+r_methods <- c(
+  scPP = "scPP_core",
+  LP_SGL = "LP_SGL_core",
+  Scissor = "Scissor_core"
+)
+
+n_r_workers <- CFG$n_r_workers
+threads_per_worker <- CFG$threads_per_worker
+
+register_executor_in_worker <- function(method_name) {
+  register_args <- list(executors[[method_name]])
+  names(register_args) <- method_name
+
+  do.call(
+    SigBridgeR::Register,
+    c(
+      register_args,
+      list(
+        supported_phenotypes = "binary",
+        overwrite = TRUE,
+        registry = "ScreenStrategy",
+        verbose = FALSE
+      )
+    )
+  )
+}
+
+run_registered_screen <- function(method_name) {
+  set.seed(CFG$seed)
+
+  # Multisession workers have independent package namespaces and registries.
+  register_executor_in_worker(method_name)
+
+  # Avoid nested future backends. Parallelism occurs across methods here.
+  future::plan(future::sequential)
+
+  SigBridgeR::setThreads(
+    threads = threads_per_worker,
+    verbose = FALSE
+  )
+
+  SigBridgeR::Screen(
+    matched_bulk = matched_bulk,
+    sc_data = sc_data,
+    phenotype = phenotype,
+    label_type = CFG$phenotype_name,
+    phenotype_class = CFG$phenotype_class,
+    screen_method = method_name,
+    verbose = TRUE
+  )
+}
+
+future::plan(
+  future::multisession,
+  workers = n_r_workers
+)
+
+r_results <- future.apply::future_lapply(
+  X = unname(r_methods),
+  FUN = run_registered_screen,
+  future.seed = CFG$seed
+)
+
+future::plan(future::sequential)
+names(r_results) <- names(r_methods)
+
+# TensorFlow/DEGAS is run after the multisession workers have closed.
+SigBridgeR::setThreads(
+  threads = CFG$cpu_budget,
+  tf_config = list(
+    inter_op = max(1L, floor(CFG$cpu_budget / 4L)),
+    intra_op = CFG$cpu_budget
+  ),
+  verbose = TRUE
+)
+
+set.seed(CFG$seed)
+
+degas_result <- SigBridgeR::Screen(
+  matched_bulk = matched_bulk,
+  sc_data = sc_data,
+  phenotype = phenotype,
+  label_type = CFG$phenotype_name,
+  phenotype_class = CFG$phenotype_class,
+  screen_method = "DEGAS_uv_core",
+  verbose = TRUE
+)
+
+screen_results <- list(
+  scPP = r_results$scPP,
+  LP_SGL = r_results$LP_SGL,
+  DEGAS = degas_result,
+  Scissor = r_results$Scissor
+)
+
+saveRDS(screen_results, PATHS$screen_results)
+```
+
+## 2.5 Screening QC and saved method outputs
+
+```{r}
+#| label: screen-qc
+
+METHOD_COLUMNS <- c(
+  scPP = "ScPP",
+  LP_SGL = "LP_SGL",
+  DEGAS = "DEGAS",
+  Scissor = "scissor"
+)
+
+screen_qc <- purrr::imap_dfr(
+  METHOD_COLUMNS,
+  function(column, method) {
+    object <- screen_results[[method]]$scRNA_data
+
+    if (!column %in% colnames(object[[]])) {
+      stop(method, " did not create expected metadata column `", column, "`.")
+    }
+
+    as.data.frame(table(object[[]][[column]], useNA = "ifany")) |>
+      tibble::as_tibble() |>
+      dplyr::rename(status = Var1, n_cells = Freq) |>
+      dplyr::mutate(method = method, .before = 1)
+  }
+)
+
+readr::write_csv(
+  screen_qc,
+  file.path(PATHS$tables_dir, "screening_cell_counts.csv")
+)
+
+knitr::kable(screen_qc, caption = "Screening cell counts")
+```
+
+```{r}
+#| label: save-lpsgl-deg
+
+lpsgl_dge <- screen_results$LP_SGL$result$dge_res
+
+if (!is.null(lpsgl_dge)) {
+  readr::write_csv(
+    as.data.frame(lpsgl_dge),
+    file.path(PATHS$tables_dir, "LP_SGL_bulk_DEG.csv")
+  )
+}
+```
+
+```{r}
+#| label: scissor-qc
+
+scissor_reliability <- screen_results$Scissor$result$reliability_result
+scissor_cell_evaluation <- screen_results$Scissor$result$cell_evaluation
+
+if (!is.null(scissor_reliability)) {
+  saveRDS(
+    scissor_reliability,
+    file.path(PATHS$objects_dir, "Scissor_reliability.rds")
+  )
+}
+
+if (!is.null(scissor_cell_evaluation)) {
+  saveRDS(
+    scissor_cell_evaluation,
+    file.path(PATHS$objects_dir, "Scissor_cell_evaluation.rds")
+  )
+}
+```
+
+# 3. Merge, weighted vote, and visualisation
+
+## 3.1 Merge the four results
+
+```{r}
+#| label: merge-results
+
+merged <- SigBridgeR::MergeResult(
+  screen_results$scPP,
+  screen_results$LP_SGL,
+  screen_results$DEGAS,
+  screen_results$Scissor
+)
+
+stopifnot(all(unname(METHOD_COLUMNS) %in% colnames(merged[[]])))
+```
+
+## 3.2 Harmonise labels and calculate the equally weighted vote
+
+DEGAS can return `Other`; it is mapped explicitly to `Neutral` before voting
+so all four methods use the same three labels.
+
+```{r}
+#| label: weighted-vote
+
+normalise_screen_status <- function(x) {
+  x <- as.character(x)
+  x[is.na(x) | x == "" | x == "Other"] <- "Neutral"
+
+  invalid <- setdiff(unique(x), c("Positive", "Negative", "Neutral"))
+  if (length(invalid) > 0L) {
+    stop(
+      "Unexpected screening labels: ",
+      paste(invalid, collapse = ", ")
+    )
+  }
+
+  factor(
+    x,
+    levels = c("Negative", "Neutral", "Positive")
+  )
+}
+
+for (column in unname(METHOD_COLUMNS)) {
+  merged[[column]] <- normalise_screen_status(merged[[]][[column]])
+}
+
+vote_data <- merged[[]][
+  ,
+  unname(METHOD_COLUMNS),
+  drop = FALSE
+]
+colnames(vote_data) <- names(METHOD_COLUMNS)
+
+set.seed(CFG$seed)
+
+merged$WeightedVote <- SigBridgeR::WeightedVote(
+  data = vote_data,
+  weights = SCREEN$consensus$method_weights,
+  ties.method = SCREEN$consensus$ties.method
+)
+
+merged$WeightedVote <- normalise_screen_status(merged$WeightedVote)
+
+vote_counts <- as.data.frame(
+  table(merged$WeightedVote, useNA = "ifany")
+) |>
+  tibble::as_tibble() |>
+  dplyr::rename(status = Var1, n_cells = Freq)
+
+knitr::kable(vote_counts, caption = "Equally weighted consensus labels")
+
+saveRDS(merged, PATHS$merged_result)
+```
+
+## 3.3 UpSet plot of positive-cell intersections
+
+```{r}
+#| label: upset-plot
+#| fig-width: 12
+#| fig-height: 7
+
+upset_result <- SigBridgeR::ScreenUpset(
+  screened_seurat = merged,
+  screen_type = unname(METHOD_COLUMNS),
+  order_by = c("freq", "degree"),
+  n_intersections = 20L,
+  show_plot = TRUE,
+  verbose = TRUE
+)
+
+ggplot2::ggsave(
+  filename = file.path(
+    PATHS$figures_dir,
+    "positive_cell_intersections_upset.pdf"
+  ),
+  plot = upset_result$plot,
+  width = 12,
+  height = 7
+)
+
+upset_stats <- upset_result$stats |>
+  dplyr::mutate(
+    sets = vapply(
+      sets,
+      function(x) paste(x, collapse = " & "),
+      character(1)
+    )
+  )
+
+readr::write_csv(
+  upset_stats,
+  file.path(PATHS$tables_dir, "positive_cell_intersections.csv")
+)
+```
+
+## 3.4 Stacked bar plots by original cell type/state
+
+```{r}
+#| label: stacked-bars
+#| fig-width: 14
+#| fig-height: 10
+
+fraction_result <- SigBridgeR::ScreenFractionPlot(
+  screened_seurat = merged,
+  group_by = COL$cell_annotation,
+  screen_type = c(
+    unname(METHOD_COLUMNS),
+    "WeightedVote"
+  ),
+  show_null = TRUE,
+  show_plot = TRUE,
+  plot_title = "Phenotype-guided cell fractions",
+  ncol = 2L,
+  verbose = TRUE
+)
+
+fraction_plot <- if (!is.null(fraction_result$combined_plot)) {
+  fraction_result$combined_plot
+} else if (is.list(fraction_result$plot)) {
+  patchwork::wrap_plots(fraction_result$plot, ncol = 2L)
+} else {
+  fraction_result$plot
+}
+
+print(fraction_plot)
+
+ggplot2::ggsave(
+  filename = file.path(
+    PATHS$figures_dir,
+    "screening_fractions_by_luque_annotation.pdf"
+  ),
+  plot = fraction_plot,
+  width = 14,
+  height = 10
+)
+```
+
+## 3.5 One-page UMAP: original annotation plus the four methods
+
+```{r}
+#| label: umap-five-panel
+#| fig-width: 18
+#| fig-height: 10
+
+status_colours <- c(
+  Negative = "#386C9B",
+  Neutral = "#CECECE",
+  Positive = "#FF3333"
+)
+
+p_annotation <- Seurat::DimPlot(
+  merged,
+  reduction = "umap",
+  group.by = COL$cell_annotation,
+  label = TRUE,
+  repel = TRUE,
+  raster = TRUE
+) +
+  ggplot2::ggtitle("Original cell type/state") +
+  Seurat::NoLegend()
+
+method_plots <- purrr::imap(
+  METHOD_COLUMNS,
+  function(column, method) {
+    Seurat::DimPlot(
+      merged,
+      reduction = "umap",
+      group.by = column,
+      cols = status_colours,
+      raster = TRUE
+    ) +
+      ggplot2::ggtitle(method)
+  }
+)
+
+umap_page <- patchwork::wrap_plots(
+  c(list(p_annotation), method_plots),
+  ncol = 3L,
+  guides = "collect"
+) +
+  patchwork::plot_annotation(
+    title = "Neural-biased morphotype screening",
+    subtitle = paste0(
+      "Original `", COL$cell_annotation,
+      "` plus Neutral, Positive, and Negative calls"
+    )
+  )
+
+print(umap_page)
+
+ggplot2::ggsave(
+  filename = file.path(
+    PATHS$figures_dir,
+    "umap_original_and_four_methods.pdf"
+  ),
+  plot = umap_page,
+  width = 18,
+  height = 10
+)
+```
+
+## 3.6 Optional consensus UMAP and final output inventory
+
+```{r}
+#| label: consensus-umap
+#| fig-width: 8
+#| fig-height: 7
+
+p_consensus <- Seurat::DimPlot(
+  merged,
+  reduction = "umap",
+  group.by = "WeightedVote",
+  cols = status_colours,
+  raster = TRUE
+) +
+  ggplot2::ggtitle("Equally weighted consensus")
+
+print(p_consensus)
+
+ggplot2::ggsave(
+  filename = file.path(
+    PATHS$figures_dir,
+    "umap_weighted_vote.pdf"
+  ),
+  plot = p_consensus,
+  width = 8,
+  height = 7
+)
+```
+
+```{r}
+#| label: output-inventory
+
+output_inventory <- tibble::tibble(
+  output = c(
+    "Preprocessed single-cell object",
+    "Filtered bulk counts",
+    "Log-CPM bulk screening matrix",
+    "Validated phenotype",
+    "Four method results",
+    "Merged object with weighted vote",
+    "UpSet plot",
+    "Stacked-bar plots",
+    "Five-panel UMAP"
+  ),
+  path = c(
+    PATHS$preprocessed_sc,
+    PATHS$preprocessed_bulk_counts,
+    PATHS$preprocessed_bulk_expression,
+    PATHS$phenotype,
+    PATHS$screen_results,
+    PATHS$merged_result,
+    file.path(PATHS$figures_dir, "positive_cell_intersections_upset.pdf"),
+    file.path(
+      PATHS$figures_dir,
+      "screening_fractions_by_luque_annotation.pdf"
+    ),
+    file.path(
+      PATHS$figures_dir,
+      "umap_original_and_four_methods.pdf"
+    )
+  )
+)
+
+knitr::kable(output_inventory, caption = "Pipeline outputs")
+```
+
+# Reproducibility record
+
+```{r}
+#| label: session-info
+
+sessionInfo()
+```
+
+# Documentation used
+
+- [SigBridgeR full tutorial](https://wanglabcsu.github.io/SigBridgeR/articles/Full_Tutorial.html)
+- [SigBridgeR deep-learning overview](https://deepwiki.com/WangLabCSU/SigBridgeR/3.3-deep-learning-methods-(degas-sidish))
+- [Current SigBridgeR reference index](https://wanglabcsu.github.io/SigBridgeR/reference/index.html)
+- [SigBridgeR source repository](https://github.com/WangLabCSU/SigBridgeR)

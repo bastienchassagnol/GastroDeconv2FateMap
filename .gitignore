@@ -76,6 +76,7 @@ docs
 .models/
 
 outputs/gene_regulatory_networks/**
+outputs/phenotype-aware/*.rds
 
 # Python virtual environment (uv)
 .venv/

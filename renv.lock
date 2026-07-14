@@ -601,6 +601,44 @@
       "Maintainer": "Kirill Müller <kirill@cynkra.com>",
       "Repository": "RSPM"
     },
+    "DEGAS": {
+      "Package": "DEGAS",
+      "Version": "1.0.0",
+      "Source": "GitHub",
+      "Type": "Package",
+      "Title": "DEGAS: A transfer learning framework to infer impressions of cellular and patient phenotypes between patients and single cells.",
+      "Date": "2023-06-29",
+      "Author": "c(person(\"Travis\", \"Johnson\", email = \"johnstrs@iu.edu\", role = c(\"aut\", \"cre\")), person(\"Zhi\", \"Huang\", email = \"huang898@purdue.edu\", role = c(\"aut\", \"cre\")) )",
+      "Maintainer": "Travis Johnson <johnstrs@iu.edu>",
+      "Description": "DEGAS: A transfer learning framework to infer impressions of cellular and patient phenotypes between patients and single cells.",
+      "License": "MIT + file LICENSE",
+      "Encoding": "UTF-8",
+      "LazyData": "true",
+      "RoxygenNote": "7.3.3",
+      "Imports": [
+        "chk",
+        "cli",
+        "data.table",
+        "Matrix",
+        "methods",
+        "processx",
+        "purrr",
+        "reticulate",
+        "rlang",
+        "SigBridgeRUtils (>= 0.1.0)",
+        "stats"
+      ],
+      "Suggests": [
+        "matrixStats"
+      ],
+      "RemoteType": "github",
+      "Remotes": "github::WangLabCSU/SigBridgeRUtils",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "Exceret",
+      "RemoteRepo": "DEGAS",
+      "RemoteRef": "master",
+      "RemoteSha": "730e1b8e14ddfea935e49d338c5a1a0dd4c20cb2"
+    },
     "DESeq2": {
       "Package": "DESeq2",
       "Version": "1.52.0",
@@ -1169,6 +1207,43 @@
       "NeedsCompilation": "no",
       "Author": "Patrick Aboyoun [aut], Hervé Pagès [aut, cre], Michael Lawrence [aut], Sonali Arora [ctb], Martin Morgan [ctb], Kayla Morrell [ctb], Valerie Obenchain [ctb], Marcel Ramos [ctb], Lori Shepherd [ctb], Dan Tenenbaum [ctb], Daniel van Twisk [ctb]",
       "Maintainer": "Hervé Pagès <hpages.on.github@gmail.com>"
+    },
+    "IDConverter": {
+      "Package": "IDConverter",
+      "Version": "0.3.5",
+      "Source": "GitHub",
+      "Title": "Convert Identifiers in Biological Databases",
+      "Date": "2023-03-14",
+      "Authors@R": "person(\"Shixiang\", \"Wang\", , \"w_shixiang@163.com\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0001-9855-7357\"))",
+      "Maintainer": "Shixiang Wang <w_shixiang@163.com>",
+      "Description": "Identifiers in biological databases connect different levels of metadata, phenotype data or genotype data. This tool is designed to easily convert identifiers within or between different biological databases (Wang, Shixiang, et al. (2021) <DOI:10.1371/journal.pgen.1009557>).",
+      "License": "MIT + file LICENSE",
+      "URL": "https://github.com/ShixiangWang/IDConverter",
+      "BugReports": "https://github.com/ShixiangWang/IDConverter/issues",
+      "Depends": [
+        "R (>= 3.5.0)"
+      ],
+      "Imports": [
+        "data.table",
+        "httr",
+        "tibble"
+      ],
+      "Suggests": [
+        "covr",
+        "readr",
+        "testthat"
+      ],
+      "Encoding": "UTF-8",
+      "LazyData": "true",
+      "Roxygen": "list(markdown = TRUE, roclets = c(\"collate\", \"namespace\", \"rd\", \"roxytest::testthat_roclet\"))",
+      "RoxygenNote": "7.2.0",
+      "Author": "Shixiang Wang [aut, cre] (ORCID: <https://orcid.org/0000-0001-9855-7357>)",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "ShixiangWang",
+      "RemoteRepo": "IDConverter",
+      "RemoteRef": "master",
+      "RemoteSha": "af8b5455ba9cc061dc0448ec359d54edd799f04e"
     },
     "IRanges": {
       "Package": "IRanges",
@@ -1895,6 +1970,35 @@
       "Maintainer": "James Melville <jlmelville@gmail.com>",
       "Repository": "https://packagemanager.posit.co/cran/latest"
     },
+    "RcppParallel": {
+      "Package": "RcppParallel",
+      "Version": "5.1.11-2",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Parallel Programming Tools for 'Rcpp'",
+      "Authors@R": "c( person(\"JJ\", \"Allaire\", role = c(\"aut\"), email = \"jj@rstudio.com\"), person(\"Romain\", \"Francois\", role = c(\"aut\", \"cph\")), person(\"Kevin\", \"Ushey\", role = c(\"aut\", \"cre\"), email = \"kevin@rstudio.com\"), person(\"Gregory\", \"Vandenbrouck\", role = \"aut\"), person(\"Marcus\", \"Geelnard\", role = c(\"aut\", \"cph\"), comment = \"TinyThread library, https://tinythreadpp.bitsnbites.eu/\"), person(\"Hamada S.\", \"Badr\", email = \"badr@jhu.edu\", role = c(\"ctb\"), comment = c(ORCID = \"0000-0002-9808-2344\")), person(family = \"Posit, PBC\", role = \"cph\"), person(family = \"Intel\", role = c(\"aut\", \"cph\"), comment = \"Intel TBB library, https://www.threadingbuildingblocks.org/\"), person(family = \"Microsoft\", role = \"cph\") )",
+      "Description": "High level functions for parallel programming with 'Rcpp'. For example, the 'parallelFor()' function can be used to convert the work of a standard serial \"for\" loop into a parallel one and the 'parallelReduce()' function can be used for accumulating aggregate or other values.",
+      "Depends": [
+        "R (>= 3.0.2)"
+      ],
+      "Suggests": [
+        "Rcpp",
+        "RUnit",
+        "knitr",
+        "rmarkdown"
+      ],
+      "SystemRequirements": "GNU make, Intel TBB, Windows: cmd.exe and cscript.exe, Solaris: g++ is required",
+      "License": "GPL (>= 3)",
+      "URL": "https://rcppcore.github.io/RcppParallel/, https://github.com/RcppCore/RcppParallel",
+      "BugReports": "https://github.com/RcppCore/RcppParallel/issues",
+      "Biarch": "TRUE",
+      "RoxygenNote": "7.1.1",
+      "Encoding": "UTF-8",
+      "NeedsCompilation": "yes",
+      "Maintainer": "Kevin Ushey <kevin@rstudio.com>",
+      "Author": "JJ Allaire [aut], Romain Francois [aut, cph], Kevin Ushey [aut, cre], Gregory Vandenbrouck [aut], Marcus Geelnard [aut, cph] (TinyThread library, https://tinythreadpp.bitsnbites.eu/), Hamada S. Badr [ctb] (ORCID: <https://orcid.org/0000-0002-9808-2344>), Posit, PBC [cph], Intel [aut, cph] (Intel TBB library, https://www.threadingbuildingblocks.org/), Microsoft [cph]",
+      "Repository": "CRAN"
+    },
     "RcppProgress": {
       "Package": "RcppProgress",
       "Version": "0.4.2",
@@ -2033,6 +2137,40 @@
       "Repository": "Bioconductor 3.23",
       "NeedsCompilation": "no",
       "Author": "Guangchuang Yu [aut, cre], Vladislav Petyuk [ctb]"
+    },
+    "Rfast": {
+      "Package": "Rfast",
+      "Version": "2.1.5.2",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "A Collection of Efficient and Extremely Fast R Functions",
+      "Date": "2025-10-10",
+      "Authors@R": "c( person(\"Manos Papadakis\", email = \"rfastofficial@gmail.com\", role = c(\"aut\", \"cre\", \"cph\")),  person(\"Michail Tsagris\", role = c(\"aut\")),  person(\"Marios Dimitriadis\", role = c(\"aut\")),  person(\"Stefanos Fafalios\", role = c(\"aut\")),  person(\"Matteo Fasiolo\", role = c(\"aut\")),  person(\"Morgan Jacob\", role = c(\"ctb\")),  person(\"Giorgos Borboudakis\", role = c(\"aut\")),  person(\"John Burkardt\", role = c(\"aut\")),  person(\"Changliang Zou\", role = c(\"aut\"))  )",
+      "Maintainer": "Manos Papadakis <rfastofficial@gmail.com>",
+      "Depends": [
+        "R (>= 3.5.0)",
+        "Rcpp (>= 0.12.3)",
+        "zigg",
+        "RcppParallel"
+      ],
+      "LinkingTo": [
+        "Rcpp (>= 0.12.3)",
+        "RcppArmadillo",
+        "RcppParallel",
+        "zigg"
+      ],
+      "Suggests": [
+        "philentropy"
+      ],
+      "SystemRequirements": "C++17",
+      "BugReports": "https://github.com/RfastOfficial/Rfast/issues",
+      "URL": "https://github.com/RfastOfficial/Rfast",
+      "Description": "A collection of fast (utility) functions for data analysis. Column and row wise means, medians, variances, minimums, maximums, many t, F and G-square tests, many regressions (normal, logistic, Poisson), are some of the many fast functions. References: a) Tsagris M., Papadakis M. (2018). Taking R to its limits: 70+ tips. PeerJ Preprints 6:e26605v1 <doi:10.7287/peerj.preprints.26605v1>. b) Tsagris M. and Papadakis M. (2018). Forward regression in R: from the extreme slow to the extreme fast. Journal of Data Science, 16(4): 771--780. <doi:10.6339/JDS.201810_16(4).00006>. c) Chatzipantsiou C., Dimitriadis M., Papadakis M. and Tsagris M. (2020). Extremely Efficient Permutation and Bootstrap Hypothesis Tests Using Hypothesis Tests Using R. Journal of Modern Applied Statistical Methods, 18(2), eP2898. <doi:10.48550/arXiv.1806.10947>. d) Tsagris M., Papadakis M., Alenazi A. and Alzeley O. (2024). Computationally Efficient Outlier Detection for High-Dimensional Data Using the MDP Algorithm. Computation, 12(9): 185. <doi:10.3390/computation12090185>. e) Tsagris M. and Papadakis M. (2025). Fast and light-weight energy statistics using the R package Rfast. <doi:10.48550/arXiv.2501.02849>.",
+      "License": "GPL (>= 2.0)",
+      "NeedsCompilation": "yes",
+      "Author": "Manos Papadakis [aut, cre, cph], Michail Tsagris [aut], Marios Dimitriadis [aut], Stefanos Fafalios [aut], Matteo Fasiolo [aut], Morgan Jacob [ctb], Giorgos Borboudakis [aut], John Burkardt [aut], Changliang Zou [aut]",
+      "Repository": "CRAN",
+      "Encoding": "UTF-8"
     },
     "Rhtslib": {
       "Package": "Rhtslib",
@@ -2359,6 +2497,60 @@
       "RemoteRef": "main",
       "RemoteSha": "b7c3656a58f6f021a0b8aa5670b48735cdbd8430"
     },
+    "Scissor": {
+      "Package": "Scissor",
+      "Version": "2.0.3",
+      "Source": "GitHub",
+      "Title": "Single-Cell Identification of Subpopulations with bulk Sample phenOtype coRrelation (SCISSOR)",
+      "Authors@R": "c(person(\"Duanchen\", \"Sun\", role = c(\"aut\", \"cre\"), email = \"sund@ohsu.edu\"))",
+      "Maintainer": "Duanchen Sun <sund@ohsu.edu>",
+      "Description": "Scissor is a novel approach that utilizes the bulk phenotypes, such as disease stage, tumor metastasis, treatment response, and survival outcomes, to identify the most highly phenotype-associated cell subpopulations from single-cell data.",
+      "License": "GPL (>= 2)",
+      "Depends": [
+        "R (>= 3.6.1)"
+      ],
+      "LazyData": "true",
+      "Imports": [
+        "Matrix",
+        "pROC",
+        "survival",
+        "SigBridgeRUtils (>= 0.1.0)",
+        "cli",
+        "SeuratObject",
+        "purrr",
+        "rlang",
+        "dplyr",
+        "data.table"
+      ],
+      "LinkingTo": [
+        "Rcpp",
+        "RcppEigen"
+      ],
+      "NeedsCompilation": "yes",
+      "BugReports": "https://github.com/sunduanchen/Scissor/issues",
+      "URL": "https://github.com/sunduanchen/Scissor",
+      "RoxygenNote": "7.3.3",
+      "Encoding": "UTF-8",
+      "biocViews": "",
+      "Suggests": [
+        "furrr",
+        "future",
+        "knitr",
+        "matrixStats",
+        "Rcpp",
+        "rmarkdown",
+        "Seurat",
+        "WGCNA"
+      ],
+      "VignetteBuilder": "knitr",
+      "Author": "Duanchen Sun [aut, cre]",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "Exceret",
+      "RemoteRepo": "Scissor",
+      "RemoteRef": "master",
+      "RemoteSha": "04f290519e3d185c1ad0c16a3e157eec71f63a57"
+    },
     "Seqinfo": {
       "Package": "Seqinfo",
       "Version": "1.2.0",
@@ -2583,6 +2775,158 @@
       "Author": "Paul Hoffman [aut] (ORCID: <https://orcid.org/0000-0002-7693-8957>), Rahul Satija [aut, cre] (ORCID: <https://orcid.org/0000-0001-9448-8833>), David Collins [aut] (ORCID: <https://orcid.org/0000-0001-9243-7821>), Yuhan Hao [aut] (ORCID: <https://orcid.org/0000-0002-1810-0822>), Austin Hartman [aut] (ORCID: <https://orcid.org/0000-0001-7278-1852>), Gesmira Molla [aut] (ORCID: <https://orcid.org/0000-0002-8628-5056>), Andrew Butler [aut] (ORCID: <https://orcid.org/0000-0003-3608-0463>), Tim Stuart [aut] (ORCID: <https://orcid.org/0000-0002-3044-0897>), Madeline Kowalski [ctb] (ORCID: <https://orcid.org/0000-0002-5655-7620>), Saket Choudhary [ctb] (ORCID: <https://orcid.org/0000-0001-5202-7633>), Skylar Li [ctb], Longda Jiang [ctb] (ORCID: <https://orcid.org/0000-0003-4964-6497>), Anagha Shenoy [ctb] (ORCID: <https://orcid.org/0000-0002-0537-6862>), Jeff Farrell [ctb], Shiwei Zheng [ctb] (ORCID: <https://orcid.org/0000-0001-6682-6743>), Christoph Hafemeister [ctb] (ORCID: <https://orcid.org/0000-0001-6365-8254>), Patrick Roelli [ctb]",
       "Maintainer": "Rahul Satija <seurat@nygenome.org>",
       "Repository": "CRAN"
+    },
+    "SigBridgeR": {
+      "Package": "SigBridgeR",
+      "Version": "3.8.1",
+      "Source": "GitHub",
+      "Title": "Integrative Toolkit for Linking Phenotypes to Cell Subpopulations via scRNA-seq and Bulk Data",
+      "Authors@R": "c( person(\"Yuxi\", \"Yang\", email = \"15364051195@163.com\", role = c(\"cre\", \"aut\"), comment = c(ORCID = \"0009-0006-1329-1224\")), person(\"Shixiang\", \"Wang\", email = \"shixiang1994wang@gmail.com\", role = c(\"aut\"), comment = c(ORCID = \"0000-0001-9855-7357\")), person(\"Zeyu\", \"Yan\", email = \"3191647388@qq.com\", role = \"ctb\")  )",
+      "Description": "Identifies phenotype-associated cell subpopulations by integrating phenotypic data (e.g., survival, drug sensitivity), bulk gene expression, and single-cell RNA-seq (scRNA-seq) profiles. It employs multiple algorithms to reliably connect cellular features with clinical or functional phenotypes, offering a unified pipeline for multi-modal analysis that uncovers biologically and clinically relevant cell states in heterogeneous datasets.",
+      "License": "GPL (>= 3)",
+      "Encoding": "UTF-8",
+      "URL": "https://wanglabcsu.github.io/sigbridger",
+      "BugReports": "https://github.com/WangLabCSU/SigBridgeR/issues",
+      "Roxygen": "list(markdown = TRUE)",
+      "RoxygenNote": "7.3.3",
+      "Imports": [
+        "chk",
+        "cli",
+        "data.table",
+        "dplyr",
+        "IDConverter",
+        "Matrix",
+        "purrr",
+        "rlang (>= 1.0.0)",
+        "scAB (>= 1.0.4)",
+        "Scissor (>= 2.0.1)",
+        "Seurat (>= 5.0.0)",
+        "SeuratObject (>= 5.0.0)",
+        "SigBridgeRUtils (>= 0.2.5)"
+      ],
+      "Depends": [
+        "R (>= 4.1.0)"
+      ],
+      "Suggests": [
+        "ALRA",
+        "anndata",
+        "anndataR",
+        "BiocManager",
+        "carrier",
+        "celldex",
+        "cheapr",
+        "codetools",
+        "curl",
+        "DEGAS",
+        "edgeR",
+        "furrr",
+        "future",
+        "future.mirai",
+        "ggforce",
+        "ggplot2",
+        "ggupset",
+        "ggVennDiagram",
+        "glue",
+        "here",
+        "jsonlite",
+        "KernSmooth",
+        "knitr",
+        "lifecycle",
+        "lintr",
+        "LPSGL",
+        "matrixStats",
+        "matrixTests",
+        "methods",
+        "mLLMCelltype",
+        "org.Hs.eg.db",
+        "pak",
+        "patchwork",
+        "PIPET",
+        "plyr",
+        "preprocessCore",
+        "processx",
+        "qs2",
+        "randomcoloR",
+        "RColorBrewer",
+        "remotes",
+        "reticulate",
+        "rmarkdown",
+        "rSIDISH (>= 0.0.2)",
+        "rstudioapi",
+        "rTiRank",
+        "scCustomize",
+        "SCIPAC",
+        "scPAS",
+        "ScPP",
+        "SingleR",
+        "sparseMatrixStats",
+        "testthat (>= 3.0.0)",
+        "tibble",
+        "tictoc",
+        "tidycheckUsage",
+        "tidyr",
+        "WGCNA",
+        "zeallot"
+      ],
+      "VignetteBuilder": "knitr",
+      "Config/testthat/edition": "3",
+      "Config/testthat/parallel": "true",
+      "Author": "Yuxi Yang [cre, aut] (ORCID: <https://orcid.org/0009-0006-1329-1224>), Shixiang Wang [aut] (ORCID: <https://orcid.org/0000-0001-9855-7357>), Zeyu Yan [ctb]",
+      "Maintainer": "Yuxi Yang <15364051195@163.com>",
+      "RemoteType": "github",
+      "Remotes": "github::Exceret/ALRA, github::Exceret/DEGAS, github::Exceret/LPSGL, github::Exceret/PIPET, github::Exceret/rTiRank, github::Exceret/rSIDISH, github::Exceret/scAB, github::Exceret/SCIPAC, github::Exceret/Scissor, github::Exceret/scPAS, github::Exceret/ScPP, github::ShixiangWang/IDConverter, github::yonicd/tidycheckUsage",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "WangLabCSU",
+      "RemoteRepo": "SigBridgeR",
+      "RemoteRef": "main",
+      "RemoteSha": "b13613252402a09a439e74c360269c650ef79ea6"
+    },
+    "SigBridgeRUtils": {
+      "Package": "SigBridgeRUtils",
+      "Version": "0.2.7",
+      "Source": "GitHub",
+      "Title": "Some Utilities & Base Supports for 'SigBridgeR'",
+      "Authors@R": "person(\"Yuxi\", \"Yang\", email = \"15364051195@163.com\", role = c(\"cre\",\"aut\"),  comment = c(ORCID = \"0009-0006-1329-1224\"))",
+      "Description": "Provides fundamental function support for 'SigBridgeR' and its single-cell phenotypic screening algorithm, including optional functions.",
+      "License": "GPL (>= 3)",
+      "Encoding": "UTF-8",
+      "Roxygen": "list(markdown = TRUE)",
+      "RoxygenNote": "7.3.3",
+      "Depends": [
+        "R (>= 4.1.0)"
+      ],
+      "Suggests": [
+        "furrr",
+        "future",
+        "MASS",
+        "Matrix",
+        "matrixStats",
+        "microbenchmark",
+        "preprocessCore",
+        "Rfast",
+        "SeuratObject",
+        "sparseMatrixStats",
+        "testthat"
+      ],
+      "Imports": [
+        "chk",
+        "cli",
+        "data.table",
+        "processx",
+        "purrr",
+        "reticulate",
+        "rlang"
+      ],
+      "Config/testthat/parallel": "true",
+      "Config/testthat/edition": "3",
+      "Author": "Yuxi Yang [cre, aut] (ORCID: <https://orcid.org/0009-0006-1329-1224>)",
+      "Maintainer": "Yuxi Yang <15364051195@163.com>",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "WangLabCSU",
+      "RemoteRepo": "SigBridgeRUtils",
+      "RemoteRef": "main",
+      "RemoteSha": "b732536e3335463cc7258d9a8d2d1f9015d6e5b3"
     },
     "SingleCellExperiment": {
       "Package": "SingleCellExperiment",
@@ -4096,6 +4440,44 @@
       "Maintainer": "Michel Lang <michellang@gmail.com>",
       "Repository": "RSPM"
     },
+    "chk": {
+      "Package": "chk",
+      "Version": "0.10.0",
+      "Source": "Repository",
+      "Title": "Check User-Supplied Function Arguments",
+      "Authors@R": "c( person(\"Joe\", \"Thorley\", , \"joe@poissonconsulting.ca\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-7683-4592\")), person(\"Kirill\", \"Müller\", role = \"aut\", comment = c(ORCID = \"0000-0002-1416-3412\")), person(\"Ayla\", \"Pearson\", role = \"aut\", comment = c(ORCID = \"0000-0001-7388-1222\")), person(\"Florencia\", \"D'Andrea\", role = \"ctb\"), person(\"Nadine\", \"Hussein\", , \"nadine@poissonconsulting.ca\", role = \"ctb\", comment = c(ORCID = \"0000-0003-4470-8361\")), person(\"Evan\", \"Amies-Galonski\", , \"evan@poissonconsulting.ca\", role = \"ctb\", comment = c(ORCID = \"0000-0003-1096-2089\")), person(\"Poisson Consulting\", role = c(\"cph\", \"fnd\")) )",
+      "Description": "For developers to check user-supplied function arguments.  It is designed to be simple, fast and customizable.  Error messages follow the tidyverse style guide.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://github.com/poissonconsulting/chk, https://poissonconsulting.github.io/chk/",
+      "BugReports": "https://github.com/poissonconsulting/chk/issues/",
+      "Depends": [
+        "R (>= 3.6)"
+      ],
+      "Imports": [
+        "lifecycle",
+        "methods",
+        "rlang",
+        "tools"
+      ],
+      "Suggests": [
+        "covr",
+        "knitr",
+        "rmarkdown",
+        "testthat (>= 3.0.0)",
+        "withr"
+      ],
+      "VignetteBuilder": "knitr",
+      "RdMacros": "lifecycle",
+      "Config/Needs/website": "poissonconsulting/poissontemplate",
+      "Config/testthat/edition": "3",
+      "Encoding": "UTF-8",
+      "Language": "en-US",
+      "RoxygenNote": "7.3.2.9000",
+      "NeedsCompilation": "no",
+      "Author": "Joe Thorley [aut, cre] (<https://orcid.org/0000-0002-7683-4592>), Kirill Müller [aut] (<https://orcid.org/0000-0002-1416-3412>), Ayla Pearson [aut] (<https://orcid.org/0000-0001-7388-1222>), Florencia D'Andrea [ctb], Nadine Hussein [ctb] (<https://orcid.org/0000-0003-4470-8361>), Evan Amies-Galonski [ctb] (<https://orcid.org/0000-0003-1096-2089>), Poisson Consulting [cph, fnd]",
+      "Maintainer": "Joe Thorley <joe@poissonconsulting.ca>",
+      "Repository": "CRAN"
+    },
     "cigarillo": {
       "Package": "cigarillo",
       "Version": "1.2.0",
@@ -5011,6 +5393,29 @@
       "Author": "Dirk Eddelbuettel [aut, cre] (ORCID: <https://orcid.org/0000-0001-6419-907X>), Antoine Lucas [ctb] (ORCID: <https://orcid.org/0000-0002-8059-9767>), Jarek Tuszynski [ctb], Henrik Bengtsson [ctb] (ORCID: <https://orcid.org/0000-0002-7579-5165>), Simon Urbanek [ctb] (ORCID: <https://orcid.org/0000-0003-2297-1732>), Mario Frasca [ctb], Bryan Lewis [ctb], Murray Stokely [ctb], Hannes Muehleisen [ctb] (ORCID: <https://orcid.org/0000-0001-8552-0029>), Duncan Murdoch [ctb], Jim Hester [ctb] (ORCID: <https://orcid.org/0000-0002-2739-7082>), Wush Wu [ctb] (ORCID: <https://orcid.org/0000-0001-5180-0567>), Qiang Kou [ctb] (ORCID: <https://orcid.org/0000-0001-6786-5453>), Thierry Onkelinx [ctb] (ORCID: <https://orcid.org/0000-0001-8804-4216>), Michel Lang [ctb] (ORCID: <https://orcid.org/0000-0001-9754-0393>), Viliam Simko [ctb], Kurt Hornik [ctb] (ORCID: <https://orcid.org/0000-0003-4198-9911>), Radford Neal [ctb] (ORCID: <https://orcid.org/0000-0002-2473-3407>), Kendon Bell [ctb] (ORCID: <https://orcid.org/0000-0002-9093-8312>), Matthew de Queljoe [ctb], Dmitry Selivanov [ctb] (ORCID: <https://orcid.org/0000-0003-0492-6647>), Ion Suruceanu [ctb] (ORCID: <https://orcid.org/0009-0005-6446-4909>), Bill Denney [ctb] (ORCID: <https://orcid.org/0000-0002-5759-428X>), Dirk Schumacher [ctb], András Svraka [ctb] (ORCID: <https://orcid.org/0009-0008-8480-1329>), Sergey Fedorov [ctb] (ORCID: <https://orcid.org/0000-0002-5970-7233>), Will Landau [ctb] (ORCID: <https://orcid.org/0000-0003-1878-3253>), Floris Vanderhaeghe [ctb] (ORCID: <https://orcid.org/0000-0002-6378-6229>), Kevin Tappe [ctb], Harris McGehee [ctb], Tim Mastny [ctb], Aaron Peikert [ctb] (ORCID: <https://orcid.org/0000-0001-7813-818X>), Mark van der Loo [ctb] (ORCID: <https://orcid.org/0000-0002-9807-4686>), Chris Muir [ctb] (ORCID: <https://orcid.org/0000-0003-2555-3878>), Moritz Beller [ctb] (ORCID: <https://orcid.org/0000-0003-4852-0526>), Sebastian Campbell [ctb] (ORCID: <https://orcid.org/0009-0000-5948-4503>), Winston Chang [ctb] (ORCID: <https://orcid.org/0000-0002-1576-2126>), Dean Attali [ctb] (ORCID: <https://orcid.org/0000-0002-5645-3493>), Michael Chirico [ctb] (ORCID: <https://orcid.org/0000-0003-0787-087X>), Kevin Ushey [ctb] (ORCID: <https://orcid.org/0000-0003-2880-7407>), Carl Pearson [ctb] (ORCID: <https://orcid.org/0000-0003-0701-7860>)",
       "Maintainer": "Dirk Eddelbuettel <edd@debian.org>",
       "Repository": "RSPM"
+    },
+    "diptest": {
+      "Package": "diptest",
+      "Version": "0.77-2",
+      "Source": "Repository",
+      "VersionNote": "Last CRAN: 0.77-1 on 2024-03-31",
+      "Date": "2025-08-19",
+      "Authors@R": "c( person(\"Martin\", \"Maechler\", role = c(\"aut\", \"cre\"), email = \"maechler@stat.math.ethz.ch\", comment = c(\"Ported to R and C from Fortran and S-plus; much enhanced\", ORCID = \"0000-0002-8685-9910\")), person(\"Dario Ringach\", role = \"aut\", comment = \"Fortran and S-plus; at NYU.edu\"))",
+      "Title": "Hartigan's Dip Test Statistic for Unimodality - Corrected",
+      "Description": "Compute Hartigan's dip test statistic for unimodality / multimodality and provide a test with simulation based p-values,  where the original public code has been corrected.",
+      "Imports": [
+        "graphics",
+        "stats"
+      ],
+      "BuildResaveData": "no",
+      "License": "GPL (>= 2)",
+      "URL": "https://github.com/mmaechler/diptest",
+      "BugReports": "https://github.com/mmaechler/diptest/issues",
+      "NeedsCompilation": "yes",
+      "Author": "Martin Maechler [aut, cre] (Ported to R and C from Fortran and S-plus; much enhanced, ORCID: <https://orcid.org/0000-0002-8685-9910>), Dario Ringach [aut] (Fortran and S-plus; at NYU.edu)",
+      "Maintainer": "Martin Maechler <maechler@stat.math.ethz.ch>",
+      "Repository": "CRAN",
+      "Encoding": "UTF-8"
     },
     "dir.expiry": {
       "Package": "dir.expiry",
@@ -8433,6 +8838,30 @@
       "Author": "Jeroen Ooms [aut, cre] (<https://orcid.org/0000-0002-4035-0289>), Duncan Temple Lang [ctb], Lloyd Hilaiel [cph] (author of bundled libyajl)",
       "Repository": "RSPM"
     },
+    "kernlab": {
+      "Package": "kernlab",
+      "Version": "0.9-33",
+      "Source": "Repository",
+      "Title": "Kernel-Based Machine Learning Lab",
+      "Authors@R": "c(person(\"Alexandros\", \"Karatzoglou\", role = c(\"aut\", \"cre\"), email = \"alexandros.karatzoglou@gmail.com\"), person(\"Alex\", \"Smola\", role = \"aut\"), person(\"Kurt\", \"Hornik\", role = \"aut\", email = \"Kurt.Hornik@R-project.org\", comment = c(ORCID = \"0000-0003-4198-9911\")), person(\"National ICT Australia (NICTA)\", role = \"cph\"), person(c(\"Michael\", \"A.\"), \"Maniscalco\", role = c(\"ctb\", \"cph\")), person(c(\"Choon\", \"Hui\"), \"Teo\", role = \"ctb\"))",
+      "Description": "Kernel-based machine learning methods for classification, regression, clustering, novelty detection, quantile regression and dimensionality reduction.  Among other methods 'kernlab' includes Support Vector Machines, Spectral Clustering, Kernel PCA, Gaussian Processes and a QP solver.",
+      "Depends": [
+        "R (>= 2.10)"
+      ],
+      "Imports": [
+        "methods",
+        "stats",
+        "grDevices",
+        "graphics"
+      ],
+      "LazyLoad": "Yes",
+      "License": "GPL-2",
+      "NeedsCompilation": "yes",
+      "Author": "Alexandros Karatzoglou [aut, cre], Alex Smola [aut], Kurt Hornik [aut] (<https://orcid.org/0000-0003-4198-9911>), National ICT Australia (NICTA) [cph], Michael A. Maniscalco [ctb, cph], Choon Hui Teo [ctb]",
+      "Maintainer": "Alexandros Karatzoglou <alexandros.karatzoglou@gmail.com>",
+      "Repository": "CRAN",
+      "Encoding": "UTF-8"
+    },
     "knitr": {
       "Package": "knitr",
       "Version": "1.51",
@@ -8497,6 +8926,47 @@
       "Author": "Yihui Xie [aut, cre] (ORCID: <https://orcid.org/0000-0003-0645-5666>, URL: https://yihui.org), Abhraneel Sarma [ctb], Adam Vogt [ctb], Alastair Andrew [ctb], Alex Zvoleff [ctb], Amar Al-Zubaidi [ctb], Andre Simon [ctb] (the CSS files under inst/themes/ were derived from the Highlight package http://www.andre-simon.de), Aron Atkins [ctb], Aaron Wolen [ctb], Ashley Manton [ctb], Atsushi Yasumoto [ctb] (ORCID: <https://orcid.org/0000-0002-8335-495X>), Ben Baumer [ctb], Brian Diggs [ctb], Brian Zhang [ctb], Bulat Yapparov [ctb], Cassio Pereira [ctb], Christophe Dervieux [ctb], David Hall [ctb], David Hugh-Jones [ctb], David Robinson [ctb], Doug Hemken [ctb], Duncan Murdoch [ctb], Elio Campitelli [ctb], Ellis Hughes [ctb], Emily Riederer [ctb], Fabian Hirschmann [ctb], Fitch Simeon [ctb], Forest Fang [ctb], Frank E Harrell Jr [ctb] (the Sweavel package at inst/misc/Sweavel.sty), Garrick Aden-Buie [ctb], Gregoire Detrez [ctb], Hadley Wickham [ctb], Hao Zhu [ctb], Heewon Jeon [ctb], Henrik Bengtsson [ctb], Hiroaki Yutani [ctb], Ian Lyttle [ctb], Hodges Daniel [ctb], Jacob Bien [ctb], Jake Burkhead [ctb], James Manton [ctb], Jared Lander [ctb], Jason Punyon [ctb], Javier Luraschi [ctb], Jeff Arnold [ctb], Jenny Bryan [ctb], Jeremy Ashkenas [ctb, cph] (the CSS file at inst/misc/docco-classic.css), Jeremy Stephens [ctb], Jim Hester [ctb], Joe Cheng [ctb], Johannes Ranke [ctb], John Honaker [ctb], John Muschelli [ctb], Jonathan Keane [ctb], JJ Allaire [ctb], Johan Toloe [ctb], Jonathan Sidi [ctb], Joseph Larmarange [ctb], Julien Barnier [ctb], Kaiyin Zhong [ctb], Kamil Slowikowski [ctb], Karl Forner [ctb], Kevin K. Smith [ctb], Kirill Mueller [ctb], Kohske Takahashi [ctb], Lorenz Walthert [ctb], Lucas Gallindo [ctb], Marius Hofert [ctb], Martin Modrák [ctb], Michael Chirico [ctb], Michael Friendly [ctb], Michal Bojanowski [ctb], Michel Kuhlmann [ctb], Miller Patrick [ctb], Nacho Caballero [ctb], Nick Salkowski [ctb], Niels Richard Hansen [ctb], Noam Ross [ctb], Obada Mahdi [ctb], Pavel N. Krivitsky [ctb] (ORCID: <https://orcid.org/0000-0002-9101-3362>), Pedro Faria [ctb], Qiang Li [ctb], Ramnath Vaidyanathan [ctb], Richard Cotton [ctb], Robert Krzyzanowski [ctb], Rodrigo Copetti [ctb], Romain Francois [ctb], Ruaridh Williamson [ctb], Sagiru Mati [ctb] (ORCID: <https://orcid.org/0000-0003-1413-3974>), Scott Kostyshak [ctb], Sebastian Meyer [ctb], Sietse Brouwer [ctb], Simon de Bernard [ctb], Sylvain Rousseau [ctb], Taiyun Wei [ctb], Thibaut Assus [ctb], Thibaut Lamadon [ctb], Thomas Leeper [ctb], Tim Mastny [ctb], Tom Torsney-Weir [ctb], Trevor Davis [ctb], Viktoras Veitas [ctb], Weicheng Zhu [ctb], Wush Wu [ctb], Zachary Foster [ctb], Zhian N. Kamvar [ctb] (ORCID: <https://orcid.org/0000-0003-1458-7108>), Posit Software, PBC [cph, fnd]",
       "Maintainer": "Yihui Xie <xie@yihui.name>",
       "Repository": "RSPM"
+    },
+    "ks": {
+      "Package": "ks",
+      "Version": "1.15.2",
+      "Source": "Repository",
+      "Date": "2026-05-09",
+      "Title": "Kernel Smoothing",
+      "Authors@R": "c(person(\"Tarn\", \"Duong\", role=c(\"aut\",\"cre\"), email=\"tarn.duong@gmail.com\", comment=c(ORCID=\"0000-0002-1198-3482\")), person(\"Matt\", \"Wand\", role=\"ctb\", comment=c(ORCID=\"0000-0003-2555-896X\")), person(\"Jose\", \"Chacon\", role=\"ctb\"), person(\"Artur\", \"Gramacki\", role=\"ctb\", comment=c(ORCID=\"0000-0002-1610-9743\")))",
+      "Maintainer": "Tarn Duong <tarn.duong@gmail.com>",
+      "Depends": [
+        "R (>= 2.10.0)"
+      ],
+      "Imports": [
+        "FNN (>= 1.1)",
+        "kernlab",
+        "KernSmooth (>= 2.22)",
+        "Matrix",
+        "mclust",
+        "mgcv",
+        "multicool",
+        "mvtnorm (>= 1.0-0)",
+        "pracma"
+      ],
+      "Suggests": [
+        "geometry",
+        "knitr",
+        "MASS",
+        "misc3d (>= 0.4-0)",
+        "oz",
+        "plot3D",
+        "rgl (>= 0.66)",
+        "rmarkdown"
+      ],
+      "VignetteBuilder": "knitr",
+      "Encoding": "UTF-8",
+      "Description": "Kernel smoothers for univariate and multivariate data, with comprehensive visualisation and bandwidth selection capabilities, including for densities, density derivatives, cumulative distributions, clustering, classification, density ridges, significant modal regions, and two-sample hypothesis tests. Chacon & Duong (2018) <doi:10.1201/9780429485572>.",
+      "License": "GPL-2 | GPL-3",
+      "URL": "https://mvstat.net/ks/, https://mvstat.net/mvksa/, https://github.com/cran/ks/",
+      "NeedsCompilation": "yes",
+      "Author": "Tarn Duong [aut, cre] (ORCID: <https://orcid.org/0000-0002-1198-3482>), Matt Wand [ctb] (ORCID: <https://orcid.org/0000-0003-2555-896X>), Jose Chacon [ctb], Artur Gramacki [ctb] (ORCID: <https://orcid.org/0000-0002-1610-9743>)",
+      "Repository": "CRAN"
     },
     "labeling": {
       "Package": "labeling",
@@ -8964,6 +9434,41 @@
       "Repository": "CRAN",
       "Encoding": "UTF-8"
     },
+    "mclust": {
+      "Package": "mclust",
+      "Version": "6.1.3",
+      "Source": "Repository",
+      "Date": "2026-07-03",
+      "Title": "Gaussian Mixture Modelling for Model-Based Clustering, Classification, and Density Estimation",
+      "Description": "Gaussian finite mixture models fitted via EM algorithm for model-based clustering, classification, and density estimation,  including Bayesian regularization, dimension reduction for  visualisation, and resampling-based inference.",
+      "Authors@R": "c(person(\"Chris\", \"Fraley\", role = \"aut\"), person(\"Adrian E.\", \"Raftery\", role = \"aut\", comment = c(ORCID = \"0000-0002-6589-301X\")), person(\"Luca\", \"Scrucca\", role = c(\"aut\", \"cre\"), email = \"luca.scrucca@unibo.it\", comment = c(ORCID = \"0000-0003-3826-0484\")), person(\"Thomas Brendan\", \"Murphy\", role = \"ctb\", comment = c(ORCID = \"0000-0002-5668-7046\")), person(\"Michael\", \"Fop\", role = \"ctb\", comment = c(ORCID = \"0000-0003-3936-2757\")))",
+      "Depends": [
+        "R (>= 3.0)"
+      ],
+      "Imports": [
+        "stats",
+        "utils",
+        "graphics",
+        "grDevices"
+      ],
+      "Suggests": [
+        "knitr (>= 1.4)",
+        "rmarkdown (>= 2.10)",
+        "mix (>= 1.0)",
+        "geometry (>= 0.4)",
+        "MASS"
+      ],
+      "License": "GPL (>= 2)",
+      "URL": "https://mclust-org.github.io/mclust/",
+      "VignetteBuilder": "knitr",
+      "Repository": "CRAN",
+      "ByteCompile": "true",
+      "NeedsCompilation": "yes",
+      "LazyData": "yes",
+      "Encoding": "UTF-8",
+      "Author": "Chris Fraley [aut], Adrian E. Raftery [aut] (ORCID: <https://orcid.org/0000-0002-6589-301X>), Luca Scrucca [aut, cre] (ORCID: <https://orcid.org/0000-0003-3826-0484>), Thomas Brendan Murphy [ctb] (ORCID: <https://orcid.org/0000-0002-5668-7046>), Michael Fop [ctb] (ORCID: <https://orcid.org/0000-0003-3936-2757>)",
+      "Maintainer": "Luca Scrucca <luca.scrucca@unibo.it>"
+    },
     "memoise": {
       "Package": "memoise",
       "Version": "2.0.1",
@@ -9267,6 +9772,87 @@
       "Author": "Igor Dolgalev [aut, cre] (ORCID: <https://orcid.org/0000-0003-4451-126X>)",
       "Maintainer": "Igor Dolgalev <igor.dolgalev@nyumc.org>",
       "Repository": "CRAN"
+    },
+    "multicool": {
+      "Package": "multicool",
+      "Version": "1.0.1",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Permutations of Multisets in Cool-Lex Order",
+      "Date": "2024-02-05",
+      "Author": "James Curran, Aaron Williams, Jerome Kelleher, Dave Barber",
+      "Maintainer": "James Curran <j.curran@auckland.ac.nz>",
+      "Description": "A set of tools to permute multisets without loops or hash tables and to generate integer partitions. The permutation functions are based on C code from Aaron Williams. Cool-lex order is similar to colexicographical order. The algorithm is described in Williams, A. Loopless Generation of Multiset Permutations by Prefix Shifts. SODA 2009, Symposium on Discrete Algorithms, New York, United States. The permutation code is distributed without restrictions. The code for stable and efficient computation of multinomial coefficients comes from Dave Barber. The code can be download from <http://tamivox.org/dave/multinomial/index.html> and is distributed without conditions. The package also generates the integer partitions of a positive, non-zero integer n. The C++ code for this is based on Python code from Jerome Kelleher which can be found here <https://jeromekelleher.net/category/combinatorics.html>. The C++ code and Python code are distributed without conditions.",
+      "URL": "https://github.com/jmcurran/multicool",
+      "BugReports": "https://github.com/jmcurran/multicool/issues",
+      "Encoding": "UTF-8",
+      "License": "GPL-2",
+      "Depends": [
+        "methods",
+        "Rcpp (>= 0.11.2)"
+      ],
+      "LinkingTo": [
+        "Rcpp"
+      ],
+      "RcppModules": "Multicool",
+      "RoxygenNote": "7.2.3",
+      "NeedsCompilation": "yes",
+      "Repository": "CRAN"
+    },
+    "multimode": {
+      "Package": "multimode",
+      "Version": "1.5",
+      "Source": "Repository",
+      "Encoding": "UTF-8",
+      "Type": "Package",
+      "Title": "Mode Testing and Exploring",
+      "Date": "2021-03-17",
+      "Author": "Jose Ameijeiras-Alonso [aut,cre], Rosa M. Crujeiras [aut],  Alberto Rodríguez-Casal [aut], The R Core Team 1996-2012 [ctb,cph] (C function 'BinDist2' obtained from package 'stats'), The R Foundation 2005 [ctb,cph] (C function 'BinDist2' obtained from package 'stats')",
+      "Maintainer": "Jose Ameijeiras-Alonso <jose.ameijeiras@usc.es>",
+      "Description": "Different examples and methods for testing (including different proposals described in Ameijeiras-Alonso et al., 2019 <DOI:10.1007/s11749-018-0611-5>) and exploring (including the mode tree, mode forest and SiZer) the number of modes using nonparametric techniques <DOI:10.18637/jss.v097.i09>.",
+      "Depends": [
+        "R (>= 2.10.0)"
+      ],
+      "License": "GPL-3",
+      "NeedsCompilation": "yes",
+      "LazyData": "TRUE",
+      "Imports": [
+        "diptest",
+        "ks",
+        "rootSolve"
+      ],
+      "Suggests": [
+        "nor1mix"
+      ],
+      "URL": "https://doi.org/10.18637/jss.v097.i09",
+      "Repository": "CRAN"
+    },
+    "mvtnorm": {
+      "Package": "mvtnorm",
+      "Version": "1.4-2",
+      "Source": "Repository",
+      "Title": "Multivariate Normal and t Distributions",
+      "Authors@R": "c(person(\"Alan\", \"Genz\", role = \"aut\"), person(\"Frank\", \"Bretz\", role = \"aut\"), person(\"Tetsuhisa\", \"Miwa\", role = \"aut\"), person(\"Xuefei\", \"Mi\", role = \"aut\"), person(\"Friedrich\", \"Leisch\", role = \"ctb\"), person(\"Fabian\", \"Scheipl\", role = \"ctb\"), person(\"Bjoern\", \"Bornkamp\", role = \"ctb\", comment = c(ORCID = \"0000-0002-6294-8185\")), person(\"Martin\", \"Maechler\", role = \"ctb\", comment = c(ORCID = \"0000-0002-8685-9910\")), person(\"Torsten\", \"Hothorn\", role = c(\"aut\", \"cre\"), email = \"Torsten.Hothorn@R-project.org\", comment = c(ORCID = \"0000-0001-8301-0471\")))",
+      "Description": "Computes multivariate normal and t probabilities, quantiles, random deviates,  and densities. Log-likelihoods for multivariate Gaussian models and Gaussian copulae  parameterised by Cholesky factors of covariance or precision matrices are implemented  for interval-censored and exact data, or a mix thereof. Score functions for these  log-likelihoods are available. A class representing multiple lower triangular matrices  and corresponding methods are part of this package.",
+      "Imports": [
+        "stats",
+        "utils"
+      ],
+      "Depends": [
+        "R(>= 3.5.0)"
+      ],
+      "Suggests": [
+        "qrng",
+        "numDeriv",
+        "bibtex"
+      ],
+      "License": "GPL-2",
+      "URL": "https://codeberg.org/thothorn/mvtnorm",
+      "NeedsCompilation": "yes",
+      "Author": "Alan Genz [aut], Frank Bretz [aut], Tetsuhisa Miwa [aut], Xuefei Mi [aut], Friedrich Leisch [ctb], Fabian Scheipl [ctb], Bjoern Bornkamp [ctb] (ORCID: <https://orcid.org/0000-0002-6294-8185>), Martin Maechler [ctb] (ORCID: <https://orcid.org/0000-0002-8685-9910>), Torsten Hothorn [aut, cre] (ORCID: <https://orcid.org/0000-0001-8301-0471>)",
+      "Maintainer": "Torsten Hothorn <Torsten.Hothorn@R-project.org>",
+      "Repository": "CRAN",
+      "Encoding": "UTF-8"
     },
     "nlme": {
       "Package": "nlme",
@@ -9587,6 +10173,44 @@
       "NeedsCompilation": "no",
       "Author": "Gábor Csárdi [aut, cre]",
       "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
+      "Repository": "CRAN"
+    },
+    "pROC": {
+      "Package": "pROC",
+      "Version": "1.19.0.1",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Display and Analyze ROC Curves",
+      "Date": "2025-07-31",
+      "Encoding": "UTF-8",
+      "Depends": [
+        "R (>= 2.14)"
+      ],
+      "Imports": [
+        "methods",
+        "Rcpp (>= 0.11.1)"
+      ],
+      "Suggests": [
+        "tcltk",
+        "MASS",
+        "logcondens",
+        "testthat",
+        "vdiffr",
+        "ggplot2",
+        "rlang"
+      ],
+      "LinkingTo": [
+        "Rcpp"
+      ],
+      "Authors@R": "c(person(\"Xavier\", \"Robin\", role = c(\"cre\", \"aut\"),  email = \"pROC-cran@xavier.robin.name\", comment = c(ORCID = \"0000-0002-6813-3200\")), person(\"Natacha\", \"Turck\", role = \"aut\"), person(\"Alexandre\", \"Hainard\", role = \"aut\"), person(\"Natalia\", \"Tiberti\", role = \"aut\"), person(\"Frédérique\", \"Lisacek\", role = \"aut\"), person(\"Jean-Charles\", \"Sanchez\", role = \"aut\"), person(\"Markus\", \"Müller\", role = \"aut\"), person(\"Stefan\", \"Siegert\", role = \"ctb\",  comment = \"Fast DeLong code\",  email = \"stefan_siegert@gmx.de\"), person(\"Matthias\", \"Doering\", role = \"ctb\",  comment = \"Hand & Till Multiclass\"), person(\"Zane\", \"Billings\", role = \"ctb\",  comment = \"DeLong paired test CI\"))",
+      "Description": "Tools for visualizing, smoothing and comparing receiver operating characteristic (ROC curves). (Partial) area under the curve (AUC) can be compared with statistical tests based on U-statistics or bootstrap. Confidence intervals can be computed for (p)AUC or ROC curves.",
+      "License": "GPL (>= 3)",
+      "URL": "https://xrobin.github.io/pROC/",
+      "BugReports": "https://github.com/xrobin/pROC/issues",
+      "LazyData": "yes",
+      "NeedsCompilation": "yes",
+      "Author": "Xavier Robin [cre, aut] (ORCID: <https://orcid.org/0000-0002-6813-3200>), Natacha Turck [aut], Alexandre Hainard [aut], Natalia Tiberti [aut], Frédérique Lisacek [aut], Jean-Charles Sanchez [aut], Markus Müller [aut], Stefan Siegert [ctb] (Fast DeLong code), Matthias Doering [ctb] (Hand & Till Multiclass), Zane Billings [ctb] (DeLong paired test CI)",
+      "Maintainer": "Xavier Robin <pROC-cran@xavier.robin.name>",
       "Repository": "CRAN"
     },
     "pak": {
@@ -10206,6 +10830,37 @@
       "Repository": "RSPM",
       "Encoding": "UTF-8"
     },
+    "pracma": {
+      "Package": "pracma",
+      "Version": "2.4.6",
+      "Source": "Repository",
+      "Type": "Package",
+      "Date": "2025-10-20",
+      "Title": "Practical Numerical Math Functions",
+      "Authors@R": "person(\"Hans W.\", \"Borchers\",  email=\"hwborchers@googlemail.com\",  role=c(\"aut\", \"cre\"))",
+      "Depends": [
+        "R (>= 3.1.0)"
+      ],
+      "Imports": [
+        "graphics",
+        "grDevices",
+        "stats",
+        "utils"
+      ],
+      "Suggests": [
+        "NlcOptim",
+        "quadprog"
+      ],
+      "Description": "Provides a large number of functions from numerical analysis and linear algebra, numerical optimization, differential equations, time series, plus some well-known special mathematical functions. Uses 'MATLAB' function names where appropriate to simplify porting.",
+      "License": "GPL (>= 3)",
+      "ByteCompile": "true",
+      "LazyData": "yes",
+      "NeedsCompilation": "no",
+      "Author": "Hans W. Borchers [aut, cre]",
+      "Maintainer": "Hans W. Borchers <hwborchers@googlemail.com>",
+      "Repository": "CRAN",
+      "Encoding": "UTF-8"
+    },
     "praise": {
       "Package": "praise",
       "Version": "1.0.0",
@@ -10412,12 +11067,12 @@
     },
     "progressr": {
       "Package": "progressr",
-      "Version": "0.19.0",
+      "Version": "1.0.0",
       "Source": "Repository",
       "Title": "An Inclusive, Unifying API for Progress Updates",
       "Description": "A minimal, unifying API for scripts and packages to report progress updates from anywhere including when using parallel processing.  The package is designed such that the developer can to focus on what progress should be reported on without having to worry about how to present it.  The end user has full control of how, where, and when to render these progress updates, e.g. in the terminal using utils::txtProgressBar(), cli::cli_progress_bar(), in a graphical user interface using utils::winProgressBar(), tcltk::tkProgressBar() or shiny::withProgress(), via the speakers using beepr::beep(), or on a file system via the size of a file. Anyone can add additional, customized, progression handlers. The 'progressr' package uses R's condition framework for signaling progress updated. Because of this, progress can be reported from almost anywhere in R, e.g. from classical for and while loops, from map-reduce API:s like the lapply() family of functions, 'purrr', 'plyr', and 'foreach'. It will also work with parallel processing via the 'future' framework, e.g. 'lapply(...) |> futurize()' and 'purrr::map(...) |> futurize()', which uses future.apply::future_lapply() and furrr::future_map() internally. The package is compatible with Shiny applications.",
       "Authors@R": "c(person(\"Henrik\", \"Bengtsson\", role = c(\"aut\", \"cre\", \"cph\"), email = \"henrikb@braju.com\", comment = c(ORCID = \"0000-0002-7579-5165\")))",
-      "License": "GPL (>= 3)",
+      "License": "Apache License (>= 2)",
       "Depends": [
         "R (>= 3.5.0)"
       ],
@@ -10453,7 +11108,7 @@
       "Encoding": "UTF-8",
       "URL": "https://progressr.futureverse.org, https://github.com/futureverse/progressr",
       "BugReports": "https://github.com/futureverse/progressr/issues",
-      "RoxygenNote": "7.3.3",
+      "Config/roxygen2/version": "8.0.0",
       "NeedsCompilation": "no",
       "Author": "Henrik Bengtsson [aut, cre, cph] (ORCID: <https://orcid.org/0000-0002-7579-5165>)",
       "Maintainer": "Henrik Bengtsson <henrikb@braju.com>",
@@ -11404,6 +12059,28 @@
       "Maintainer": "Yihui Xie <xie@yihui.name>",
       "Repository": "CRAN"
     },
+    "rootSolve": {
+      "Package": "rootSolve",
+      "Version": "1.8.2.4",
+      "Source": "Repository",
+      "Title": "Nonlinear Root Finding, Equilibrium and Steady-State Analysis of Ordinary Differential Equations",
+      "Authors@R": "c(person(\"Karline\",\"Soetaert\", role = c(\"aut\", \"cre\"),  email = \"karline.soetaert@nioz.nl\"), person(\"Alan C.\",\"Hindmarsh\", role = \"ctb\",  comment = \"files lsodes.f, sparse.f\"), person(\"S.C.\",\"Eisenstat\", role = \"ctb\",  comment = \"file sparse.f\"), person(\"Cleve\",\"Moler\", role = \"ctb\",  comment = \"file dlinpk.f\"), person(\"Jack\",\"Dongarra\", role = \"ctb\",  comment = \"file dlinpk.f\"), person(\"Youcef\", \"Saad\", role = \"ctb\",  comment = \"file dsparsk.f\"))",
+      "Maintainer": "Karline Soetaert <karline.soetaert@nioz.nl>",
+      "Author": "Karline Soetaert [aut, cre], Alan C. Hindmarsh [ctb] (files lsodes.f, sparse.f), S.C. Eisenstat [ctb] (file sparse.f), Cleve Moler [ctb] (file dlinpk.f), Jack Dongarra [ctb] (file dlinpk.f), Youcef Saad [ctb] (file dsparsk.f)",
+      "Depends": [
+        "R (>= 2.01)"
+      ],
+      "Imports": [
+        "stats",
+        "graphics",
+        "grDevices"
+      ],
+      "Description": "Routines to find the root of nonlinear functions, and to perform steady-state and equilibrium analysis of ordinary differential equations (ODE).  Includes routines that: (1) generate gradient and jacobian matrices (full and banded), (2) find roots of non-linear equations by the 'Newton-Raphson' method,  (3) estimate steady-state conditions of a system of (differential) equations in full, banded or sparse form, using the 'Newton-Raphson' method, or by dynamically running, (4) solve the steady-state conditions for uni-and multicomponent 1-D, 2-D, and 3-D partial differential equations, that have been converted to ordinary differential equations by numerical differencing (using the method-of-lines approach). Includes fortran code.",
+      "License": "GPL (>= 2)",
+      "NeedsCompilation": "yes",
+      "Repository": "CRAN",
+      "Encoding": "UTF-8"
+    },
     "roxygen2": {
       "Package": "roxygen2",
       "Version": "8.0.0",
@@ -11690,6 +12367,60 @@
       "Author": "Joe Cheng [aut], Timothy Mastny [aut], Richard Iannone [aut] (<https://orcid.org/0000-0003-3925-190X>), Barret Schloerke [aut] (<https://orcid.org/0000-0001-9986-114X>), Carson Sievert [aut, cre] (<https://orcid.org/0000-0002-4958-2844>), Christophe Dervieux [ctb] (<https://orcid.org/0000-0003-4474-2498>), RStudio [cph, fnd], Sass Open Source Foundation [ctb, cph] (LibSass library), Greter Marcel [ctb, cph] (LibSass library), Mifsud Michael [ctb, cph] (LibSass library), Hampton Catlin [ctb, cph] (LibSass library), Natalie Weizenbaum [ctb, cph] (LibSass library), Chris Eppstein [ctb, cph] (LibSass library), Adams Joseph [ctb, cph] (json.cpp), Trifunovic Nemanja [ctb, cph] (utf8.h)",
       "Maintainer": "Carson Sievert <carson@rstudio.com>",
       "Repository": "CRAN"
+    },
+    "scAB": {
+      "Package": "scAB",
+      "Version": "1.0.4",
+      "Source": "GitHub",
+      "Type": "Package",
+      "Title": "R package for integrating single-cell and bulk RNA-seq data with phenotype information",
+      "Author": "Qinran Zhang",
+      "Maintainer": "Qinran Zhang<qr_zhang@whu.edu.cn>",
+      "Description": "R toolkit for integrating single-cell and bulk RNA-seq data with phenotype information.",
+      "Depends": [
+        "R (>= 3.5.0)"
+      ],
+      "biocViews": "",
+      "License": "GPL-3",
+      "Encoding": "UTF-8",
+      "LazyData": "true",
+      "Imports": [
+        "Seurat",
+        "diptest",
+        "multimode",
+        "survival",
+        "cli",
+        "Matrix",
+        "stats",
+        "SeuratObject",
+        "SigBridgeRUtils (>= 0.1.0)",
+        "methods",
+        "rlang"
+      ],
+      "RoxygenNote": "7.3.3",
+      "NeedsCompilation": "no",
+      "Suggests": [
+        "dplyr",
+        "furrr",
+        "future",
+        "matrixStats",
+        "pak",
+        "preprocessCore",
+        "testthat (>= 3.0.0)",
+        "WGCNA"
+      ],
+      "LinkingTo": [
+        "Rcpp",
+        "RcppArmadillo"
+      ],
+      "Config/testthat/edition": "3",
+      "SystemRequirements": "C++14",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "Exceret",
+      "RemoteRepo": "scAB",
+      "RemoteRef": "main",
+      "RemoteSha": "1ef5c4c27acd22daa7e64986703d0c5251b6714a"
     },
     "scales": {
       "Package": "scales",
@@ -12777,13 +13508,13 @@
     },
     "survival": {
       "Package": "survival",
-      "Version": "3.8-6",
+      "Version": "3.8-9",
       "Source": "Repository",
       "Title": "Survival Analysis",
       "Priority": "recommended",
-      "Date": "2026-01-09",
+      "Date": "2026-07-07",
       "Depends": [
-        "R (>= 3.5.0)"
+        "R (>= 4.1.0)"
       ],
       "Imports": [
         "graphics",
@@ -12796,14 +13527,15 @@
       "LazyData": "Yes",
       "LazyDataCompression": "xz",
       "ByteCompile": "Yes",
-      "Authors@R": "c(person(c(\"Terry\", \"M\"), \"Therneau\", email=\"therneau.terry@mayo.edu\", role=c(\"aut\", \"cre\")), person(\"Thomas\", \"Lumley\", role=c(\"ctb\", \"trl\"), comment=\"original S->R port and R maintainer until 2009\"), person(\"Atkinson\", \"Elizabeth\", role=\"ctb\"), person(\"Crowson\", \"Cynthia\", role=\"ctb\"))",
+      "Authors@R": "c(person(c(\"Terry\", \"M\"), \"Therneau\", email=\"terry.therneau@proton.me\", role=c(\"aut\", \"cre\")), person(\"Thomas\", \"Lumley\", role=c(\"ctb\", \"trl\"), comment=\"original S->R port and R maintainer until 2009\"), person(\"Atkinson\", \"Elizabeth\", role=\"ctb\"), person(\"Crowson\", \"Cynthia\", role=\"ctb\"))",
       "Description": "Contains the core survival analysis routines, including definition of Surv objects,  Kaplan-Meier and Aalen-Johansen (multi-state) curves, Cox models, and parametric accelerated failure time models.",
       "License": "LGPL (>= 2)",
       "URL": "https://github.com/therneau/survival",
       "NeedsCompilation": "yes",
       "Author": "Terry M Therneau [aut, cre], Thomas Lumley [ctb, trl] (original S->R port and R maintainer until 2009), Atkinson Elizabeth [ctb], Crowson Cynthia [ctb]",
-      "Maintainer": "Terry M Therneau <therneau.terry@mayo.edu>",
-      "Repository": "CRAN"
+      "Maintainer": "Terry M Therneau <terry.therneau@proton.me>",
+      "Repository": "CRAN",
+      "Encoding": "UTF-8"
     },
     "sys": {
       "Package": "sys",
@@ -14039,7 +14771,7 @@
     },
     "xfun": {
       "Package": "xfun",
-      "Version": "0.59",
+      "Version": "0.60",
       "Source": "Repository",
       "Type": "Package",
       "Title": "Supporting Functions for Packages Maintained by 'Yihui Xie'",
@@ -14249,6 +14981,25 @@
       "NeedsCompilation": "no",
       "Author": "Guangchuang Yu [aut, cre] (ORCID: <https://orcid.org/0000-0002-6485-8781>)",
       "Maintainer": "Guangchuang Yu <guangchuangyu@gmail.com>",
+      "Repository": "CRAN"
+    },
+    "zigg": {
+      "Package": "zigg",
+      "Version": "0.0.2",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Lightweight Interfaces to the 'Ziggurat' Pseudo Random Number Generator",
+      "Date": "2025-02-07",
+      "Authors@R": "person(\"Dirk\", \"Eddelbuettel\", role = c(\"aut\", \"cre\"), email = \"edd@debian.org\", comment = c(ORCID = \"0000-0001-6419-907X\"))",
+      "Description": "The 'Ziggurat' pseudo-random number generator (or PRNG), introduced by Marsaglia and Tsang (2000, <doi:10.18637/jss.v005.i08>) and further improved by Leong et al (2005, <doi:10.18637/jss.v012.i07>), offers a lightweight and very fast PRNG for the normal, exponential, and uniform distributions. It is provided here in a small zero-dependency package. It can be used from R as well as from 'C/C++' code in other packages as is demonstrated by four included sample packages using four distinct methods to use the PRNG presented here in client package. The implementation is influenced by our package 'RcppZiggurat' which offers a comparison among multiple alternative implementations but presented here in a lighter-weight implementation that is easier to use by other packages. The PRNGs provided are generally faster than the ones in base R: on our machine, the relative gains for normal, exponential and uniform are on the order of 7.4, 5.2 and 4.7 times faster than base R. However, these generators are of potentially lesser quality and shorter period so if in doubt use of the base R functions remains the general recommendation.",
+      "URL": "https://github.com/eddelbuettel/zigg",
+      "BugReports": "https://github.com/eddelbuettel/zigg/issues",
+      "License": "GPL (>= 2)",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "6.0.1",
+      "NeedsCompilation": "yes",
+      "Author": "Dirk Eddelbuettel [aut, cre] (<https://orcid.org/0000-0001-6419-907X>)",
+      "Maintainer": "Dirk Eddelbuettel <edd@debian.org>",
       "Repository": "CRAN"
     },
     "zip": {

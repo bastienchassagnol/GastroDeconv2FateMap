@@ -8,14 +8,8 @@ library(tinytable)
 library(ggplot2)
 
 study <- "luque"
-today <- format(Sys.Date(), "%Y-%m-%d")
-output_dir <- "outputs/phenotype-aware"
 source("./R/utils.R")
 source("./R/simulate_pseudo_bulk_samples.R")
-
-if (!dir.exists(output_dir)) {
-  dir.create(output_dir, recursive = TRUE)
-}
 
 n_simulated <- 100L
 set.seed(42)
@@ -25,12 +19,24 @@ set.seed(42)
 # 1. Load single-cell object ----
 # ==========================================================================
 
-GSE250136_120h <- readRDS(
+luque_merged <- readRDS(
   file = "./data/intermediate/luque_single_cell_merged_2026-06-07.rds"
-) |>
-  subset(idents = "120h")
+)
 
-dim(GSE250136_120h)
+if (
+  !identical(
+    colnames(luque_merged),
+    colnames(SeuratObject::GetAssayData(
+      luque_merged,
+      assay = "RNA",
+      layer = "counts"
+    ))
+  )
+) {
+  luque_merged <- realign_luque_seurat(luque_merged)
+}
+
+GSE250136_120h <- subset(luque_merged, subset = timepoint == "120h")
 
 phenotype_data <- GSE250136_120h@meta.data
 tinytable::tt(
@@ -47,22 +53,35 @@ tinytable::tt(
 # 2. Strategy 1 — direct barcode aggregation ----
 # ==========================================================================
 
-naive_pseudo_bulk <- aggregate_barcode_pseudo_bulk(
+naive_pseudo_bulk_raw_counts <- aggregate_barcode_pseudo_bulk(
   seurat_obj = GSE250136_120h,
   phenotype_col = "Morphotype",
-  barcode_col = "Sample.barcode"
+  barcode_col = "Sample.barcode",
+  assay = "RNA",
+  layer = "counts"
 )
 
-
-summarise_seurat_assays_layers(GSE250136_120h)
-
 saveRDS(
-  naive_pseudo_bulk,
+  naive_pseudo_bulk_raw_counts,
   file = glue::glue(
-    "./data/intermediate/{study}_naive_pseudo_bulk_{today}.rds"
+    "./data/intermediate/{study}_naive_pseudo_bulk_raw_counts.rds"
   )
 )
 
+naive_pseudo_bulk_sct_filtered <- aggregate_barcode_pseudo_bulk(
+  seurat_obj = GSE250136_120h,
+  phenotype_col = "Morphotype",
+  barcode_col = "Sample.barcode",
+  assay = "SCT",
+  layer = "counts"
+)
+
+saveRDS(
+  naive_pseudo_bulk_sct_filtered,
+  file = glue::glue(
+    "./data/intermediate/{study}_naive_pseudo_bulk_sct_filtered.rds"
+  )
+)
 
 # # ==========================================================================
 # # 3. Strategy 2 — phenotype-stratified bootstrap ----

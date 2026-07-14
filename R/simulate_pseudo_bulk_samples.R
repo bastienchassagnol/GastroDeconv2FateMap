@@ -573,6 +573,7 @@ aggregate_barcode_pseudo_bulk <- function(
     phenotype_col = "Morphotype",
     barcode_col = "Sample.barcode",
     assay = "RNA",
+    layer = "counts",
     cell_mask = NULL
 ) {
   if (!inherits(seurat_obj, "Seurat")) {
@@ -594,10 +595,20 @@ aggregate_barcode_pseudo_bulk <- function(
   counts <- SeuratObject::LayerData(
     object = seurat_obj,
     assay = assay,
-    layer = "counts"
+    layer = layer
   )
   if (!inherits(counts, "dgCMatrix")) {
     counts <- Matrix::Matrix(counts, sparse = TRUE)
+  }
+  if (!identical(colnames(counts), rownames(meta))) {
+    missing_cells <- setdiff(colnames(counts), rownames(meta))
+    if (length(missing_cells) > 0L) {
+      stop(
+        "Assay cell names must be present in metadata row names.",
+        call. = FALSE
+      )
+    }
+    meta <- meta[colnames(counts), , drop = FALSE]
   }
   if (!is.null(cell_mask)) {
     if (length(cell_mask) != nrow(meta)) {

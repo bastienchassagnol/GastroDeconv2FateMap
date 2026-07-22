@@ -1,0 +1,69 @@
+---
+title: "Atlas of single-cell transcriptomes: datasets description, and pipeline"
+from: markdown+emoji
+format:
+  html:
+    toc: true
+    code-fold: true
+    embed-resources: true
+    html-math-method: mathjax
+execute:
+  echo: false
+tbl-cap-location: bottom
+---
+
+# Datasets description for the construction of the consensus single-cell transcriptomic atlas
+
+@tbl-sc-atlases summarises published single-cell and spatial transcriptomic
+atlases relevant to gastrulation, organoid, and related developmental models,
+including public dataset access and code repositories where available.
+
+Rows are drawn from `data/gastruloid_and_atlas_merged.csv` where
+`catalogue == "atlas"`.
+
+| Title | Authors | DOI | Year | Journal | Species | Study type | Bulk transcriptomics | Single-cell transcriptomics | Imaging | Spatial transcriptomics | Spatial proteomics | ChIP-seq | Metabolomics | Proteomics | Lineage barcoding | Time points (days) | Tissues | Summary | Public links |
+|---|---|---|---:|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Application of spatial transcriptomics across organoids: a high-resolution spatial whole-transcriptome benchmarking dataset | Nucera, M.R.; Ramialison, M. | [10.1016/j.isci.2026.115827](https://doi.org/10.1016/j.isci.2026.115827) | 2026 | iScience | Human organoids; mouse references | primary | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | Single-endpoint Stereo-seq benchmarking (multi-organoid on-chip) | Brain; heart; kidney; lung; cartilage; haematopoietic | Stereo-seq cross-organoid spatial benchmarking with regional (core vs border) analysis. | GSE294759; https://github.com/Ramialison-Lab/StereoseqOrganoids |
+| A spatiotemporal atlas of mouse gastrulation and early organogenesis to explore axial patterning and project in vitro models onto in vivo space |  | [10.1016/j.celrep.2025.116047](https://doi.org/10.1016/j.celrep.2025.116047) | 2025 | Cell Reports | Mouse | primary | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | Gastrulation to early organogenesis (embryonic-day axis; see article) | Whole embryo; axial patterning; mesoderm; neural; endoderm | Spatiotemporal mouse gastrulation atlas integrating spatial transcriptomics with scRNA-seq for in vitro projection. | https://doi.org/10.1016/j.celrep.2025.116047 |
+| An integrated transcriptomic cell atlas of human endoderm-derived organoids | Xu, Q.; Camp, J.G. | [10.1038/s41588-025-02182-6](https://doi.org/10.1038/s41588-025-02182-6) | 2025 | Nature Genetics | Human | primary | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Multi-protocol meta-atlas (variable culture ages across source studies) | Endoderm; lung; intestine; liver; biliary; stomach; pancreas; prostate | HEOCA (~1M cells) integrates endoderm organoid sc/snRNA-seq to assess protocol fidelity vs primary tissues. | CELLxGENE HEOCA; GSE287233; Zenodo 10.5281/zenodo.8181495; https://github.com/devsystemslab/HEOCA |
+| An integrated transcriptomic cell atlas of human neural organoids | He, Z.; Treutlein, B. | [10.1038/s41586-024-08172-8](https://doi.org/10.1038/s41586-024-08172-8) | 2024 | Nature | Human | primary | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Multi-protocol meta-atlas (~7–450 culture days across source studies) | Neural; brain organoids | HNOCA (>1.7M cells; 26 protocols) maps neural organoid coverage vs developing brain references. | CELLxGENE HNOCA; Zenodo 10.5281/zenodo.11203684; https://github.com/devsystemslab/HNOCA-tools |
+| Single-cell and spatial transcriptomics reveal somitogenesis in gastruloids | van den Brink, S.C.; van Oudenaarden, A. | [10.1038/s41586-020-2024-3](https://doi.org/10.1038/s41586-020-2024-3) | 2020 | Nature | Mouse | primary | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ~2–5 (gastruloid culture days; tomo-seq mainly at ~120 h / day 5) | NMP; somite/presomitic mesoderm; neural; endoderm; mesoderm | Gastruloid–embryo scRNA-seq + tomo-seq atlas of somitogenesis and A–P organisation. | GSE123187; https://avolab.hubrecht.eu/MouseGastruloids2020; GitHub anna-alemany/vincentvbatenburg |
+| A single-cell molecular map of mouse gastrulation and early organogenesis | Pijuan-Sala, B.; Marioni, J.C. | [10.1038/s41586-019-0933-9](https://doi.org/10.1038/s41586-019-0933-9) | 2019 | Nature | Mouse | primary | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | E6.5–E8.5 (~embryonic days; 9 sequential collections) | Whole embryo; pluripotent epiblast; mesoderm; endoderm; ectoderm | In vivo molecular roadmap of lineage diversification during mouse gastrulation (~116k cells). | E-MTAB-6967; Bioconductor MouseGastrulationData; https://marionilab.cruk.cam.ac.uk/MouseGastrulation2018/; https://github.com/MarioniLab/EmbryoTimecourse2018 |
+
+: Single-cell and spatial transcriptomic atlases and public access links {#tbl-sc-atlases}
+
+# Standard pipeline for integrating multiple single-cell datases
+
+1. Metadata curation and harmonisation: 
+  i . [`sfaira` Python package for data management, and storage of single-cell datasets](https://sfaira.readthedocs.io/en/latest/adding_datasets.html)
+  
+2. Use a common feature step:
+  i. Selection restrained to protein-coding, or non-long coding RNA
+  
+3. Cell selection: 
+  i. Hard? thresholds on mitochondrial content and percentage of expressed genes. **On the other hand, remove cells with low ribosomal content**
+  ii. Doublet removal (not done in Fabian's papers)
+  
+4. Normalisation/transformation: 
+  i. Selection of HVGs (highly variable genes)
+  ii. *Transformation*, as a variant of *log* transformation: logCPM, TPM, `ScTransform`, VST. 
+  
+1. Data integration across batches, aka removal of batch effects:
+  i. Non-integrated projection: 
+    a. PCA + selection of most contributing features. **Alternative approaches**: 
+    b. kNN + UMAP
+    c. Leiden clustering to identify clusters
+  ii. Projection onto the *reference atlas* using RSS (reference similarity spectrum), close to MDS approach, followed by bipartite weighted KNN and UMAP
+  iii. Cell type annotation:
+    a. `Snapseed`: marker-based + hierarchical (3 levels of cell types identification)
+  iii. **Label-aware** integration strategy: 
+    a. `scPoli`: uses conditional variational auto-encoder for batch correction / semi-supervised and granular strategy / goes beyond dummy encoding for batch effects, embedding it into its own latent space (5-dimensional in the neural atlas, for instance)
+    
+1. Pseudo-time inference, and **cell trajectories**: 
+  i. **Pseudotime inference** – assigning each cell a position along a continuous progression axis; Examples: 
+    - `moscot`: uses optimal transport (time and/or spatial based) to pair cell types across time points
+    - The **cost function** accounts for death, differentiation and birth.
+  ii. **Trajectory reconstruction / lineage graph inference**: reconstruct the most likely graph or tree structure that represents branching lineages or transitions between cell types.
+    - Examples: `CellRank`, `scVelo`, `Palantir`, `scVelo`, `FateID`, `URD`, ...
+  iii. GPCCA (Generalized Perron Cluster Cluster Analysis): identifies **macro-states**, namely sources or roots, transient manifolds, aka branching points or internal nodes, and **terminal states**, aka leaves as absorbing attractors. uses in the branched Schür decomposition. 
+  iv. Question: how do these two tools interplay exactly? 

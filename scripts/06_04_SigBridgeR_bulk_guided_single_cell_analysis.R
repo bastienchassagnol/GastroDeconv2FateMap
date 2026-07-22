@@ -201,8 +201,7 @@ if (
 # 120h only, and only cells whose organoid barcode already carries a
 # Morphotype call and an existing cluster annotation (see Section 2/3 for why
 # this matters: every retained cell already has a known ground-truth label).
-sc_120h <- luque_merged[
-  ,
+sc_120h <- luque_merged[,
   Seurat::WhichCells(
     luque_merged,
     expression = timepoint == "120h" &
@@ -299,10 +298,10 @@ if (!"data" %in% SeuratObject::Layers(sc_120h[[COL$sc_input_assay]])) {
 # numerically unstable on this object (inflated PC scores), so PCA uses
 # `RSpectra::svds()` on scaled SCT `data` before neighbours and UMAP.
 add_stable_pca <- function(
-    obj,
-    assay,
-    nfeatures = 2000L,
-    npcs = 30L
+  obj,
+  assay,
+  nfeatures = 2000L,
+  npcs = 30L
 ) {
   if (length(SeuratObject::VariableFeatures(obj)) == 0L) {
     obj <- Seurat::FindVariableFeatures(
@@ -510,7 +509,10 @@ for (method in names(screen_method_args)) {
   }
 }
 
-methods_to_run <- setdiff(names(screen_method_args), names(purrr::compact(screen_results)))
+methods_to_run <- setdiff(
+  names(screen_method_args),
+  names(purrr::compact(screen_results))
+)
 
 for (method in methods_to_run) {
   args <- screen_method_args[[method]]
@@ -588,10 +590,10 @@ saveRDS(merged, file.path(output_dir, "merged_weighted_vote.rds"))
 # `ScreenUpset()` fails with chk >= 0.10 (`FUN.VALUE` must be a vector); use
 # the same ggupset logic directly.
 build_screen_upset <- function(
-    screened_seurat,
-    screen_type,
-    order_by = c("freq", "degree"),
-    n_intersections = 20L
+  screened_seurat,
+  screen_type,
+  order_by = c("freq", "degree"),
+  n_intersections = 20L
 ) {
   meta_data <- screened_seurat[[]]
   max_comb <- length(screen_type)
@@ -601,13 +603,17 @@ build_screen_upset <- function(
         combs <- utils::combn(screen_type, k, simplify = FALSE)
         stats::setNames(
           combs,
-          vapply(combs, function(comb) {
-            if (length(comb) == 1L) {
-              comb
-            } else {
-              paste(comb, collapse = " & ")
-            }
-          }, character(1))
+          vapply(
+            combs,
+            function(comb) {
+              if (length(comb) == 1L) {
+                comb
+              } else {
+                paste(comb, collapse = " & ")
+              }
+            },
+            character(1)
+          )
         )
       }
     }),
@@ -616,12 +622,17 @@ build_screen_upset <- function(
   positive_matrix <- as.matrix(
     meta_data[, screen_type, drop = FALSE] == "Positive"
   )
-  counts <- vapply(all_combinations, function(sets) {
-    row_matches <- Matrix::rowSums(
-      positive_matrix[, sets, drop = FALSE]
-    ) == length(sets)
-    sum(row_matches, na.rm = TRUE)
-  }, numeric(1))
+  counts <- vapply(
+    all_combinations,
+    function(sets) {
+      row_matches <- Matrix::rowSums(
+        positive_matrix[, sets, drop = FALSE]
+      ) ==
+        length(sets)
+      sum(row_matches, na.rm = TRUE)
+    },
+    numeric(1)
+  )
   intersection_data <- tibble::tibble(
     intersection = names(all_combinations),
     sets = all_combinations,
@@ -752,6 +763,10 @@ ggplot2::ggsave(
   plot = umap_page,
   width = 18,
   height = 10
+)
+message(
+  "Umap combiding original cellular annotations, and positive cell calls from the three screening methods,
+ successfully saved."
 )
 
 message("SigBridgeR bulk-guided single-cell screening completed.")

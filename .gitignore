@@ -6,6 +6,9 @@ temp_commands.R
 # Environement configuration files
 .env
 
+# Cursor MCP secrets (PATs); use .cursor/mcp.json.example as template
+.cursor/mcp.json
+
 
 # Session Data files
 .RData

@@ -1,5 +1,0 @@
-Title,Author,DOI,Technology,Tissue,Journal,Species,Date,Dataset ID,Dataset Access,GitHub access,Comments
-A single-cell molecular map of mouse gastrulation and early organogenesis.,"Pijuan-Sala, B. et al.",,,,Nature,,, GSE87038,https://bioconductor.org/packages/release/data/experiment/html/MouseGastrulationData.html // https://marionilab.cruk.cam.ac.uk/MouseGastrulation2018/,https://github.com/MarioniLab/EmbryoTimecourse2018,
-An integrated transcriptomic cell atlas of human endoderm-derived organoids,,,,Endoderm,,,,,,,
-An integrated transcriptomic cell atlas of human neural organoids,,,,Neurons,,,,,,,
-Application of spatial transcriptomics across organoids: a high-resolution spatial whole-transcriptome benchmarking dataset,,,,,,,,,,https://github.com/Ramialison-Lab/StereoseqOrganoids,"`Stereo-seq` cross-organ comparisons, relying on spatial transcriptomics"

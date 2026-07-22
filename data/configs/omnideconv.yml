@@ -38,7 +38,9 @@ columns:
 # ============================================================================
 
 filters:
-  bulk_treatment_value: control
+  bulk_treatment_value:
+    - control
+    - early_treatment
 
 # ============================================================================
 # Deconvolution Methods
@@ -49,8 +51,8 @@ deconvolution:
   methods:
     - BayesPrism
     - DWLS
-    - Scaden
     - SCDC
+    # - Scaden
   normalize_results: true
 
 # ============================================================================

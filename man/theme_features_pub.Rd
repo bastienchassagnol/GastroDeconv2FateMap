@@ -2,16 +2,16 @@
 % Please edit documentation in R/plotting.R
 \name{theme_features_pub}
 \alias{theme_features_pub}
-\title{Publication-sized variant of \code{\link[=theme_features]{theme_features()}}}
+\title{Publication-sized variant of \code{theme_features()}}
 \usage{
 theme_features_pub(...)
 }
 \arguments{
-\item{...}{Additional arguments passed to \code{\link[=theme_features]{theme_features()}}.}
+\item{...}{Additional arguments passed to \code{theme_features()}.}
 }
 \value{
 A \strong{ggplot2} \code{theme} object.
 }
 \description{
-Publication-sized variant of \code{\link[=theme_features]{theme_features()}}
+Publication-sized variant of \code{theme_features()}
 }

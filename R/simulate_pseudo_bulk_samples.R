@@ -81,11 +81,17 @@
 #' @keywords internal
 .get_feature_metadata <- function(seurat_obj, assay = "RNA") {
   assay_obj <- seurat_obj[[assay]]
-  feat <- assay_obj@meta.features
+  feat <- tryCatch(assay_obj@meta.features, error = function(e) NULL)
   if (is.null(feat) || nrow(feat) == 0L) {
+    gene_names <- rownames(assay_obj)
+    if (is.null(gene_names)) {
+      gene_names <- rownames(
+        SeuratObject::LayerData(assay_obj, layer = "counts")
+      )
+    }
     feat <- S4Vectors::DataFrame(
-      gene = rownames(assay_obj),
-      row.names = rownames(assay_obj)
+      gene = gene_names,
+      row.names = gene_names
     )
   }
   feat
@@ -548,13 +554,15 @@
 #'   (e.g. \code{"Sample.barcode"}).
 #' @param assay Assay name from which raw counts are read. Default
 #'   \code{"RNA"}.
+#' @param cell_mask Optional logical vector aligned with \code{seurat_obj}
+#'   cells; when provided, only these cells are aggregated.
 #'
 #' @return A \pkg{SummarizedExperiment} with one column per distinct barcode.
 #'   \code{colData} contains \code{barcode_id}, the phenotype label,
 #'   \code{library_depth} (column sum of counts), and
 #'   \code{simulation_method = "barcode_aggregation"}.
 #'
-#' @seealso [simulate_bootstrap_samples()], [simulate_generative_models()],
+#' @seealso `simulate_bootstrap_samples()`, `simulate_generative_models()`,
 #'   \code{vignettes/pseudo_bulk_generation.qmd}
 #'
 #' @importFrom Seurat GetAssay
@@ -564,7 +572,9 @@ aggregate_barcode_pseudo_bulk <- function(
     seurat_obj,
     phenotype_col = "Morphotype",
     barcode_col = "Sample.barcode",
-    assay = "RNA"
+    assay = "RNA",
+    layer = "counts",
+    cell_mask = NULL
 ) {
   if (!inherits(seurat_obj, "Seurat")) {
     stop(glue::glue("`seurat_obj` must be a Seurat object."), call. = FALSE)
@@ -578,21 +588,40 @@ aggregate_barcode_pseudo_bulk <- function(
       call. = FALSE
     )
   }
+
+  if (!assay %in% SeuratObject::Assays(seurat_obj)) {
+    stop(glue::glue("Assay `{assay}` not found in Seurat object."), call. = FALSE)
+  }
+  counts <- SeuratObject::LayerData(
+    object = seurat_obj,
+    assay = assay,
+    layer = layer
+  )
+  if (!inherits(counts, "dgCMatrix")) {
+    counts <- Matrix::Matrix(counts, sparse = TRUE)
+  }
+  if (!identical(colnames(counts), rownames(meta))) {
+    missing_cells <- setdiff(colnames(counts), rownames(meta))
+    if (length(missing_cells) > 0L) {
+      stop(
+        "Assay cell names must be present in metadata row names.",
+        call. = FALSE
+      )
+    }
+    meta <- meta[colnames(counts), , drop = FALSE]
+  }
+  if (!is.null(cell_mask)) {
+    if (length(cell_mask) != nrow(meta)) {
+      stop("`cell_mask` length must match number of cells.", call. = FALSE)
+    }
+    meta <- meta[cell_mask, , drop = FALSE]
+    counts <- counts[, cell_mask, drop = FALSE]
+  }
   if (anyNA(meta[[phenotype_col]]) || anyNA(meta[[barcode_col]])) {
     stop(
       "Phenotype and barcode columns must not contain NA values.",
       call. = FALSE
     )
-  }
-
-  Seurat::GetAssay(seurat_obj, assay = assay)
-  counts <- SeuratObject::GetAssayData(
-    object = seurat_obj,
-    assay = assay,
-    layer = "counts"
-  )
-  if (!inherits(counts, "dgCMatrix")) {
-    counts <- Matrix::Matrix(counts, sparse = TRUE)
   }
 
   barcodes <- sort(unique(as.character(meta[[barcode_col]])))
@@ -624,6 +653,143 @@ aggregate_barcode_pseudo_bulk <- function(
     library_depth = library_depth,
     simulation_method = "barcode_aggregation",
     row.names = barcodes,
+    stringsAsFactors = FALSE
+  )
+  names(col_data)[names(col_data) == "phenotype"] <- phenotype_col
+
+  .build_pseudo_bulk_se(
+    count_matrix = bulk_mat,
+    col_data = col_data,
+    feature_data = .get_feature_metadata(seurat_obj, assay = assay)
+  )
+}
+
+
+#' Aggregate pseudo-bulk samples by cell type and barcode
+#'
+#' @description
+#' Extension of `aggregate_barcode_pseudo_bulk()`: sum raw single-cell counts
+#' within each cell type x barcode combination, yielding one pseudo-bulk
+#' column per organoid within each annotated cell type. Uses the same raw-count
+#' aggregation principle as Strategy 1 in
+#' \code{vignettes/pseudo_bulk_generation.qmd}.
+#'
+#' @param seurat_obj A \pkg{Seurat} object with raw counts in the RNA assay.
+#' @param celltype_col Metadata column for cell-type labels
+#'   (e.g. \code{"luque_cluster_annotation"}).
+#' @param phenotype_col Metadata column for organoid-level phenotype labels
+#'   (e.g. \code{"Morphotype"}).
+#' @param barcode_col Metadata column for barcode / organoid identifiers
+#'   (e.g. \code{"Sample.barcode"}).
+#' @param assay Assay name from which raw counts are read. Default
+#'   \code{"RNA"}.
+#' @param cell_mask Optional logical vector aligned with \code{seurat_obj}
+#'   cells; when provided, only these cells are aggregated.
+#'
+#' @return A \pkg{SummarizedExperiment} with one column per distinct
+#'   cell type x barcode pair. \code{colData} contains \code{celltype},
+#'   \code{barcode_id}, the phenotype label, \code{n_cells},
+#'   \code{library_depth}, and
+#'   \code{simulation_method = "celltype_barcode_aggregation"}.
+#'
+#' @seealso `aggregate_barcode_pseudo_bulk()`, `simulate_bootstrap_samples()`,
+#'   `simulate_generative_models()`, \code{vignettes/pseudo_bulk_generation.qmd}
+#'
+#' @importFrom Seurat GetAssay
+#' @importFrom glue glue
+#' @export
+aggregate_celltype_barcode_pseudo_bulk <- function(
+    seurat_obj,
+    celltype_col = "luque_cluster_annotation",
+    phenotype_col = "Morphotype",
+    barcode_col = "Sample.barcode",
+    assay = "RNA",
+    cell_mask = NULL
+) {
+  if (!inherits(seurat_obj, "Seurat")) {
+    stop(glue::glue("`seurat_obj` must be a Seurat object."), call. = FALSE)
+  }
+  meta <- seurat_obj@meta.data
+  missing <- setdiff(
+    c(celltype_col, phenotype_col, barcode_col),
+    colnames(meta)
+  )
+  if (length(missing) > 0L) {
+    stop(
+      "Missing metadata column(s): ",
+      paste(missing, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  if (!assay %in% SeuratObject::Assays(seurat_obj)) {
+    stop(glue::glue("Assay `{assay}` not found in Seurat object."), call. = FALSE)
+  }
+  counts <- SeuratObject::LayerData(
+    object = seurat_obj,
+    assay = assay,
+    layer = "counts"
+  )
+  if (!inherits(counts, "dgCMatrix")) {
+    counts <- Matrix::Matrix(counts, sparse = TRUE)
+  }
+  if (!is.null(cell_mask)) {
+    if (length(cell_mask) != nrow(meta)) {
+      stop("`cell_mask` length must match number of cells.", call. = FALSE)
+    }
+    meta <- meta[cell_mask, , drop = FALSE]
+    counts <- counts[, cell_mask, drop = FALSE]
+  }
+  if (anyNA(meta[[celltype_col]]) ||
+      anyNA(meta[[phenotype_col]]) ||
+      anyNA(meta[[barcode_col]])) {
+    stop(
+      "Cell type, phenotype and barcode columns must not contain NA values.",
+      call. = FALSE
+    )
+  }
+
+  meta$._pb_group <- interaction(
+    meta[[celltype_col]],
+    meta[[barcode_col]],
+    drop = TRUE,
+    sep = "|"
+  )
+  pb_groups <- sort(unique(as.character(meta$._pb_group)))
+  n_pb <- length(pb_groups)
+  bulk_mat <- matrix(
+    0,
+    nrow = nrow(counts),
+    ncol = n_pb,
+    dimnames = list(rownames(counts), pb_groups)
+  )
+
+  celltype <- character(n_pb)
+  barcode_id <- character(n_pb)
+  phenotype <- character(n_pb)
+  n_cells <- integer(n_pb)
+  library_depth <- numeric(n_pb)
+
+  for (i in seq_along(pb_groups)) {
+    grp <- pb_groups[[i]]
+    idx <- which(meta$._pb_group == grp)
+  # Y_gb = sum_{c: group(c)=g} x_gc
+    bulk_mat[, i] <- Matrix::rowSums(counts[, idx, drop = FALSE])
+    celltype[[i]] <- as.character(meta[[celltype_col]][idx[[1L]]])
+    barcode_id[[i]] <- as.character(meta[[barcode_col]][idx[[1L]]])
+    phenotype[[i]] <- as.character(meta[[phenotype_col]][idx[[1L]]])
+    n_cells[[i]] <- length(idx)
+    library_depth[[i]] <- sum(bulk_mat[, i])
+  }
+
+  col_data <- data.frame(
+    celltype = celltype,
+    barcode_id = barcode_id,
+    phenotype = phenotype,
+    n_cells = n_cells,
+    library_depth = library_depth,
+    simulation_method = "celltype_barcode_aggregation",
+    row.names = pb_groups,
     stringsAsFactors = FALSE
   )
   names(col_data)[names(col_data) == "phenotype"] <- phenotype_col
@@ -668,7 +834,7 @@ aggregate_barcode_pseudo_bulk <- function(
 #' @return A \pkg{SummarizedExperiment} with raw summed counts and balanced
 #'   phenotypes in \code{colData}.
 #'
-#' @seealso [aggregate_barcode_pseudo_bulk()], [simulate_generative_models()]
+#' @seealso `aggregate_barcode_pseudo_bulk()`, `simulate_generative_models()`
 #'
 #' @importFrom Seurat GetAssay
 #' @importFrom glue glue
@@ -704,8 +870,10 @@ simulate_bootstrap_samples <- function(
     )
   }
 
-  Seurat::GetAssay(seurat_obj, assay = assay)
-  counts <- SeuratObject::GetAssayData(
+  if (!assay %in% SeuratObject::Assays(seurat_obj)) {
+    stop(glue::glue("Assay `{assay}` not found in Seurat object."), call. = FALSE)
+  }
+  counts <- SeuratObject::LayerData(
     object = seurat_obj,
     assay = assay,
     layer = "counts"
@@ -822,7 +990,7 @@ simulate_bootstrap_samples <- function(
 #'
 #' Bulk aggregation: \deqn{Y_{gi} = \sum_{c \in \mathcal{C}_i} x_{gc}^{\mathrm{sim}}}
 #'
-#' @seealso [aggregate_barcode_pseudo_bulk()], [simulate_bootstrap_samples()],
+#' @seealso `aggregate_barcode_pseudo_bulk()`, `simulate_bootstrap_samples()`,
 #'   \url{https://oshlacklab.com/splatter/articles/splatter.html}
 #'
 #' @importFrom Seurat GetAssay
@@ -859,8 +1027,10 @@ simulate_generative_models <- function(
     )
   }
 
-  Seurat::GetAssay(seurat_obj, assay = assay)
-  counts <- SeuratObject::GetAssayData(
+  if (!assay %in% SeuratObject::Assays(seurat_obj)) {
+    stop(glue::glue("Assay `{assay}` not found in Seurat object."), call. = FALSE)
+  }
+  counts <- SeuratObject::LayerData(
     object = seurat_obj,
     assay = assay,
     layer = "counts"

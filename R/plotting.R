@@ -3,13 +3,12 @@
 #' Minimal theme with black facet strips, inspired by the atlas feature
 #' selection benchmark plotting utilities.
 #'
-#' @param ... Additional arguments passed to [ggplot2::theme_minimal()].
+#' @param ... Additional arguments passed to `ggplot2::theme_minimal()`.
 #'
 #' @return A **ggplot2** `theme` object.
 #'
 #' @importFrom grid unit
-#' @importFrom ggplot2 element_line element_rect element_text margin theme
-#'   theme_minimal
+#' @importFrom ggplot2 element_line element_rect element_text margin theme theme_minimal
 #' @references
 #' \url{https://github.com/theislab/atlas-feature-selection-benchmark/blob/b89fc0f66747062e6e1b4b35bd392b27ad035295/analysis/R/plotting.R}
 #' @export
@@ -22,9 +21,9 @@ theme_features <- function(...) {
     )
 }
 
-#' Publication-sized variant of [theme_features()]
+#' Publication-sized variant of `theme_features()`
 #'
-#' @param ... Additional arguments passed to [theme_features()].
+#' @param ... Additional arguments passed to `theme_features()`.
 #'
 #' @return A **ggplot2** `theme` object.
 #' @export

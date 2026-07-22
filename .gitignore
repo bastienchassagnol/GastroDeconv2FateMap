@@ -3,6 +3,13 @@
 .Rapp.history
 temp_commands.R
 
+# Environement configuration files
+.env
+
+# Cursor MCP secrets (PATs); use .cursor/mcp.json.example as template
+.cursor/mcp.json
+
+
 # Session Data files
 .RData
 .RDataTmp
@@ -72,3 +79,8 @@ docs
 .models/
 
 outputs/gene_regulatory_networks/**
+outputs/phenotype-aware/*.rds
+
+# Python virtual environment (uv)
+.venv/
+temp_luque_120h_celltype_composition.csv

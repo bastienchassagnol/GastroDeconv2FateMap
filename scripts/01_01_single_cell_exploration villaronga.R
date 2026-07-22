@@ -25,15 +25,15 @@ if (!dir.exists(output_dir)) {
 # 1.1: Define timepoint paths and labels ----
 
 timepoint_paths <- c(
-  h48  = "./data/raw/GSE250136/GSM7974412_df48_final.rds.gz",
-  h72  = "./data/raw/GSE250136/GSM7974413_df72_final.rds.gz",
-  h96  = "./data/raw/GSE250136/GSM7974414_df96_final.rds.gz",
+  h48 = "./data/raw/GSE250136/GSM7974412_df48_final.rds.gz",
+  h72 = "./data/raw/GSE250136/GSM7974413_df72_final.rds.gz",
+  h96 = "./data/raw/GSE250136/GSM7974414_df96_final.rds.gz",
   h120 = "./data/raw/GSE250136/GSE250136_df120_final.rds.gz"
 )
 timepoint_labels <- c(
-  h48  = "48h",
-  h72  = "72h",
-  h96  = "96h",
+  h48 = "48h",
+  h72 = "72h",
+  h96 = "96h",
   h120 = "120h"
 )
 
@@ -64,7 +64,8 @@ common_genes <- Reduce(
   )
 )
 message(
-  "Retaining ", length(common_genes),
+  "Retaining ",
+  length(common_genes),
   " shared genes across all time points."
 )
 splitted_seurat_objects <- lapply(
@@ -101,9 +102,36 @@ GSE250136_merged <- merge(
   merge.data = FALSE
 )
 
+# Keep a strict guardrail for downstream pseudo-bulk DESeq2:
+# raw RNA counts must remain available as integer-like values after merge.
+merged_rna_counts <- SeuratObject::LayerData(
+  object = GSE250136_merged,
+  assay = "RNA",
+  layer = "counts"
+)
+if (is.null(merged_rna_counts)) {
+  stop("Merged object is missing RNA/counts; raw-count DE analysis would fail.")
+}
+if (!all(abs(merged_rna_counts@x - round(merged_rna_counts@x)) < 1e-8)) {
+  stop("Merged RNA/counts are not integer-like; check merge strategy.")
+}
+
 # 1.4: Finalise the merged object, adding timepoint and celltype annotations ----
 SeuratObject::DefaultAssay(GSE250136_merged) <- "RNA"
 Seurat::Idents(GSE250136_merged) <- "timepoint"
+
+# 1.5 Add celltype annotation to the global merged object ----
+
+GSE250136_merged@meta.data <- GSE250136_merged@meta.data |>
+  tibble::rownames_to_column("cell_id") |>
+  dplyr::mutate(
+    seurat_clusters = as.character(.data$seurat_clusters)
+  ) |>
+  dplyr::inner_join(
+    cluster_mapping,
+    by = c("timepoint", "seurat_clusters")
+  )
+
 saveRDS(
   GSE250136_merged,
   file = paste0(
@@ -115,26 +143,26 @@ saveRDS(
   )
 )
 
+
 GSE250136_merged <- readRDS(
   file = "./data/intermediate/luque_single_cell_merged_2026-06-07.rds"
 )
-
-dim(GSE250136_merged)
-# summarise_seurat_assays_layers(GSE250136_merged)
-
 phenotype_data <- GSE250136_merged@meta.data
 tinytable::tt(
   phenotype_data |>
-    utils::head(),
-  caption = "Phenotype data for the merged single-cell object"
-)
-
-tinytable::tt(
-  phenotype_data |>
-    dplyr::group_by(.data$timepoint, .data$seurat_clusters) |>
+    dplyr::filter(.data$timepoint == "120h") |>
+    dplyr::group_by(
+      .data$Morphotype,
+      .data$luque_cluster_annotation,
+      .data$Sample.barcode
+    ) |>
     dplyr::summarise(n_cells = dplyr::n(), .groups = "drop") |>
-    dplyr::arrange(.data$timepoint, dplyr::desc(.data$n_cells)),
-  caption = "Number of cells per time point and Seurat cluster"
+    dplyr::arrange(
+      .data$Morphotype,
+      .data$luque_cluster_annotation,
+      .data$Sample.barcode
+    ),
+  caption = "Number of cells per Morphotype, luque_cluster_annotation and Sample.barcode for the 120h time point"
 )
 
 ### morphotype annotations per cell annotations per time point
@@ -146,11 +174,14 @@ tinytable::tt(
   caption = "Number of morphotype annotations per time point"
 )
 
-
+source("./R/utils.R")
+summarise_seurat_assays_layers(GSE250136_merged)
 
 # ==========================================================================
 # 2. Join luque_cluster_annotation onto per-time-point objects
 # ==========================================================================
+
+# 2.1 Add luque_cluster_annotation onto per-time-point objects ----
 
 cluster_mapping <- readr::read_csv(
   "./data/intermediate/mapping_seurat_villaronga.csv",
@@ -195,6 +226,7 @@ splitted_seurat_objects <- lapply(
 )
 names(splitted_seurat_objects) <- names(timepoint_labels)
 
+
 # ==========================================================================
 # 3. Export PCA + UMAP for each time point (one PDF page per time point)
 # ==========================================================================
@@ -230,11 +262,12 @@ morphotype_shapes <- stats::setNames(
 }
 
 .make_projection_plot <- function(
-    object,
-    reduction,
-    title,
-    shape_by = c("Sample.barcode", "Morphotype"),
-    show_shape_legend = FALSE) {
+  object,
+  reduction,
+  title,
+  shape_by = c("Sample.barcode", "Morphotype"),
+  show_shape_legend = FALSE
+) {
   shape_by <- match.arg(shape_by)
   coords <- Seurat::Embeddings(object, reduction = reduction)
   plot_df <- cbind(
@@ -310,21 +343,19 @@ for (tp_id in names(timepoint_labels)) {
   tp_object <- splitted_seurat_objects[[tp_id]]
 
   if (tp_label == "120h") {
-    combined_plot <- (
+    combined_plot <- (.make_projection_plot(
+      object = tp_object,
+      reduction = "pca",
+      title = "PCA",
+      shape_by = "Sample.barcode"
+    ) |
       .make_projection_plot(
         object = tp_object,
-        reduction = "pca",
-        title = "PCA",
+        reduction = "umap",
+        title = "UMAP",
         shape_by = "Sample.barcode"
-      ) |
-        .make_projection_plot(
-          object = tp_object,
-          reduction = "umap",
-          title = "UMAP",
-          shape_by = "Sample.barcode"
-        )
-    ) / (
-      .make_projection_plot(
+      )) /
+      (.make_projection_plot(
         object = tp_object,
         reduction = "pca",
         title = "PCA",
@@ -337,8 +368,7 @@ for (tp_id in names(timepoint_labels)) {
           title = "UMAP",
           shape_by = "Morphotype",
           show_shape_legend = TRUE
-        )
-    )
+        ))
   } else {
     combined_plot <-
       .make_projection_plot(
@@ -402,11 +432,15 @@ ggplot2::ggsave(
     tibble::as_tibble() |>
     dplyr::filter(.data$luque_cluster_annotation == celltype_label)
 
-  morphotype_levels <- sort(unique(plot_df$Morphotype[!is.na(plot_df$Morphotype)]))
+  morphotype_levels <- sort(unique(plot_df$Morphotype[
+    !is.na(plot_df$Morphotype)
+  ]))
   morphotype_values <- morphotype_colours[morphotype_levels]
   morphotype_values[is.na(morphotype_values)] <- "#999999"
 
-  barcode_levels <- sort(unique(plot_df$Sample.barcode[!is.na(plot_df$Sample.barcode)]))
+  barcode_levels <- sort(unique(plot_df$Sample.barcode[
+    !is.na(plot_df$Sample.barcode)
+  ]))
   barcode_shapes <- stats::setNames(
     rep(0:25, length.out = length(barcode_levels)),
     barcode_levels
@@ -463,7 +497,9 @@ ggplot2::ggsave(
 }
 
 h120_object <- splitted_seurat_objects$h120
-celltype_levels <- sort(unique(as.character(h120_object$luque_cluster_annotation)))
+celltype_levels <- sort(unique(as.character(
+  h120_object$luque_cluster_annotation
+)))
 
 celltype_plot_list <- lapply(celltype_levels, function(ct) {
   p <- .make_120h_celltype_umap(h120_object, ct)

@@ -1,0 +1,84 @@
+---
+title: "Databases for Organoids: pairing bulk with single-cell RNASeq experimentd"
+author: "Bastien CHASSAGNOL"
+embed-resources: true
+fig-align: center
+fig-pos: "h!"
+out-width: "80%"
+fig-dpi: 320
+dpi: 320
+lof: false
+lot: false
+toc: true
+filters:
+  - highlight-text
+format:
+  html:
+    fig-format: svg
+    self-contained-math: true
+    embed-resources: true
+    html-math-method:
+      method: mathjax
+      url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+execute:
+  echo: false
+  eval: true
+---
+
+# Categories of datasets
+
+- Cell categories (3 potential sources: umbilical cord, stem cells,...) vs organs
+
+# Integration and atlases of organoids' protocols and single-cell datasets
+
+## Compendium of datasets
+
+- **[`MouseGastrulationData`](https://bioconductor.org/packages/release/data/experiment/vignettes/MouseGastrulationData/inst/doc/MouseGastrulationData.html) is a BioConductor package that contains a variety of omic datasets, such as single-cell, scATAC, and so on, ...**
+- [Human organoids as 3D in vitro platforms for drug discovery: opportunities and challenges](https://www.nature.com/articles/s41573-025-01317-y) -> listing all available organoids? compendium? 
+- [Application of spatial transcriptomics across organoids: a high-resolution spatial whole-transcriptome benchmarking dataset](https://www.biorxiv.org/content/10.1101/2025.05.04.651803v1.full) -> `Stereo-seq` cross-organ comparisons, relying on spatial transcriptomics
+
+# Standard pipeline for integrating multiple single-cell datases
+
+1. Metadata curation and harmonisation: 
+  i . [`sfaira` Python package for data management, and storage of single-cell datasets](https://sfaira.readthedocs.io/en/latest/adding_datasets.html)
+  
+2. Use a common feature step:
+  i. Selection restrained to protein-coding, or non-long coding RNA
+  
+3. Cell selection: 
+  i. Hard? thresholds on mitochondrial content and percentage of expressed genes. **On the other hand, remove cells with low ribosomal content**
+  ii. Can be refined by retrieving the "valley" between two peaks of a bimodal distributions
+  iii. Doublet removal (not done in Fabian's papers)
+  
+4. Normalisation/transformation: 
+  i. Selection of HVGs (highly variable genes)
+  ii. *Transformation*, as a variant of *log* transformation: logCPM, TPM, `ScTransform`, VST. 
+  
+5. (optional) Data integration across batches, aka removal of batch effects:
+  i. Non-integrated projection: 
+    a. PCA + selection of most contributing features. **Alternative approaches**: 
+    b. kNN + UMAP
+    c. Leiden clustering to identify clusters
+  ii. Projection onto the *reference atlas* using RSS (reference similarity spectrum), close to MDS approach, followed by bipartite weighted KNN and UMAP
+  iii. Cell type annotation:
+    a. `Snapseed`: marker-based + hierarchical (3 levels of cell types identification)
+  iii. **Label-aware** integration strategy: 
+    a. `scPoli`: uses conditional variational auto-encoder for batch correction / semi-supervised and granular strategy / goes beyond dummy encoding for batch effects, embedding it into its own latent space (5-dimensional in the neural atlas, for instance)
+    
+6. Pseudo-time inference, and **cell trajectories**: 
+  i. **Pseudotime inference** – assigning each cell a position along a continuous progression axis; Examples: 
+    - `moscot`: uses optimal transport (time and/or spatial based) to pair cell types across time points
+    - The **cost function** accounts for death, differentiation and birth.
+  ii. **Trajectory reconstruction / lineage graph inference**: reconstruct the most likely graph or tree structure that represents branching lineages or transitions between cell types.
+    - Examples: `CellRank`, `scVelo`, `Palantir`, `scVelo`, `FateID`, `URD`, ...
+  iii. GPCCA (Generalized Perron Cluster Cluster Analysis): identifies **macro-states**, namely sources or roots, transient manifolds, aka branching points or internal nodes, and **terminal states**, aka leaves as absorbing attractors. uses in the branched Schür decomposition. 
+  iv. Question: how do these two tools interplay exactly? 
+  
+
+7. Applications of atlases:
+  i. Predict efficiency of new protocols
+  ii. Perturbation models
+  iii. Disease models
+  iv. Gene Differential analyses:  F-test, Wilcoxon-Rank Sum, Welch t-test after log-normalisation, ...
+  v. Cell abundances
+  vi. Drug target prediction: PLS-DA, regularised Lasso, ...

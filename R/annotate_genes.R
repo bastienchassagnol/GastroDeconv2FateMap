@@ -361,7 +361,7 @@ annotate_genes_local <- function(
 #' genomic coordinates. If multiple Ensembl records map to one gene symbol, the
 #' function concatenates text fields and averages gene lengths.
 #'
-#' Output structure matches [annotate_genes_local()].
+#' Output structure matches `annotate_genes_local()`.
 #'
 #' @param genes Character vector of mouse gene symbols
 #'   (for example, `c("Gnai3", "H19")`).

@@ -132,3 +132,45 @@ read_double_gz_rds <- function(path) {
   inner_gz <- readBin(con, "raw", n = 1e9)
   readRDS(gzcon(rawConnection(inner_gz)))
 }
+
+
+#' Realign Luque merged Seurat colnames to RNA assay barcodes
+#'
+#' Merged Luque objects store numeric colnames while the RNA assay uses cell
+#' barcodes. Recreates the object from RNA counts and realigned metadata, and
+#' re-attaches the SCT assay when present.
+#'
+#' @param obj A \pkg{Seurat} object from the Luque merged time-course.
+#'
+#' @return A \pkg{Seurat} object with colnames matching the RNA assay.
+#'
+#' @keywords internal
+realign_luque_seurat <- function(obj) {
+  counts <- SeuratObject::GetAssayData(obj, assay = "RNA", layer = "counts")
+  meta <- obj@meta.data
+  rownames(meta) <- colnames(counts)
+
+  sct_assay <- NULL
+  if ("SCT" %in% SeuratObject::Assays(obj)) {
+    sct_assay <- obj[["SCT"]]
+  }
+
+  out <- Seurat::CreateSeuratObject(counts = counts, meta.data = meta)
+
+  if (!is.null(sct_assay)) {
+    sct_cells <- intersect(colnames(out), colnames(sct_assay))
+    out[["SCT"]] <- SeuratObject::CreateAssayObject(
+      counts = SeuratObject::GetAssayData(sct_assay, layer = "counts")[, sct_cells]
+    )
+    sct_data <- SeuratObject::GetAssayData(sct_assay, layer = "data")
+    if (ncol(sct_data) > 0L) {
+      out[["SCT"]] <- SeuratObject::SetAssayData(
+        out[["SCT"]],
+        layer = "data",
+        new.data = sct_data[, sct_cells]
+      )
+    }
+  }
+
+  out
+}

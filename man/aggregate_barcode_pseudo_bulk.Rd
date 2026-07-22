@@ -8,7 +8,8 @@ aggregate_barcode_pseudo_bulk(
   seurat_obj,
   phenotype_col = "Morphotype",
   barcode_col = "Sample.barcode",
-  assay = "RNA"
+  assay = "RNA",
+  cell_mask = NULL
 )
 }
 \arguments{
@@ -22,6 +23,9 @@ aggregate_barcode_pseudo_bulk(
 
 \item{assay}{Assay name from which raw counts are read. Default
 \code{"RNA"}.}
+
+\item{cell_mask}{Optional logical vector aligned with \code{seurat_obj}
+cells; when provided, only these cells are aggregated.}
 }
 \value{
 A \pkg{SummarizedExperiment} with one column per distinct barcode.
@@ -36,6 +40,6 @@ barcodes, analogous to \code{\link[Seurat]{AggregateExpression}} with
 \code{slot = "counts"} and no normalisation.
 }
 \seealso{
-\code{\link[=simulate_bootstrap_samples]{simulate_bootstrap_samples()}}, \code{\link[=simulate_generative_models]{simulate_generative_models()}},
+\code{simulate_bootstrap_samples()}, \code{simulate_generative_models()},
 \code{vignettes/pseudo_bulk_generation.qmd}
 }

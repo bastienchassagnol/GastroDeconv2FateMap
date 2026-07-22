@@ -26,6 +26,7 @@
   "r.alwaysUseActiveTerminal": true,
   "r.bracketedPaste": true,
   "r.sessionWatcher": true,
+  "r.session.watchGlobalEnvironment": true,
   "r.plot.useHttpgd": true,
   "r.helpPanel.enable": true,
   "r.lsp.diagnostics": false,
@@ -38,5 +39,16 @@
   "r.rterm.option": [
     "--no-save",
     "--no-restore"
-  ]
+  ],
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "python.terminal.activateEnvironment": false,
+  "jupyter.interactiveWindow.textEditor.executeSelection": true,
+  "terminal.integrated.profiles.linux": {
+    "R (renv)": {
+      "path": "/usr/bin/R",
+      "args": ["--no-save", "--no-restore"],
+      "icon": "graph",
+      "overrideName": true
+    }
+  }
 }

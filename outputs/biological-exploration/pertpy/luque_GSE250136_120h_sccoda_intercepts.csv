@@ -1,0 +1,6 @@
+study,timepoint,contrast,reference_cell_type,luque_cluster_annotation,Final Parameter,ETI 95% lower,ETI 95% upper,SD,Expected Sample
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,neural,2,1.5,2.4,0.24,255.2826911345733
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,neuromesodermal progenitors,1.2,0.71,1.8,0.28,114.70590716455443
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,pluripotent,-0.029,-0.43,0.34,0.2,33.56122973506131
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,somitic,1.3,0.86,1.8,0.25,126.76963272975065
+luque_GSE250136,120h,neural_bias vs TLS (reference morphotype: TLS),pluripotent,unknown,-0.26,-0.81,0.17,0.25,26.638872569393676

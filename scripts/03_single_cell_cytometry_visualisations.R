@@ -426,14 +426,12 @@ single_cell_mosaic_data <- single_cell_ratio_data |>
   dplyr::filter(.data$cell_count > 0) |>
   dplyr::mutate(
     timepoints = factor(.data$timepoints, levels = time_point_levels),
-    celltypeannotation = factor(
-      .data$celltypeannotation,
-      levels = names(cell_type_colours)
-    ),
+    celltypeannotation = as.character(.data$celltypeannotation),
     mosaic_label = paste0(
       scales::comma(.data$cell_count),
-      "\n",
-      scales::percent(.data$cellular_ratio, accuracy = 0.1)
+      " (",
+      scales::percent(.data$cellular_ratio, accuracy = 0.1),
+      ")"
     )
   )
 
@@ -464,7 +462,12 @@ single_cell_mosaic_plot_list <- single_cell_mosaic_data |>
     batch_data <- batch_data |>
       dplyr::filter(.data$timepoints %in% batch_timepoints) |>
       dplyr::mutate(
-        timepoints = factor(.data$timepoints, levels = batch_timepoints)
+        timepoints = factor(.data$timepoints, levels = batch_timepoints),
+        # Keep only cell types observed in this batch (avoids empty mosaic
+        # strata for absent batch x timepoint x cell-type combinations).
+        celltypeannotation = forcats::fct_drop(
+          factor(.data$celltypeannotation)
+        )
       )
 
     mosaic_base <- ggplot2::ggplot(batch_data) +
@@ -475,13 +478,15 @@ single_cell_mosaic_plot_list <- single_cell_mosaic_data |>
           weight = cell_count
         ),
         alpha = 0.6,
-        colour = "white",
-        linewidth = 0.5
+        colour = NA,
+        linewidth = 0,
+        offset = 0
       ) +
       ggmosaic::scale_x_productlist() +
       ggplot2::scale_y_continuous(
         labels = scales::percent_format(accuracy = 1),
         breaks = seq(0, 1, by = 0.25),
+        limits = c(0, 1),
         expand = ggplot2::expansion(mult = c(0, 0.02))
       )
 
@@ -492,8 +497,9 @@ single_cell_mosaic_plot_list <- single_cell_mosaic_data |>
         cellular_ratio = .data$.wt / sum(.data$.wt),
         mosaic_label = paste0(
           scales::comma(.data$.wt),
-          "\n",
-          scales::percent(.data$cellular_ratio, accuracy = 0.1)
+          " (",
+          scales::percent(.data$cellular_ratio, accuracy = 0.1),
+          ")"
         ),
         label_x = (.data$xmin + .data$xmax) / 2,
         label_y = (.data$ymin + .data$ymax) / 2
@@ -501,7 +507,7 @@ single_cell_mosaic_plot_list <- single_cell_mosaic_data |>
       dplyr::ungroup()
 
     mosaic_base +
-      ggplot2::geom_text(
+      ggplot2::geom_label(
         data = mosaic_label_data,
         ggplot2::aes(
           x = .data$label_x,
@@ -509,9 +515,12 @@ single_cell_mosaic_plot_list <- single_cell_mosaic_data |>
           label = .data$mosaic_label
         ),
         inherit.aes = FALSE,
-        size = 2.2,
+        size = 2,
         colour = "grey10",
-        lineheight = 0.9
+        fill = grDevices::adjustcolor("white", alpha.f = 0.85),
+        linewidth = 0.15,
+        label.padding = ggplot2::unit(0.1, "lines"),
+        label.r = ggplot2::unit(0.08, "lines")
       ) +
       ggplot2::scale_fill_manual(
         values = cell_type_colours,

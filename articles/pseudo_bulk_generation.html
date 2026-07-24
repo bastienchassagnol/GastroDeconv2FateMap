@@ -6,9 +6,17 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Pseudo-bulk generation strategies for phenotype-guided single-cell benchmarking • GastroDeconv2FateMap</title>
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_3-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/Source_Code_Pro-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="pseudo_bulk_generation_files/libs/quarto-html/popper.min.js"></script><script src="pseudo_bulk_generation_files/libs/quarto-html/tippy.umd.min.js"></script><link href="pseudo_bulk_generation_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="pseudo_bulk_generation_files/libs/quarto-html/light-border.css" rel="stylesheet">
@@ -19,11 +27,11 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">GastroDeconv2FateMap</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,22 +40,43 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="active nav-item"><a class="nav-link" href="../articles/pseudo_bulk_generation.html">Get started</a></li>
-<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/pseudo_bulk_generation.html">Pseudo-bulk generation strategies</a></li>
-    <li><a class="dropdown-item" href="../articles/deconvolution_description.html">Deconvolution methods</a></li>
-    <li><a class="dropdown-item" href="../articles/suppinger_biological_interpretation.html">Suppinger biological interpretation</a></li>
+<li class="nav-item"><a class="nav-link" href="../index.html"><span class="fa fa-home"></span> Home</a></li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html"><span class="fa fa-code"></span> Functions</a></li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fa-book-open"></span> Vignettes</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
+<li><h6 class="dropdown-header" data-toc-skip>Getting started</h6></li>
+    <li><a class="dropdown-item" href="../articles/pseudo_bulk_generation.html"><span class="fa fa-flask"></span> Pseudo-bulk generation strategies</a></li>
+    <li><a class="dropdown-item" href="../articles/deconvolution_description.html"><span class="fa fa-chart-pie"></span> Deconvolution methods</a></li>
+    <li><a class="dropdown-item" href="../articles/SigBridgR-phenotype-guided.html"><span class="fa fa-dna"></span> Phenotype-guided single-cell approaches</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Literature and datasets</h6></li>
+    <li><a class="dropdown-item" href="../articles/gastruloid_datasets.html"><span class="fa fa-table"></span> Gastruloid datasets catalogue</a></li>
+    <li><a class="dropdown-item" href="../articles/atlas_construction.html"><span class="fa fa-layer-group"></span> Atlas construction pipeline</a></li>
+    <li><a class="dropdown-item" href="../articles/gastruloid-bifuration-hypothesis.html"><span class="fa fa-code-branch"></span> Gastruloid bifurcation hypothesis</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Methods and interpretation</h6></li>
+    <li><a class="dropdown-item" href="../articles/clustering-longitudinal-techniques.html"><span class="fa fa-project-diagram"></span> Clustering longitudinal trajectories</a></li>
+    <li><a class="dropdown-item" href="../articles/differential_analyses.html"><span class="fa fa-chart-bar"></span> Differential analyses (MAST vs DESeq2)</a></li>
+    <li><a class="dropdown-item" href="../articles/enrichment_techniques.html"><span class="fa fa-search"></span> Enrichment techniques</a></li>
+    <li><a class="dropdown-item" href="../articles/suppinger_biological_interpretation.html"><span class="fa fa-book"></span> Suppinger biological interpretation</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html"><span class="fa fa-newspaper"></span> News</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/bastienchassagnol/GastroDeconv2FateMap" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/bastienchassagnol/GastroDeconv2FateMap/" aria-label="GitHub"><span class="fa fa-github"></span></a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
+<li><button class="dropdown-item" data-bs-theme-value="light"><span class="fa fa-sun"></span> Light</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="dark"><span class="fa fa-moon"></span> Dark</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="auto"><span class="fa fa-adjust"></span> Auto</button></li>
+  </ul>
+</li>
       </ul>
 </div>
 
@@ -75,38 +104,38 @@
 <blockquote>
 <p><strong>Shared notation</strong></p>
 <p>Let</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>X</mi><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">c</mi></mrow></msup><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><msup><mi>ℕ</mi><mrow><mi>G</mi><mo>×</mo><mi>C</mi></mrow></msup></mrow><annotation encoding="application/x-tex">
+<p><span class="math display">\[
 X^{\mathrm{sc}} = (x_{gc}) \in \mathbb{N}^{G \times C}
-</annotation></semantics></math></p>
-<p>be the single-cell count matrix, with genes <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>G</mi></mrow><annotation encoding="application/x-tex">g=1,\ldots,G</annotation></semantics></math> and cells <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>C</mi></mrow><annotation encoding="application/x-tex">c=1,\ldots,C</annotation></semantics></math>.</p>
+\]</span></p>
+<p>be the single-cell count matrix, with genes <span class="math inline">\(g=1,\ldots,G\)</span> and cells <span class="math inline">\(c=1,\ldots,C\)</span>.</p>
 <p>Each cell has metadata</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo stretchy="false" form="prefix">(</mo><mi>c</mi><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>B</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">
+<p><span class="math display">\[
 b(c) \in \{1,\ldots,B\}
-</annotation></semantics></math></p>
+\]</span></p>
 <p>for barcode / organoid ID, and</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>b</mi><mo stretchy="false" form="prefix">(</mo><mi>c</mi><mo stretchy="false" form="postfix">)</mo></mrow></msub><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">
+<p><span class="math display">\[
 y_{b(c)} \in \{0,1\}
-</annotation></semantics></math></p>
-<p>for organoid-level phenotype, with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">y=1</annotation></semantics></math> denoting successful differentiation and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">y=0</annotation></semantics></math> denoting failed differentiation / neuroectodermal output.</p>
-<p>A pseudo-bulk sample <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> is generated by selecting a set of cells</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝒞</mi><mi>i</mi></msub><mo>⊆</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>C</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">
+\]</span></p>
+<p>for organoid-level phenotype, with <span class="math inline">\(y=1\)</span> denoting successful differentiation and <span class="math inline">\(y=0\)</span> denoting failed differentiation / neuroectodermal output.</p>
+<p>A pseudo-bulk sample <span class="math inline">\(i\)</span> is generated by selecting a set of cells</p>
+<p><span class="math display">\[
 \mathcal{C}_i \subseteq \{1,\ldots,C\}
-</annotation></semantics></math></p>
+\]</span></p>
 <p>and aggregating their expression:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mrow><mi>g</mi><mi>i</mi></mrow><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">w</mi></mrow></msubsup><mo>=</mo><munder><mo>∑</mo><mrow><mi>c</mi><mo>∈</mo><msub><mi>𝒞</mi><mi>i</mi></msub></mrow></munder><msub><mi>s</mi><mi>c</mi></msub><msub><mi>x</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<p><span class="math display">\[
 Y_{gi}^{\mathrm{raw}} = \sum_{c \in \mathcal{C}_i} s_c x_{gc},
-</annotation></semantics></math></p>
-<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mi>c</mi></msub><annotation encoding="application/x-tex">s_c</annotation></semantics></math> is an optional cell-level scaling factor, often <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mi>c</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">s_c=1</annotation></semantics></math>.</p>
+\]</span></p>
+<p>where <span class="math inline">\(s_c\)</span> is an optional cell-level scaling factor, often <span class="math inline">\(s_c=1\)</span>.</p>
 <p>The normalized pseudo-bulk profile can then be written as</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mrow><mi>g</mi><mi>i</mi></mrow></msub><mo>=</mo><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">m</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>Y</mi><mrow><mi>g</mi><mi>i</mi></mrow><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">w</mi></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<p><span class="math display">\[
 Y_{gi} = \mathrm{Norm}\left(Y_{gi}^{\mathrm{raw}}\right),
-</annotation></semantics></math></p>
+\]</span></p>
 <p>for example library-size normalization, TPM/CPM, DESeq2 size-factor normalization, or log transformation.</p>
-<p>For cell-type-aware simulations, let <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mi>c</mi></msub><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">z_c \in \{1,\ldots,K\}</annotation></semantics></math> be the cell type or state label, and let</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mi>i</mi></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>π</mi><mrow><mi>i</mi><mn>1</mn></mrow></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>π</mi><mrow><mi>i</mi><mi>K</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></munderover><msub><mi>π</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub><mo>=</mo><mn>1</mn><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<p>For cell-type-aware simulations, let <span class="math inline">\(z_c \in \{1,\ldots,K\}\)</span> be the cell type or state label, and let</p>
+<p><span class="math display">\[
 \pi_i = (\pi_{i1},\ldots,\pi_{iK}), \qquad \sum_{k=1}^K \pi_{ik}=1,
-</annotation></semantics></math></p>
-<p>be the target composition of pseudo-bulk sample <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.</p>
+\]</span></p>
+<p>be the target composition of pseudo-bulk sample <span class="math inline">\(i\)</span>.</p>
 </blockquote>
 </div>
 <section class="level2"><h2 id="condensed-comparison-of-pseudo-bulk-generation-strategies">Condensed comparison of pseudo-bulk generation strategies<a class="anchor" aria-label="anchor" href="#condensed-comparison-of-pseudo-bulk-generation-strategies"></a>
@@ -135,8 +164,8 @@ Y_{gi} = \mathrm{Norm}\left(Y_{gi}^{\mathrm{raw}}\right),
 <tr class="odd">
 <td><strong>1. Direct organoid-barcode aggregation</strong></td>
 <td>Treat each organoid barcode as one bulk sample. This is the closest pseudo-bulk analogue to an experimentally sequenced organoid bulk RNA-seq sample.</td>
-<td>For organoid <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mrow><mi>g</mi><mi>b</mi></mrow><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">w</mi></mrow></msubsup><mo>=</mo><munder><mo>∑</mo><mrow><mi>c</mi><mo>:</mo><mi>b</mi><mo stretchy="false" form="prefix">(</mo><mi>c</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>b</mi></mrow></munder><msub><mi>x</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Y_{gb}^{\mathrm{raw}}=\sum_{c:b(c)=b}x_{gc}</annotation></semantics></math> Then normalize: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mrow><mi>g</mi><mi>b</mi></mrow></msub><mo>=</mo><msub><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mn>2</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mfrac><mrow><msup><mn>10</mn><mn>6</mn></msup><msubsup><mi>Y</mi><mrow><mi>g</mi><mi>b</mi></mrow><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">w</mi></mrow></msubsup></mrow><mrow><munder><mo>∑</mo><mi>g</mi></munder><msubsup><mi>Y</mi><mrow><mi>g</mi><mi>b</mi></mrow><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">w</mi></mrow></msubsup></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Y_{gb}=\log_2\left(1+\frac{10^6Y_{gb}^{\mathrm{raw}}}{\sum_gY_{gb}^{\mathrm{raw}}}\right)</annotation></semantics></math> or use DESeq2 size factors.</td>
-<td>Real organoid-level biological heterogeneity; barcode-specific cell composition; phenotype labels <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mi>b</mi></msub><annotation encoding="application/x-tex">y_b</annotation></semantics></math>.</td>
+<td>For organoid <span class="math inline">\(b\)</span>: <span class="math display">\[Y_{gb}^{\mathrm{raw}}=\sum_{c:b(c)=b}x_{gc}\]</span> Then normalize: <span class="math display">\[Y_{gb}=\log_2\left(1+\frac{10^6Y_{gb}^{\mathrm{raw}}}{\sum_gY_{gb}^{\mathrm{raw}}}\right)\]</span> or use DESeq2 size factors.</td>
+<td>Real organoid-level biological heterogeneity; barcode-specific cell composition; phenotype labels <span class="math inline">\(y_b\)</span>.</td>
 <td>Highest realism if each barcode corresponds to a true biological organoid. Preserves natural co-variation among cell states within organoids.</td>
 <td>Limited number of bulk samples: e.g. only 8 organoids gives poor statistical power for the 8 phenotype-guided algorithms.</td>
 <td>Use as the <strong>primary benchmark</strong> if enough organoids exist. With only 8 organoids, use it as a realism anchor and complement it with bootstrap simulations.</td>
@@ -144,7 +173,7 @@ Y_{gi} = \mathrm{Norm}\left(Y_{gi}^{\mathrm{raw}}\right),
 <tr class="even">
 <td><strong>2. Phenotype-stratified bootstrap pseudo-bulk</strong></td>
 <td>Build many pseudo-bulk samples by resampling cells from organoids with the same phenotype. Similar to the scPP simulation logic, where phenotype-positive and phenotype-negative cells are sampled separately to create balanced pseudo-bulk cohorts.</td>
-<td>For pseudo-bulk sample <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> with phenotype <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mi>i</mi></msub><annotation encoding="application/x-tex">y_i</annotation></semantics></math>: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝒞</mi><mi>i</mi></msub><mo>∼</mo><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">e</mi></mrow><mo stretchy="false" form="prefix">{</mo><mi>c</mi><mo>:</mo><msub><mi>y</mi><mrow><mi>b</mi><mo stretchy="false" form="prefix">(</mo><mi>c</mi><mo stretchy="false" form="postfix">)</mo></mrow></msub><mo>=</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">}</mo><mo>,</mo><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">|</mo><msub><mi>𝒞</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">|</mo><mo>=</mo><msub><mi>N</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\mathcal{C}_i \sim \mathrm{Sample}\{c:y_{b(c)}=y_i\}, \quad |\mathcal{C}_i|=N_i</annotation></semantics></math><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mrow><mi>g</mi><mi>i</mi></mrow><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">w</mi></mrow></msubsup><mo>=</mo><mfrac><mn>1</mn><msub><mi>N</mi><mi>i</mi></msub></mfrac><munder><mo>∑</mo><mrow><mi>c</mi><mo>∈</mo><msub><mi>𝒞</mi><mi>i</mi></msub></mrow></munder><msub><mi>x</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Y_{gi}^{\mathrm{raw}}=\frac{1}{N_i}\sum_{c\in\mathcal{C}_i}x_{gc}</annotation></semantics></math> or sum first, then normalize.</td>
+<td>For pseudo-bulk sample <span class="math inline">\(i\)</span> with phenotype <span class="math inline">\(y_i\)</span>: <span class="math display">\[\mathcal{C}_i \sim \mathrm{Sample}\{c:y_{b(c)}=y_i\}, \quad |\mathcal{C}_i|=N_i\]</span> <span class="math display">\[Y_{gi}^{\mathrm{raw}}=\frac{1}{N_i}\sum_{c\in\mathcal{C}_i}x_{gc}\]</span> or sum first, then normalize.</td>
 <td>Number of pseudo-bulk samples; number of cells per pseudo-bulk; class balance; phenotype-specific signal strength.</td>
 <td>Retains empirical single-cell distributions and dropout patterns.</td>
 <td>Resampled pseudo-bulk samples are not independent biological replicates if drawn from the same few organoids. Can inflate apparent benchmark power.</td>
@@ -153,7 +182,7 @@ Y_{gi} = \mathrm{Norm}\left(Y_{gi}^{\mathrm{raw}}\right),
 <tr class="odd">
 <td><strong>3. Organoid-preserving bootstrap</strong></td>
 <td>Resample within each barcode, then aggregate. This preserves organoid identity while creating technical pseudo-replicates.</td>
-<td>For organoid <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>, replicate <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝒞</mi><mrow><mi>b</mi><mi>r</mi></mrow></msub><mo>∼</mo><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">e</mi></mrow><mo stretchy="false" form="prefix">{</mo><mi>c</mi><mo>:</mo><mi>b</mi><mo stretchy="false" form="prefix">(</mo><mi>c</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>b</mi><mo stretchy="false" form="postfix">}</mo><mo>,</mo><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">|</mo><msub><mi>𝒞</mi><mrow><mi>b</mi><mi>r</mi></mrow></msub><mo stretchy="false" form="prefix">|</mo><mo>=</mo><msub><mi>N</mi><mrow><mi>b</mi><mi>r</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\mathcal{C}_{br}\sim \mathrm{Sample}\{c:b(c)=b\},\quad |\mathcal{C}_{br}|=N_{br}</annotation></semantics></math><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mrow><mi>g</mi><mi>b</mi><mi>r</mi></mrow><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">w</mi></mrow></msubsup><mo>=</mo><munder><mo>∑</mo><mrow><mi>c</mi><mo>∈</mo><msub><mi>𝒞</mi><mrow><mi>b</mi><mi>r</mi></mrow></msub></mrow></munder><msub><mi>x</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Y_{gbr}^{\mathrm{raw}}=\sum_{c\in\mathcal{C}_{br}}x_{gc}</annotation></semantics></math><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>b</mi><mi>r</mi></mrow></msub><mo>=</mo><msub><mi>y</mi><mi>b</mi></msub></mrow><annotation encoding="application/x-tex">y_{br}=y_b</annotation></semantics></math>
+<td>For organoid <span class="math inline">\(b\)</span>, replicate <span class="math inline">\(r\)</span>: <span class="math display">\[\mathcal{C}_{br}\sim \mathrm{Sample}\{c:b(c)=b\},\quad |\mathcal{C}_{br}|=N_{br}\]</span> <span class="math display">\[Y_{gbr}^{\mathrm{raw}}=\sum_{c\in\mathcal{C}_{br}}x_{gc}\]</span> <span class="math display">\[y_{br}=y_b\]</span>
 </td>
 <td>Technical variability within organoids; sequencing-depth variation; cell sampling noise.</td>
 <td>Preserves barcode-specific transcriptional and compositional structure.</td>
@@ -163,17 +192,17 @@ Y_{gi} = \mathrm{Norm}\left(Y_{gi}^{\mathrm{raw}}\right),
 <tr class="even">
 <td><strong>4. Composition-controlled Dirichlet convolution</strong></td>
 <td>Draw target cell-state proportions from a Dirichlet distribution, then linearly mix empirical cell-type or state references. This mirrors the HADACA3-style convolution benchmark.</td>
-<td>Draw composition: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mi>i</mi></msub><mo>∼</mo><mrow><mi mathvariant="normal">D</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">h</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi></mrow><mo stretchy="false" form="prefix">(</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\pi_i \sim \mathrm{Dirichlet}(\alpha)</annotation></semantics></math> Define cell-state reference means: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mrow><mi>g</mi><mi>k</mi></mrow></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mo stretchy="false" form="prefix">|</mo><msub><mi>C</mi><mi>k</mi></msub><mo stretchy="false" form="prefix">|</mo></mrow></mfrac><munder><mo>∑</mo><mrow><mi>c</mi><mo>:</mo><msub><mi>z</mi><mi>c</mi></msub><mo>=</mo><mi>k</mi></mrow></munder><msub><mi>x</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\mu_{gk}=\frac{1}{|C_k|}\sum_{c:z_c=k}x_{gc}</annotation></semantics></math> Generate: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mrow><mi>g</mi><mi>i</mi></mrow></msub><mo>=</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></munderover><msub><mi>μ</mi><mrow><mi>g</mi><mi>k</mi></mrow></msub><msub><mi>π</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub><mo>+</mo><msub><mi>ε</mi><mrow><mi>g</mi><mi>i</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Y_{gi}=\sum_{k=1}^K \mu_{gk}\pi_{ik}+\varepsilon_{gi}</annotation></semantics></math>
+<td>Draw composition: <span class="math display">\[\pi_i \sim \mathrm{Dirichlet}(\alpha)\]</span> Define cell-state reference means: <span class="math display">\[\mu_{gk}=\frac{1}{|C_k|}\sum_{c:z_c=k}x_{gc}\]</span> Generate: <span class="math display">\[Y_{gi}=\sum_{k=1}^K \mu_{gk}\pi_{ik}+\varepsilon_{gi}\]</span>
 </td>
 <td>Cell-state proportions; rare-cell scenarios; missing or extra cell types; controlled noise.</td>
 <td>Very interpretable; known ground-truth proportions.</td>
 <td>Reference-mean convolution can be too smooth and underestimates single-cell sampling noise unless noise is added.</td>
-<td>Useful to isolate whether algorithms recover phenotype-associated states when the phenotype is encoded through known changes in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>π</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\pi_i</annotation></semantics></math>.</td>
+<td>Useful to isolate whether algorithms recover phenotype-associated states when the phenotype is encoded through known changes in <span class="math inline">\(\pi_i\)</span>.</td>
 </tr>
 <tr class="odd">
 <td><strong>5. Empirical cell sampling from target proportions</strong></td>
-<td>Draw proportions <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>π</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\pi_i</annotation></semantics></math>, then sample actual cells from each cell type/state according to <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>π</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\pi_i</annotation></semantics></math>, rather than mixing mean references.</td>
-<td>Draw: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mi>i</mi></msub><mo>∼</mo><mrow><mi mathvariant="normal">D</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">h</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi></mrow><mo stretchy="false" form="prefix">(</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\pi_i \sim \mathrm{Dirichlet}(\alpha)</annotation></semantics></math> Sample counts: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>N</mi><mrow><mi>i</mi><mn>1</mn></mrow></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>N</mi><mrow><mi>i</mi><mi>K</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>∼</mo><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">l</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>N</mi><mi>i</mi></msub><mo>,</mo><msub><mi>π</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(N_{i1},\ldots,N_{iK})\sim \mathrm{Multinomial}(N_i,\pi_i)</annotation></semantics></math> Then: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mrow><mi>g</mi><mi>i</mi></mrow><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">w</mi></mrow></msubsup><mo>=</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></munderover><munder><mo>∑</mo><mrow><mi>c</mi><mo>∈</mo><msub><mi>𝒞</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub></mrow></munder><msub><mi>x</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Y_{gi}^{\mathrm{raw}}=\sum_{k=1}^K\sum_{c\in\mathcal{C}_{ik}}x_{gc}</annotation></semantics></math>
+<td>Draw proportions <span class="math inline">\(\pi_i\)</span>, then sample actual cells from each cell type/state according to <span class="math inline">\(\pi_i\)</span>, rather than mixing mean references.</td>
+<td>Draw: <span class="math display">\[\pi_i \sim \mathrm{Dirichlet}(\alpha)\]</span> Sample counts: <span class="math display">\[(N_{i1},\ldots,N_{iK})\sim \mathrm{Multinomial}(N_i,\pi_i)\]</span> Then: <span class="math display">\[Y_{gi}^{\mathrm{raw}}=\sum_{k=1}^K\sum_{c\in\mathcal{C}_{ik}}x_{gc}\]</span>
 </td>
 <td>Proportions, total number of cells, phenotype-composition coupling, rare states.</td>
 <td>Preserves empirical dropout, overdispersion, and cell-to-cell heterogeneity better than reference-mean convolution.</td>
@@ -183,7 +212,7 @@ Y_{gi} = \mathrm{Norm}\left(Y_{gi}^{\mathrm{raw}}\right),
 <tr class="even">
 <td><strong>6. SimBu scenario-based pseudo-bulk</strong></td>
 <td>Use predefined pseudo-bulk scenarios from SimBu. These aggregate scRNA-seq profiles under controlled cell-type fractions and optional mRNA-bias scaling.</td>
-<td>Generic form: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mrow><mi>g</mi><mi>i</mi></mrow><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">w</mi></mrow></msubsup><mo>=</mo><munder><mo>∑</mo><mrow><mi>c</mi><mo>∈</mo><msub><mi>𝒞</mi><mi>i</mi></msub></mrow></munder><msub><mi>s</mi><mi>c</mi></msub><msub><mi>x</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Y_{gi}^{\mathrm{raw}}=\sum_{c\in\mathcal{C}_i}s_cx_{gc}</annotation></semantics></math> with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝒞</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\mathcal{C}_i</annotation></semantics></math> selected according to a scenario: <code>even</code>, <code>random</code>, <code>mirror_db</code>, <code>weighted</code>, <code>pure</code>, or <code>custom</code>.</td>
+<td>Generic form: <span class="math display">\[Y_{gi}^{\mathrm{raw}}=\sum_{c\in\mathcal{C}_i}s_cx_{gc}\]</span> with <span class="math inline">\(\mathcal{C}_i\)</span> selected according to a scenario: <code>even</code>, <code>random</code>, <code>mirror_db</code>, <code>weighted</code>, <code>pure</code>, or <code>custom</code>.</td>
 <td>Scenario-specific cell-type fractions; number of cells; number of samples; mRNA-content bias; whitelist / blacklist cell types.</td>
 <td>Practical, standardized, reproducible; can mimic compositional shifts and mRNA bias.</td>
 <td>Primarily designed for deconvolution benchmarking; phenotype labels must be added by the user.</td>
@@ -192,7 +221,7 @@ Y_{gi} = \mathrm{Norm}\left(Y_{gi}^{\mathrm{raw}}\right),
 <tr class="odd">
 <td><strong>7. Mean pseudo-bulk with dropout correction / small epsilon</strong></td>
 <td>Aggregate cells and stabilize zeros using a small offset before log-normalization. Similar to simple pseudo-bulk pipelines using <code><a href="https://satijalab.org/seurat/reference/AggregateExpression.html" class="external-link">Seurat::AggregateExpression</a></code> followed by DESeq2-like normalization.</td>
-<td>Aggregate: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mrow><mi>g</mi><mi>i</mi></mrow><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">w</mi></mrow></msubsup><mo>=</mo><munder><mo>∑</mo><mrow><mi>c</mi><mo>∈</mo><msub><mi>𝒞</mi><mi>i</mi></msub></mrow></munder><msub><mi>x</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Y_{gi}^{\mathrm{raw}}=\sum_{c\in\mathcal{C}_i}x_{gc}</annotation></semantics></math> Stabilize: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>Y</mi><mo accent="true">̃</mo></mover><mrow><mi>g</mi><mi>i</mi></mrow></msub><mo>=</mo><msub><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mn>2</mn></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>Y</mi><mrow><mi>g</mi><mi>i</mi></mrow><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">w</mi></mrow></msubsup><mo>+</mo><mi>ϵ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\tilde{Y}_{gi}=\log_2(Y_{gi}^{\mathrm{raw}}+\epsilon)</annotation></semantics></math> or normalize then add <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϵ</mi><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math>.</td>
+<td>Aggregate: <span class="math display">\[Y_{gi}^{\mathrm{raw}}=\sum_{c\in\mathcal{C}_i}x_{gc}\]</span> Stabilize: <span class="math display">\[\tilde{Y}_{gi}=\log_2(Y_{gi}^{\mathrm{raw}}+\epsilon)\]</span> or normalize then add <span class="math inline">\(\epsilon\)</span>.</td>
 <td>Dropout sensitivity; zero handling; library-size normalization.</td>
 <td>Simple and robust for sparse scRNA-seq.</td>
 <td>Returns essentially mean/sum expression profiles; does not model covariance or GRN structure explicitly.</td>
@@ -201,17 +230,17 @@ Y_{gi} = \mathrm{Norm}\left(Y_{gi}^{\mathrm{raw}}\right),
 <tr class="even">
 <td><strong>8. Gaussian latent-factor / GGM-based simulation</strong></td>
 <td>Infer a Gaussian or latent Gaussian model from single cells, then generate pseudo-bulk by summing simulated cells. Useful when modeling gene-gene covariance or GRN-like precision matrices.</td>
-<td>For state <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mi>c</mi></msub><mo>∣</mo><msub><mi>z</mi><mi>c</mi></msub><mo>=</mo><mi>k</mi><mo>∼</mo><mi>𝒩</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>μ</mi><mi>k</mi></msub><mo>,</mo><msub><mi mathvariant="normal">Σ</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><msub><mi mathvariant="normal">Θ</mi><mi>k</mi></msub><mo>=</mo><msubsup><mi mathvariant="normal">Σ</mi><mi>k</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup></mrow><annotation encoding="application/x-tex">z_c\mid z_c=k\sim\mathcal{N}(\mu_k,\Sigma_k), \qquad \Theta_k=\Sigma_k^{-1}</annotation></semantics></math> Generate cells: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>c</mi></msub><mo>=</mo><msub><mi>z</mi><mi>c</mi></msub><mspace width="1.0em"></mspace><mtext mathvariant="normal">or</mtext><mspace width="1.0em"></mspace><msub><mi>x</mi><mi>c</mi></msub><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>z</mi><mi>c</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">x_c=z_c \quad \text{or} \quad x_c=\exp(z_c)</annotation></semantics></math> Aggregate: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mi>i</mi></msub><mo>=</mo><munder><mo>∑</mo><mrow><mi>c</mi><mo>∈</mo><msub><mi>𝒞</mi><mi>i</mi></msub></mrow></munder><msub><mi>x</mi><mi>c</mi></msub></mrow><annotation encoding="application/x-tex">Y_i=\sum_{c\in\mathcal{C}_i}x_c</annotation></semantics></math>
+<td>For state <span class="math inline">\(k\)</span>: <span class="math display">\[z_c\mid z_c=k\sim\mathcal{N}(\mu_k,\Sigma_k), \qquad \Theta_k=\Sigma_k^{-1}\]</span> Generate cells: <span class="math display">\[x_c=z_c \quad \text{or} \quad x_c=\exp(z_c)\]</span> Aggregate: <span class="math display">\[Y_i=\sum_{c\in\mathcal{C}_i}x_c\]</span>
 </td>
 <td>Gene-gene covariance; sparse precision matrix; latent programs; phenotype-specific GRN perturbations.</td>
 <td>Can simulate coordinated gene programs rather than independent genes.</td>
-<td>If <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>c</mi></msub><annotation encoding="application/x-tex">x_c</annotation></semantics></math> is log-normal, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>∑</mo><mi>c</mi></msub><msub><mi>x</mi><mi>c</mi></msub></mrow><annotation encoding="application/x-tex">\sum_c x_c</annotation></semantics></math> is not log-normal. Parameters inferred at single-cell level may not transfer cleanly to bulk.</td>
+<td>If <span class="math inline">\(x_c\)</span> is log-normal, <span class="math inline">\(\sum_c x_c\)</span> is not log-normal. Parameters inferred at single-cell level may not transfer cleanly to bulk.</td>
 <td>Use for mechanistic stress tests, not as the only benchmark. Compare against empirical aggregation to avoid over-interpreting simulated GRNs.</td>
 </tr>
 <tr class="odd">
 <td><strong>9. scDesign2-like copula / marginal-dependence simulation</strong></td>
 <td>Model gene-wise marginals with count distributions and capture dependence using copulas.</td>
-<td>Gene marginals: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub><mo>∼</mo><msub><mi>F</mi><mi>g</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>θ</mi><mi>g</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">X_{gc}\sim F_g(\theta_g)</annotation></semantics></math> Dependence: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>U</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub><mo>=</mo><msub><mi>F</mi><mi>g</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><mo stretchy="false" form="prefix">(</mo><msub><mi>U</mi><mrow><mn>1</mn><mi>c</mi></mrow></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>U</mi><mrow><mi>G</mi><mi>c</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>∼</mo><msub><mi>C</mi><mi>ρ</mi></msub></mrow><annotation encoding="application/x-tex">U_{gc}=F_g(X_{gc}),\qquad (U_{1c},\ldots,U_{Gc})\sim C_\rho</annotation></semantics></math> Aggregate simulated cells: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mrow><mi>g</mi><mi>i</mi></mrow><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">w</mi></mrow></msubsup><mo>=</mo><munder><mo>∑</mo><mrow><mi>c</mi><mo>∈</mo><msub><mi>𝒞</mi><mi>i</mi></msub></mrow></munder><msubsup><mi>X</mi><mrow><mi>g</mi><mi>c</mi></mrow><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow></msubsup></mrow><annotation encoding="application/x-tex">Y_{gi}^{\mathrm{raw}}=\sum_{c\in\mathcal{C}_i}X_{gc}^{\mathrm{sim}}</annotation></semantics></math>
+<td>Gene marginals: <span class="math display">\[X_{gc}\sim F_g(\theta_g)\]</span> Dependence: <span class="math display">\[U_{gc}=F_g(X_{gc}),\qquad (U_{1c},\ldots,U_{Gc})\sim C_\rho\]</span> Aggregate simulated cells: <span class="math display">\[Y_{gi}^{\mathrm{raw}}=\sum_{c\in\mathcal{C}_i}X_{gc}^{\mathrm{sim}}\]</span>
 </td>
 <td>Gene-wise count distribution; gene-gene dependency; overdispersion; zero inflation.</td>
 <td>More realistic than independent gene simulation.</td>
@@ -221,7 +250,7 @@ Y_{gi} = \mathrm{Norm}\left(Y_{gi}^{\mathrm{raw}}\right),
 <tr class="even">
 <td><strong>10. Splatter / gllvm-style gene-level simulation</strong></td>
 <td>Simulate genes using statistical count models without explicit GRNs.</td>
-<td>Typical negative-binomial form: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub><mo>∼</mo><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">B</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>μ</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub><mo>,</mo><msub><mi>ϕ</mi><mi>g</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">X_{gc}\sim \mathrm{NB}(\mu_{gc},\phi_g)</annotation></semantics></math> with batch, group, library-size, and dropout effects. Aggregate simulated cells: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mrow><mi>g</mi><mi>i</mi></mrow><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">w</mi></mrow></msubsup><mo>=</mo><munder><mo>∑</mo><mrow><mi>c</mi><mo>∈</mo><msub><mi>𝒞</mi><mi>i</mi></msub></mrow></munder><msub><mi>X</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Y_{gi}^{\mathrm{raw}}=\sum_{c\in\mathcal{C}_i}X_{gc}</annotation></semantics></math>
+<td>Typical negative-binomial form: <span class="math display">\[X_{gc}\sim \mathrm{NB}(\mu_{gc},\phi_g)\]</span> with batch, group, library-size, and dropout effects. Aggregate simulated cells: <span class="math display">\[Y_{gi}^{\mathrm{raw}}=\sum_{c\in\mathcal{C}_i}X_{gc}\]</span>
 </td>
 <td>Library size; dropout; group effects; batch effects; gene-level overdispersion.</td>
 <td>Good for technical noise stress tests.</td>
@@ -231,7 +260,7 @@ Y_{gi} = \mathrm{Norm}\left(Y_{gi}^{\mathrm{raw}}\right),
 <tr class="odd">
 <td><strong>11. scMultiSim / GRN + cell-cell interaction simulation</strong></td>
 <td>Generate single-cell profiles from explicit TF-based GRNs, cell-cell interactions, trajectories, batch effects, and technical noise.</td>
-<td>Schematic form: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>h</mi><mi>c</mi></msub><mo>=</mo><msub><mi>f</mi><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">R</mi><mi mathvariant="normal">N</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mi>c</mi></msub><mo>,</mo><msub><mi>t</mi><mi>c</mi></msub><mo>,</mo><msub><mrow><mi mathvariant="normal">C</mi><mi mathvariant="normal">C</mi><mi mathvariant="normal">I</mi></mrow><mi>c</mi></msub><mo>,</mo><msub><mrow><mi mathvariant="normal">b</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">h</mi></mrow><mi>c</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">h_c = f_{\mathrm{GRN}}(u_c, t_c, \mathrm{CCI}_c, \mathrm{batch}_c)</annotation></semantics></math><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub><mo>∼</mo><mrow><mi mathvariant="normal">C</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">M</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">l</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>h</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">X_{gc}\sim \mathrm{CountModel}(h_{gc})</annotation></semantics></math><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mrow><mi>g</mi><mi>i</mi></mrow><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">w</mi></mrow></msubsup><mo>=</mo><munder><mo>∑</mo><mrow><mi>c</mi><mo>∈</mo><msub><mi>𝒞</mi><mi>i</mi></msub></mrow></munder><msub><mi>X</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Y_{gi}^{\mathrm{raw}}=\sum_{c\in\mathcal{C}_i}X_{gc}</annotation></semantics></math>
+<td>Schematic form: <span class="math display">\[h_c = f_{\mathrm{GRN}}(u_c, t_c, \mathrm{CCI}_c, \mathrm{batch}_c)\]</span> <span class="math display">\[X_{gc}\sim \mathrm{CountModel}(h_{gc})\]</span> <span class="math display">\[Y_{gi}^{\mathrm{raw}}=\sum_{c\in\mathcal{C}_i}X_{gc}\]</span>
 </td>
 <td>GRNs, TF modules, trajectories, cell-cell interactions, technical noise, batch effects.</td>
 <td>Mechanistically richer than pure count simulation.</td>
@@ -241,7 +270,7 @@ Y_{gi} = \mathrm{Norm}\left(Y_{gi}^{\mathrm{raw}}\right),
 <tr class="even">
 <td><strong>12. ODE / mechanistic differentiation simulator</strong></td>
 <td>Simulate developmental trajectories mechanistically, then sample cells from success/failure attractors and aggregate.</td>
-<td>Regulatory dynamics: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>d</mi><msub><mi>z</mi><mi>c</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>d</mi><mi>t</mi></mrow></mfrac><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>z</mi><mi>c</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>θ</mi><mo>,</mo><msub><mi>u</mi><mi>c</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msub><mi>ξ</mi><mi>c</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\frac{dz_c(t)}{dt}=f(z_c(t),\theta,u_c)+\xi_c(t)</annotation></semantics></math> Observed counts: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub><mo>∼</mo><mrow><mi mathvariant="normal">O</mi><mi mathvariant="normal">b</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">M</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">d</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">l</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>z</mi><mrow><mi>g</mi><mi>c</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>t</mi><mi>c</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">X_{gc}\sim \mathrm{ObsModel}(z_{gc}(t_c))</annotation></semantics></math> Bulk: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mi>i</mi></msub><mo>=</mo><munder><mo>∑</mo><mrow><mi>c</mi><mo>∈</mo><msub><mi>𝒞</mi><mi>i</mi></msub></mrow></munder><msub><mi>X</mi><mi>c</mi></msub></mrow><annotation encoding="application/x-tex">Y_i=\sum_{c\in\mathcal{C}_i}X_c</annotation></semantics></math>
+<td>Regulatory dynamics: <span class="math display">\[\frac{dz_c(t)}{dt}=f(z_c(t),\theta,u_c)+\xi_c(t)\]</span> Observed counts: <span class="math display">\[X_{gc}\sim \mathrm{ObsModel}(z_{gc}(t_c))\]</span> Bulk: <span class="math display">\[Y_i=\sum_{c\in\mathcal{C}_i}X_c\]</span>
 </td>
 <td>Differentiation dynamics; bifurcation; fate success/failure; time; perturbations.</td>
 <td>Best aligned with gastruloid differentiation biology if the model is credible.</td>
@@ -251,7 +280,7 @@ Y_{gi} = \mathrm{Norm}\left(Y_{gi}^{\mathrm{raw}}\right),
 <tr class="odd">
 <td><strong>13. DANST-style pseudo-domain alignment</strong></td>
 <td>Generate pseudo-bulk or pseudo-spots from scRNA-seq, then align pseudo and real domains through adversarial training. Originally designed for pseudo-ST to real-ST alignment, but the idea transfers to pseudo-bulk vs real-like bulk alignment.</td>
-<td>Pseudo profile: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mi>i</mi><mrow><mi mathvariant="normal">p</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">d</mi><mi mathvariant="normal">o</mi></mrow></msubsup><mo>=</mo><munder><mo>∑</mo><mrow><mi>c</mi><mo>∈</mo><msub><mi>𝒞</mi><mi>i</mi></msub></mrow></munder><msub><mi>x</mi><mi>c</mi></msub></mrow><annotation encoding="application/x-tex">Y_i^{\mathrm{pseudo}}=\sum_{c\in\mathcal{C}_i}x_c</annotation></semantics></math> Feature embedding: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mi>i</mi></msub><mo>=</mo><msub><mi>F</mi><mi>θ</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>Y</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">v_i=F_\theta(Y_i)</annotation></semantics></math> Adversarial objective: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><mi mathvariant="normal">min</mi><mrow><mi>F</mi><mo>,</mo><mi>P</mi></mrow></munder><munder><mi mathvariant="normal">max</mi><mi>D</mi></munder><msub><mi>ℒ</mi><mrow><mi mathvariant="normal">p</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">d</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>Y</mi><mrow><mi mathvariant="normal">p</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">d</mi><mi mathvariant="normal">o</mi></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>π</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>λ</mi><msub><mi>ℒ</mi><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="prefix">(</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\min_{F,P}\max_D \mathcal{L}_{\mathrm{pred}}(P(F(Y^{\mathrm{pseudo}})),\pi) - \lambda\mathcal{L}_{\mathrm{domain}}(D(F(Y)))</annotation></semantics></math>
+<td>Pseudo profile: <span class="math display">\[Y_i^{\mathrm{pseudo}}=\sum_{c\in\mathcal{C}_i}x_c\]</span> Feature embedding: <span class="math display">\[v_i=F_\theta(Y_i)\]</span> Adversarial objective: <span class="math display">\[\min_{F,P}\max_D \mathcal{L}_{\mathrm{pred}}(P(F(Y^{\mathrm{pseudo}})),\pi) - \lambda\mathcal{L}_{\mathrm{domain}}(D(F(Y)))\]</span>
 </td>
 <td>Domain shift between simulated pseudo-bulk and target bulk-like data.</td>
 <td>Learns representations less sensitive to platform or simulation artifacts.</td>
@@ -281,37 +310,37 @@ Y_{gi} = \mathrm{Norm}\left(Y_{gi}^{\mathrm{raw}}\right),
 <tr class="odd">
 <td><strong><code>even</code></strong></td>
 <td>All cell types have equal fractions.</td>
-<td><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub><mo>=</mo><mn>1</mn><mi>/</mi><mi>K</mi><mo>+</mo><msub><mi>δ</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\pi_{ik}=1/K+\delta_{ik}</annotation></semantics></math></td>
+<td><span class="math display">\[\pi_{ik}=1/K+\delta_{ik}\]</span></td>
 <td>Baseline control where phenotype should not be driven by composition unless expression programs differ.</td>
 </tr>
 <tr class="even">
 <td><strong><code>random</code></strong></td>
 <td>Random fractions over all available cell types.</td>
-<td><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mi>i</mi></msub><mo>∼</mo><mrow><mi mathvariant="normal">U</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">S</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">x</mi></mrow><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\pi_i \sim \mathrm{UniformSimplex}(K)</annotation></semantics></math></td>
+<td><span class="math display">\[\pi_i \sim \mathrm{UniformSimplex}(K)\]</span></td>
 <td>Stress-test algorithms under broad compositional variability.</td>
 </tr>
 <tr class="odd">
 <td><strong><code>mirror_db</code></strong></td>
 <td>Simulated fractions mirror the observed cell-type composition in the source scRNA-seq dataset.</td>
-<td><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mi>i</mi></msub><mo>≈</mo><msup><mover><mi>π</mi><mo accent="true">̂</mo></mover><mrow><mi mathvariant="normal">o</mi><mi mathvariant="normal">b</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">v</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">d</mi></mrow></msup></mrow><annotation encoding="application/x-tex">\pi_i \approx \hat{\pi}^{\mathrm{observed}}</annotation></semantics></math></td>
+<td><span class="math display">\[\pi_i \approx \hat{\pi}^{\mathrm{observed}}\]</span></td>
 <td>Good realism baseline for your 8 organoids if you want pseudo-bulk samples to resemble the observed atlas.</td>
 </tr>
 <tr class="even">
 <td><strong><code>weighted</code></strong></td>
 <td>One selected cell type is over-represented at a specified fraction.</td>
-<td><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mrow><mi>i</mi><msup><mi>k</mi><mo>⋆</mo></msup></mrow></msub><mo>=</mo><mi>w</mi><mo>,</mo><mspace width="2.0em"></mspace><munder><mo>∑</mo><mrow><mi>k</mi><mo>≠</mo><msup><mi>k</mi><mo>⋆</mo></msup></mrow></munder><msub><mi>π</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub><mo>=</mo><mn>1</mn><mo>−</mo><mi>w</mi></mrow><annotation encoding="application/x-tex">\pi_{ik^\star}=w,\qquad \sum_{k\neq k^\star}\pi_{ik}=1-w</annotation></semantics></math></td>
+<td><span class="math display">\[\pi_{ik^\star}=w,\qquad \sum_{k\neq k^\star}\pi_{ik}=1-w\]</span></td>
 <td>Encode success/failure by over-representing trunk-like or neuroectodermal states.</td>
 </tr>
 <tr class="odd">
 <td><strong><code>pure</code></strong></td>
 <td>Only one cell type is present.</td>
-<td><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mrow><mi>i</mi><msup><mi>k</mi><mo>⋆</mo></msup></mrow></msub><mo>=</mo><mn>1</mn><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>π</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub><mo>=</mo><mn>0</mn><mspace width="0.278em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>≠</mo><msup><mi>k</mi><mo>⋆</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\pi_{ik^\star}=1,\qquad \pi_{ik}=0 \; (k\neq k^\star)</annotation></semantics></math></td>
+<td><span class="math display">\[\pi_{ik^\star}=1,\qquad \pi_{ik}=0 \; (k\neq k^\star)\]</span></td>
 <td>Positive control: algorithms should easily detect phenotype-linked marker programs.</td>
 </tr>
 <tr class="even">
 <td><strong><code>custom</code></strong></td>
 <td>User supplies the full composition matrix.</td>
-<td><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Π</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>π</mi><mn>11</mn></msub></mtd><mtd columnalign="center" style="text-align: center"><mi>⋯</mi></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>π</mi><mrow><mn>1</mn><mi>K</mi></mrow></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mi>⋮</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>π</mi><mrow><mi>n</mi><mn>1</mn></mrow></msub></mtd><mtd columnalign="center" style="text-align: center"><mi>⋯</mi></mtd><mtd columnalign="center" style="text-align: center"><msub><mi>π</mi><mrow><mi>n</mi><mi>K</mi></mrow></msub></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">\Pi = \begin{bmatrix} \pi_{11} &amp; \cdots &amp; \pi_{1K}\\ \vdots &amp; &amp; \vdots\\ \pi_{n1} &amp; \cdots &amp; \pi_{nK} \end{bmatrix}</annotation></semantics></math></td>
+<td><span class="math display">\[\Pi = \begin{bmatrix} \pi_{11} &amp; \cdots &amp; \pi_{1K}\\ \vdots &amp; &amp; \vdots\\ \pi_{n1} &amp; \cdots &amp; \pi_{nK} \end{bmatrix}\]</span></td>
 <td>Best choice for gastruloids: explicitly define success/failure composition designs and replicate them across pseudo-bulk samples.</td>
 </tr>
 </tbody>
@@ -327,27 +356,27 @@ Y_{gi} = \mathrm{Norm}\left(Y_{gi}^{\mathrm{raw}}\right),
 <ol type="1">
 <li>
 <p><strong>Observed organoid pseudo-bulk</strong></p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mi>b</mi></msub><mo>=</mo><munder><mo>∑</mo><mrow><mi>c</mi><mo>:</mo><mi>b</mi><mo stretchy="false" form="prefix">(</mo><mi>c</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>b</mi></mrow></munder><msub><mi>x</mi><mi>c</mi></msub></mrow><annotation encoding="application/x-tex">
+<p><span class="math display">\[
 Y_b=\sum_{c:b(c)=b}x_c
-</annotation></semantics></math></p>
-<p>This gives <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>8</mn><annotation encoding="application/x-tex">8</annotation></semantics></math> realistic pseudo-bulk samples.</p>
+\]</span></p>
+<p>This gives <span class="math inline">\(8\)</span> realistic pseudo-bulk samples.</p>
 </li>
 <li>
 <p><strong>Organoid-preserving bootstraps</strong></p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mrow><mi>b</mi><mi>r</mi></mrow><mrow><mi mathvariant="normal">b</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">t</mi></mrow></msubsup><mo>=</mo><munder><mo>∑</mo><mrow><mi>c</mi><mo>∈</mo><msub><mi>𝒞</mi><mrow><mi>b</mi><mi>r</mi></mrow></msub></mrow></munder><msub><mi>x</mi><mi>c</mi></msub><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>𝒞</mi><mrow><mi>b</mi><mi>r</mi></mrow></msub><mo>⊆</mo><mo stretchy="false" form="prefix">{</mo><mi>c</mi><mo>:</mo><mi>b</mi><mo stretchy="false" form="prefix">(</mo><mi>c</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>b</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">
+<p><span class="math display">\[
 Y_{br}^{\mathrm{boot}}=\sum_{c\in\mathcal{C}_{br}}x_c,
 \qquad
 \mathcal{C}_{br}\subseteq\{c:b(c)=b\}
-</annotation></semantics></math></p>
+\]</span></p>
 <p>This gives technical replicates while preserving barcode structure.</p>
 </li>
 <li>
 <p><strong>Phenotype-stratified or custom-composition simulations</strong></p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mi>i</mi></msub><mo>=</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></munderover><munder><mo>∑</mo><mrow><mi>c</mi><mo>∈</mo><msub><mi>𝒞</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub></mrow></munder><msub><mi>x</mi><mi>c</mi></msub><mo>,</mo><mspace width="2.0em"></mspace><mo stretchy="false" form="prefix">(</mo><msub><mi>N</mi><mrow><mi>i</mi><mn>1</mn></mrow></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>N</mi><mrow><mi>i</mi><mi>K</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>∼</mo><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">l</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>N</mi><mi>i</mi></msub><mo>,</mo><msub><mi>π</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+<p><span class="math display">\[
 Y_i=\sum_{k=1}^K\sum_{c\in\mathcal{C}_{ik}}x_c,
 \qquad
 (N_{i1},\ldots,N_{iK})\sim\mathrm{Multinomial}(N_i,\pi_i)
-</annotation></semantics></math></p>
+\]</span></p>
 <p>This creates controlled success/failure pseudo-bulk cohorts with known ground truth.</p>
 </li>
 </ol>
@@ -356,30 +385,30 @@ Y_i=\sum_{k=1}^K\sum_{c\in\mathcal{C}_{ik}}x_c,
 </section><section class="level2"><h2 id="main-statistical-caveat">Main statistical caveat<a class="anchor" aria-label="anchor" href="#main-statistical-caveat"></a>
 </h2>
 <p>If single-cell expression vectors are independent and Gaussian,</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>c</mi></msub><mo>∼</mo><mi>𝒩</mi><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mo>,</mo><mi mathvariant="normal">Σ</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<p><span class="math display">\[
 x_c\sim\mathcal{N}(\mu,\Sigma),
-</annotation></semantics></math></p>
+\]</span></p>
 <p>then aggregation is simple:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mi>i</mi></msub><mo>=</mo><munderover><mo>∑</mo><mrow><mi>c</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>N</mi><mi>i</mi></msub></munderover><msub><mi>x</mi><mi>c</mi></msub><mo>∼</mo><mi>𝒩</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>N</mi><mi>i</mi></msub><mi>μ</mi><mo>,</mo><msub><mi>N</mi><mi>i</mi></msub><mi mathvariant="normal">Σ</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<p><span class="math display">\[
 Y_i=\sum_{c=1}^{N_i}x_c \sim \mathcal{N}(N_i\mu,N_i\Sigma).
-</annotation></semantics></math></p>
+\]</span></p>
 <p>But if cells share organoid-level programs,</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">C</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">v</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>c</mi></msub><mo>,</mo><msub><mi>x</mi><msup><mi>c</mi><mo>′</mo></msup></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>C</mi><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>c</mi><mo>≠</mo><msup><mi>c</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<p><span class="math display">\[
 \mathrm{Cov}(x_c,x_{c'})=C \quad (c\neq c'),
-</annotation></semantics></math></p>
+\]</span></p>
 <p>then</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">V</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">r</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>Y</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>N</mi><mi>i</mi></msub><mi mathvariant="normal">Σ</mi><mo>+</mo><msub><mi>N</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>N</mi><mi>i</mi></msub><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mi>C</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<p><span class="math display">\[
 \mathrm{Var}(Y_i) = N_i\Sigma + N_i(N_i-1)C.
-</annotation></semantics></math></p>
-<p>The <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>N</mi><mi>i</mi></msub><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mi>C</mi></mrow><annotation encoding="application/x-tex">N_i(N_i-1)C</annotation></semantics></math> term means that shared biological programs can dominate pseudo-bulk variance. Therefore, naïve aggregation can overstate biological signal if many bootstraps reuse the same organoids.</p>
+\]</span></p>
+<p>The <span class="math inline">\(N_i(N_i-1)C\)</span> term means that shared biological programs can dominate pseudo-bulk variance. Therefore, naïve aggregation can overstate biological signal if many bootstraps reuse the same organoids.</p>
 <p>For log-normal single-cell models,</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>c</mi></msub><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>z</mi><mi>c</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>z</mi><mi>c</mi></msub><mo>∼</mo><mi>𝒩</mi><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mo>,</mo><mi mathvariant="normal">Σ</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<p><span class="math display">\[
 x_c=\exp(z_c),\qquad z_c\sim\mathcal{N}(\mu,\Sigma),
-</annotation></semantics></math></p>
+\]</span></p>
 <p>the sum</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mi>i</mi></msub><mo>=</mo><munder><mo>∑</mo><mi>c</mi></munder><msub><mi>x</mi><mi>c</mi></msub></mrow><annotation encoding="application/x-tex">
+<p><span class="math display">\[
 Y_i=\sum_c x_c
-</annotation></semantics></math></p>
+\]</span></p>
 <p>is not exactly log-normal. Moment-matching or Gaussian CLT approximations may be used, but the sparse precision matrix inferred at the single-cell level is generally not preserved after aggregation.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {

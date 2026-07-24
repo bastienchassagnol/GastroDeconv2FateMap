@@ -1,37 +1,177 @@
 url: https://bastienchassagnol.github.io/GastroDeconv2FateMap/
+
+title: GastroDeconv2FateMap
+description: >-
+  Pseudo-bulk simulation and deconvolution benchmarking for gastruloid
+  differentiation, with Quarto literature and methods vignettes.
+
+development:
+  mode: auto
+
+# Avoid pandoc GFM failures on Quarto definition lists / MathJax pages
+llm-docs: false
+
 template:
   bootstrap: 5
+  light-switch: true
+  math-rendering: mathjax
+  theme: tango
+  theme-dark: nord
+  bslib:
+    # Light theme (Stan pkgdown-config palette, as in DeCovarT)
+    bg: "#FEFBF2"
+    fg: "#052744"
+    primary: "#3E8EBC"
+    link-color: "#3E8EBC"
+    code-bg: "#FEFCF9"
+    code-color: "#053A42"
+    body-secondary-color: "#053A42"
+    navbar-light-bg: "#052744"
+    navbar-light-color: "#F2E5BD"
+    navbar-light-hover-color: "#F2E5BD"
+    navbar-light-active-color: "#93B0F1"
+    navbar-light-brand-color: "#F2E5BD"
+    navbar-light-brand-hover-color: "#F2E5BD"
+    # Dark theme
+    body-bg-dark: "#181818"
+    body-color-dark: "#FAF1E4"
+    link-color-dark: "#AED1E4"
+    code-bg-dark: "#242424"
+    code-color-dark: "#FEFCF9"
+    navbar-dark-bg: "#303030"
+    navbar-dark-color: "#FAF1E4"
+    navbar-dark-hover-color: "#FAF1E4"
+    navbar-dark-active-color: "#AED1E4"
+    navbar-dark-brand-color: "#FAF1E4"
+    navbar-dark-brand-hover-color: "#FAF1E4"
+    base_font: {google: "Source Sans 3"}
+    heading_font: {google: "Source Sans 3"}
+    code_font: {google: "Source Code Pro"}
+
 navbar:
   structure:
     left:
-    - intro
-    - reference
-    - articles
+      - home
+      - reference
+      - articles
+      - news
     right:
-    - search
-    - github
+      - search
+      - github
+      - lightswitch
   components:
-    intro:
-      text: Get started
-      href: articles/pseudo_bulk_generation.html
+    home:
+      text: Home
+      icon: fa-home
+      href: index.html
+    reference:
+      text: Functions
+      icon: fa-code
+      href: reference/index.html
     articles:
-      text: Articles
+      text: Vignettes
+      icon: fa-book-open
       menu:
-      - text: Pseudo-bulk generation strategies
-        href: articles/pseudo_bulk_generation.html
-      - text: Deconvolution methods
-        href: articles/deconvolution_description.html
-      - text: Suppinger biological interpretation
-        href: articles/suppinger_biological_interpretation.html
+        - text: Getting started
+        - text: Pseudo-bulk generation strategies
+          icon: fa-flask
+          href: articles/pseudo_bulk_generation.html
+        - text: Deconvolution methods
+          icon: fa-chart-pie
+          href: articles/deconvolution_description.html
+        - text: Phenotype-guided single-cell approaches
+          icon: fa-dna
+          href: articles/SigBridgR-phenotype-guided.html
+        - text: -------
+        - text: Literature and datasets
+        - text: Gastruloid datasets catalogue
+          icon: fa-table
+          href: articles/gastruloid_datasets.html
+        - text: Atlas construction pipeline
+          icon: fa-layer-group
+          href: articles/atlas_construction.html
+        - text: Gastruloid bifurcation hypothesis
+          icon: fa-code-branch
+          href: articles/gastruloid-bifuration-hypothesis.html
+        - text: -------
+        - text: Methods and interpretation
+        - text: Clustering longitudinal trajectories
+          icon: fa-project-diagram
+          href: articles/clustering-longitudinal-techniques.html
+        - text: Differential analyses (MAST vs DESeq2)
+          icon: fa-chart-bar
+          href: articles/differential_analyses.html
+        - text: Enrichment techniques
+          icon: fa-search
+          href: articles/enrichment_techniques.html
+        - text: Suppinger biological interpretation
+          icon: fa-book
+          href: articles/suppinger_biological_interpretation.html
+    news:
+      text: News
+      icon: fa-newspaper
+      href: news/index.html
     github:
-      icon: fab fa-github
+      icon: fa-github
+      href: https://github.com/bastienchassagnol/GastroDeconv2FateMap/
       aria-label: GitHub
-      href: https://github.com/bastienchassagnol/GastroDeconv2FateMap
-articles:
-- title: Package documentation
-  navbar: ~
-  contents:
-  - pseudo_bulk_generation
-  - deconvolution_description
-  - suppinger_biological_interpretation
 
+home:
+  links:
+    - text: Report a bug
+      href: https://github.com/bastienchassagnol/GastroDeconv2FateMap/issues
+
+reference:
+  - title: Pseudo-bulk simulation
+    desc: |
+      Aggregate single-cell profiles into phenotype-guided pseudo-bulk
+      samples for deconvolution benchmarks.
+    contents:
+      - aggregate_barcode_pseudo_bulk
+      - aggregate_celltype_barcode_pseudo_bulk
+      - simulate_bootstrap_samples
+      - simulate_generative_models
+  - title: Gene annotation and filtering
+    desc: |
+      Annotate mouse genes and filter unexpressed features before modelling.
+    contents:
+      - annotate_genes_biomart
+      - annotate_genes_local
+      - filter_deseq2_unexpressed_genes
+      - filter_mast_unexpressed_genes
+  - title: Deconvolution and scoring
+    desc: |
+      CIBERSORT helpers and composition metrics for estimated proportions.
+    contents:
+      - cibersort
+      - CoreAlg
+      - starts_with("eval_")
+  - title: Plotting and utilities
+    contents:
+      - theme_features
+      - theme_features_pub
+      - read_double_gz_rds
+
+articles:
+  - title: Getting started
+    navbar: ~
+    contents:
+      - pseudo_bulk_generation
+      - deconvolution_description
+      - SigBridgR-phenotype-guided
+  - title: Literature and datasets
+    contents:
+      - gastruloid_datasets
+      - atlas_construction
+      - gastruloid-bifuration-hypothesis
+  - title: Methods and interpretation
+    contents:
+      - clustering-longitudinal-techniques
+      - differential_analyses
+      - enrichment_techniques
+      - suppinger_biological_interpretation
+
+news:
+  releases:
+    - text: Version 0.0.0.9000 (development)
+      href: https://github.com/bastienchassagnol/GastroDeconv2FateMap/blob/main/NEWS.md

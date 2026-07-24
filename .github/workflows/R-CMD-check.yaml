@@ -1,5 +1,7 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Runs R CMD check on release branches and pull requests.
+# Workflow adapted from DeCovarT / r-lib/actions examples.
+# Package check only (no test-coverage workflow for now).
+# Heavy Quarto literature vignettes are Rbuildignored; check uses
+# --no-manual and compact vignettes if any ship with the tarball.
 on:
   push:
     branches: [main, master]
@@ -20,11 +22,14 @@ jobs:
       fail-fast: false
       matrix:
         config:
+          # Ubuntu-only for now: Bioconductor + Seurat stack is heavy on Windows.
           - {os: ubuntu-latest, r: 'release'}
 
     env:
-      GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
+      _R_CHECK_SYSTEM_CLOCK_: "false"
+      RENV_CONFIG_AUTOLOADER_ENABLED: "false"
 
     steps:
       - uses: actions/checkout@v7

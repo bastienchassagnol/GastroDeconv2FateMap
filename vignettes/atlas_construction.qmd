@@ -1,6 +1,8 @@
 ---
 title: "Atlas of single-cell transcriptomes: datasets description, and pipeline"
 from: markdown+emoji
+bibliography: atlas_construction.bib
+cite-method: citeproc
 format:
   html:
     toc: true
@@ -10,20 +12,22 @@ format:
 execute:
   echo: false
 tbl-cap-location: bottom
+fig-cap-location: bottom
+number-sections: true
 ---
 
 # Datasets description for the construction of the consensus single-cell transcriptomic atlas
 
-@tbl-sc-atlases summarises published single-cell and spatial transcriptomic
-atlases relevant to gastrulation, organoid, and related developmental models,
-including public dataset access and code repositories where available.
+@tbl-sc-atlases summarises published single-cell and spatial transcriptomic atlases relevant to gastrulation, organoid, and related developmental models, including public dataset access and code repositories where available.
 
-Rows are drawn from `data/gastruloid_and_atlas_merged.csv` where
-`catalogue == "atlas"`.
+Rows are drawn from `data/gastruloid_and_atlas_merged.csv` where `catalogue == "atlas"`.
+
+The Pijuan-Sala mouse gastrulation map [@pijuan2019] is also available as a Bioconductor
+`MouseGastrulationData` object for annotating observed cell types in gastruloids
+[@mousegastrulationdata].
 
 | Title | Authors | DOI | Year | Journal | Species | Study type | Bulk transcriptomics | Single-cell transcriptomics | Imaging | Spatial transcriptomics | Spatial proteomics | ChIP-seq | Metabolomics | Proteomics | Lineage barcoding | Time points (days) | Tissues | Summary | Public links |
 |---|---|---|---:|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Application of spatial transcriptomics across organoids: a high-resolution spatial whole-transcriptome benchmarking dataset | Nucera, M.R.; Ramialison, M. | [10.1016/j.isci.2026.115827](https://doi.org/10.1016/j.isci.2026.115827) | 2026 | iScience | Human organoids; mouse references | primary | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | Single-endpoint Stereo-seq benchmarking (multi-organoid on-chip) | Brain; heart; kidney; lung; cartilage; haematopoietic | Stereo-seq cross-organoid spatial benchmarking with regional (core vs border) analysis. | GSE294759; https://github.com/Ramialison-Lab/StereoseqOrganoids |
 | A spatiotemporal atlas of mouse gastrulation and early organogenesis to explore axial patterning and project in vitro models onto in vivo space |  | [10.1016/j.celrep.2025.116047](https://doi.org/10.1016/j.celrep.2025.116047) | 2025 | Cell Reports | Mouse | primary | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | Gastrulation to early organogenesis (embryonic-day axis; see article) | Whole embryo; axial patterning; mesoderm; neural; endoderm | Spatiotemporal mouse gastrulation atlas integrating spatial transcriptomics with scRNA-seq for in vitro projection. | https://doi.org/10.1016/j.celrep.2025.116047 |
 | An integrated transcriptomic cell atlas of human endoderm-derived organoids | Xu, Q.; Camp, J.G. | [10.1038/s41588-025-02182-6](https://doi.org/10.1038/s41588-025-02182-6) | 2025 | Nature Genetics | Human | primary | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Multi-protocol meta-atlas (variable culture ages across source studies) | Endoderm; lung; intestine; liver; biliary; stomach; pancreas; prostate | HEOCA (~1M cells) integrates endoderm organoid sc/snRNA-seq to assess protocol fidelity vs primary tissues. | CELLxGENE HEOCA; GSE287233; Zenodo 10.5281/zenodo.8181495; https://github.com/devsystemslab/HEOCA |
 | An integrated transcriptomic cell atlas of human neural organoids | He, Z.; Treutlein, B. | [10.1038/s41586-024-08172-8](https://doi.org/10.1038/s41586-024-08172-8) | 2024 | Nature | Human | primary | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Multi-protocol meta-atlas (~7–450 culture days across source studies) | Neural; brain organoids | HNOCA (>1.7M cells; 26 protocols) maps neural organoid coverage vs developing brain references. | CELLxGENE HNOCA; Zenodo 10.5281/zenodo.11203684; https://github.com/devsystemslab/HNOCA-tools |
@@ -32,38 +36,80 @@ Rows are drawn from `data/gastruloid_and_atlas_merged.csv` where
 
 : Single-cell and spatial transcriptomic atlases and public access links {#tbl-sc-atlases}
 
-# Standard pipeline for integrating multiple single-cell datases
+# Related atlas construction: prostate and pancreas references
 
-1. Metadata curation and harmonisation: 
-  i . [`sfaira` Python package for data management, and storage of single-cell datasets](https://sfaira.readthedocs.io/en/latest/adding_datasets.html)
-  
-2. Use a common feature step:
-  i. Selection restrained to protein-coding, or non-long coding RNA
-  
-3. Cell selection: 
-  i. Hard? thresholds on mitochondrial content and percentage of expressed genes. **On the other hand, remove cells with low ribosomal content**
-  ii. Doublet removal (not done in Fabian's papers)
-  
-4. Normalisation/transformation: 
-  i. Selection of HVGs (highly variable genes)
-  ii. *Transformation*, as a variant of *log* transformation: logCPM, TPM, `ScTransform`, VST. 
-  
-1. Data integration across batches, aka removal of batch effects:
-  i. Non-integrated projection: 
-    a. PCA + selection of most contributing features. **Alternative approaches**: 
-    b. kNN + UMAP
-    c. Leiden clustering to identify clusters
-  ii. Projection onto the *reference atlas* using RSS (reference similarity spectrum), close to MDS approach, followed by bipartite weighted KNN and UMAP
-  iii. Cell type annotation:
-    a. `Snapseed`: marker-based + hierarchical (3 levels of cell types identification)
-  iii. **Label-aware** integration strategy: 
-    a. `scPoli`: uses conditional variational auto-encoder for batch correction / semi-supervised and granular strategy / goes beyond dummy encoding for batch effects, embedding it into its own latent space (5-dimensional in the neural atlas, for instance)
-    
-1. Pseudo-time inference, and **cell trajectories**: 
-  i. **Pseudotime inference** – assigning each cell a position along a continuous progression axis; Examples: 
-    - `moscot`: uses optimal transport (time and/or spatial based) to pair cell types across time points
-    - The **cost function** accounts for death, differentiation and birth.
-  ii. **Trajectory reconstruction / lineage graph inference**: reconstruct the most likely graph or tree structure that represents branching lineages or transitions between cell types.
-    - Examples: `CellRank`, `scVelo`, `Palantir`, `scVelo`, `FateID`, `URD`, ...
-  iii. GPCCA (Generalized Perron Cluster Cluster Analysis): identifies **macro-states**, namely sources or roots, transient manifolds, aka branching points or internal nodes, and **terminal states**, aka leaves as absorbing attractors. uses in the branched Schür decomposition. 
-  iv. Question: how do these two tools interplay exactly? 
+Beyond gastrulation/organoid atlases, recent **tissue-scale** atlas projects are useful
+comparators for integration design. @tbl-related-atlases summarises two preprints that
+document harmonisation, batch correction and annotation choices in detail—one prostate
+cancer atlas [@cho2026prostate] and one healthy **pancreas** reference
+[@parikh2026pancreas].
+
+| Atlas | Authors | DOI | Year | Scope | Cells / studies | Integration & annotation highlights |
+|---|---|---|---:|---|---|---|
+| Harmonized prostate cancer / benign scRNA-seq atlas | Cho, H.; Zhang, Y. | [10.64898/2026.05.18.725966](https://doi.org/10.64898/2026.05.18.725966) | 2026 | Localised + metastatic prostate cancers and benign tissues | 17 studies; 163 donors; 17 cell types | Multiple **integration-strategy benchmarks** across batches [@cho2026prostate] |
+| Human Pancreas Cell Atlas (healthy reference) | Parikh, S.; Strobl, D.C. | [10.64898/2026.06.22.733853](https://doi.org/10.64898/2026.06.22.733853) | 2026 | Healthy pancreas for disease contextualisation | Multi-study healthy reference | Re-process FASTQs to a current human genome when counts missing; **scANVI** after HVG selection; semi-supervised labels via HCA CAP; disease-survival cell-type links [@parikh2026pancreas] |
+
+: Related tissue atlases used as construction comparators {#tbl-related-atlases}
+
+![Prostate atlas: multi-study integration benchmarking overview.](../outputs/figures/prostate_atlas_integration.png){#fig-prostate-atlas}
+
+![Human Pancreas Cell Atlas: healthy reference framework and disease contextualisation.](../outputs/figures/pancreas_cell_atlas_overview.png){#fig-pancreas-atlas}
+
+# Visualising pipelines with MetroFlow
+
+[MetroFlow](https://gitlab.liris.cnrs.fr/sharefair/bioflow-insight/-/tree/v2.0.12)
+(BioFlow-Insight) is a **Nextflow-like workflow visualisation** tool: it renders
+pipeline DAGs as metro-map / transit schematics, which helps compare atlas
+construction graphs (ingest → QC → HVG → integration → annotation → trajectories)
+across projects [@metroflow].
+
+![Example MetroFlow visualisation of a bioinformatics workflow as a metro-style map.](../outputs/figures/metroflow_workflow_example.png){#fig-metroflow}
+
+# Standard pipeline for integrating multiple single-cell datasets
+
+1. Metadata curation and harmonisation
+   - [`sfaira`](https://sfaira.readthedocs.io/en/latest/adding_datasets.html)
+     for dataset management and storage of single-cell collections
+
+2. Common feature space
+   - Restrict to protein-coding genes, or exclude long non-coding RNAs as
+     appropriate for the atlas design
+
+3. Cell selection
+   - Hard thresholds on mitochondrial content and percentage of expressed genes;
+     also remove cells with **low ribosomal content**
+   - Doublet removal (not always done in Fabian’s atlas papers)
+
+4. Normalisation / transformation
+   - Selection of HVGs (highly variable genes)
+   - Transformation variants of log-normalisation: logCPM, TPM, `ScTransform`, VST
+
+5. Data integration across batches (batch-effect removal)
+   - Non-integrated projection:
+     - PCA + selection of most contributing features
+     - Alternatives: kNN + UMAP; Leiden clustering
+   - Projection onto a *reference atlas* using RSS (reference similarity spectrum;
+     related to MDS), followed by bipartite weighted kNN and UMAP
+   - Cell-type annotation:
+     - `Snapseed`: marker-based + hierarchical labelling (three levels)
+   - **Label-aware** integration:
+     - `scPoli`: conditional VAE for batch correction / semi-supervised granular
+       strategy; embeds batch in its own latent space (e.g. 5-D in the neural atlas)
+
+6. Pseudotime inference and **cell trajectories**
+   - **Pseudotime inference** — assign each cell a position along a continuous
+     progression axis
+     - Example: `moscot` uses optimal transport (time and/or spatial) to couple
+       populations across time points; the **cost function** accounts for death,
+       differentiation and birth
+   - **Trajectory reconstruction / lineage graph inference** — reconstruct the
+     most likely graph or tree of branching lineages / cell-type transitions
+     - Examples: `CellRank`, `scVelo`, `Palantir`, `FateID`, `URD`, …
+   - GPCCA (Generalized Perron Cluster Cluster Analysis): identifies
+     **macro-states** (sources/roots), transient manifolds (branch points /
+     internal nodes), and **terminal states** (absorbing attractors / leaves),
+     via branched Schur decomposition
+   - Open question: how do pseudotime tools and GPCCA-style macro-state
+     decompositions interplay in practice?
+
+## References

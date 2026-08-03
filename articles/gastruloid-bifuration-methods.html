@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>List of gastruloid datasets • GastroDeconv2FateMap</title>
+<title>Trajectory bifurcation of gastruloids: biological hypothesis • GastroDeconv2FateMap</title>
 <!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
   window.MathJax = {
     chtml: {
@@ -18,9 +18,9 @@
 <link href="../deps/Source_Code_Pro-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="gastruloid_datasets_files/libs/quarto-html/popper.min.js"></script><script src="gastruloid_datasets_files/libs/quarto-html/tippy.umd.min.js"></script><link href="gastruloid_datasets_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="gastruloid_datasets_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="List of gastruloid datasets">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="gastruloid-bifuration-methods_files/libs/quarto-html/popper.min.js"></script><script src="gastruloid-bifuration-methods_files/libs/quarto-html/tippy.umd.min.js"></script><link href="gastruloid-bifuration-methods_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="gastruloid-bifuration-methods_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Trajectory bifurcation of gastruloids: biological hypothesis">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -85,12 +85,12 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>List of gastruloid datasets</h1>
+      <h1>Trajectory bifurcation of gastruloids: biological hypothesis</h1>
 
 
 
 
-      <small class="dont-index">Source: <a href="https://github.com/bastienchassagnol/GastroDeconv2FateMap/blob/main/vignettes/gastruloid_datasets.qmd" class="external-link"><code>vignettes/gastruloid_datasets.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bastienchassagnol/GastroDeconv2FateMap/blob/main/vignettes/gastruloid-bifuration-methods.qmd" class="external-link"><code>vignettes/gastruloid-bifuration-methods.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -99,955 +99,11 @@
 
 
 
-    <section class="section level3" data-number="0.1"><h3 data-number="0.1" id="sec-datasets">
-<span class="header-section-number">0.1</span> List of gastruloid datasets<a class="anchor" aria-label="anchor" href="#sec-datasets"></a>
-</h3>
-<p><a href="#tbl-gastruloid-datasets" class="quarto-xref">Table 1</a> catalogues published studies that generate or analyse <strong>mouse or human gastruloids</strong> (or closely coupled trunk/TLS embryo models built from the same aggregation protocols). Methodological reviews are included when they focus on gastruloid variability and optimisation. Studies cited only for general differential-expression statistics (e.g. DESeq2, MAST benchmarking) are excluded.</p>
-<p>Rows are drawn from <code>data/gastruloid_and_atlas_merged.csv</code> where <code>catalogue == "gastruloid"</code>.</p>
-<div id="tbl-gastruloid-datasets" class="quarto-float quarto-figure quarto-figure-center">
-<figure class="quarto-float quarto-float-tbl"><div aria-describedby="tbl-gastruloid-datasets-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<table class="table">
-<thead><tr class="header">
-<th>Title</th>
-<th>Authors</th>
-<th>DOI</th>
-<th style="text-align: right;">Year</th>
-<th>Journal</th>
-<th>Species</th>
-<th>Study type</th>
-<th>Bulk transcriptomics</th>
-<th>Single-cell transcriptomics</th>
-<th>Imaging</th>
-<th>Spatial transcriptomics</th>
-<th>Spatial proteomics</th>
-<th>ChIP-seq</th>
-<th>Metabolomics</th>
-<th>Proteomics</th>
-<th>Lineage barcoding</th>
-<th>Time points (days)</th>
-<th>Tissues</th>
-<th>Summary</th>
-<th>Public links</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td>Endogenous FGFs drive ERK-dependent cell fate patterning in 2D human gastruloids</td>
-<td>Kyoung Jo; Zong-Yuan Liu</td>
-<td><a href="https://doi.org/10.1242/dev.205459" class="external-link">10.1242/dev.205459</a></td>
-<td style="text-align: right;">2026</td>
-<td>Development</td>
-<td>Human</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>See article (2D gastruloid patterning time course)</td>
-<td>Primitive streak; mesoderm</td>
-<td>FGF–ERK signalling drives primitive-streak patterning in 2D human gastruloids.</td>
-<td>https://doi.org/10.1242/dev.205459</td>
-</tr>
-<tr class="even">
-<td>FATE-MAP predicts teratogenicity and human gastrulation failure modes by integrating deep learning and mechanistic modeling</td>
-<td>Joseph Rufo; Chongxu Qiu</td>
-<td><a href="https://doi.org/10.1038/s41467-026-69596-6" class="external-link">10.1038/s41467-026-69596-6</a></td>
-<td style="text-align: right;">2026</td>
-<td>Nature Communications</td>
-<td>Human</td>
-<td>primary</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>See article (2D gastruloid morphospace / perturbation screen)</td>
-<td>Primitive streak; mesoderm; ectoderm/neural; endoderm (2D patterning)</td>
-<td>FATE-MAP maps human 2D gastruloid morphospace; density-dependent Wnt and SOX2 stability as main axes.</td>
-<td>https://doi.org/10.1038/s41467-026-69596-6; preprint 10.1101/2024.09.20.614192</td>
-</tr>
-<tr class="odd">
-<td>Lineage tracing in gastruloids to understand determinants of early fate decisions</td>
-<td>Sung-Eun Park; Junhong Choi</td>
-<td><a href="https://doi.org/10.1016/j.gde.2026.102498" class="external-link">10.1016/j.gde.2026.102498</a></td>
-<td style="text-align: right;">2026</td>
-<td>Current Opinion in Genetics &amp; Development</td>
-<td>Mouse / gastruloid models</td>
-<td>review</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>—</td>
-<td>Early fate decisions; germ layers (review scope)</td>
-<td>Review of lineage tracing in gastruloids and interplay of fate with signalling.</td>
-<td>https://doi.org/10.1016/j.gde.2026.102498</td>
-</tr>
-<tr class="even">
-<td>Minimal essential requirements for neural tube self-organisation</td>
-<td>Hannah T. Stuart; Elena Costantini</td>
-<td><a href="https://doi.org/10.64898/2026.06.06.730555" class="external-link">10.64898/2026.06.06.730555</a></td>
-<td style="text-align: right;">2026</td>
-<td>bioRxiv (preprint)</td>
-<td>Mouse / stem-cell models</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>See preprint (neural-tube organoid time course)</td>
-<td>Neural tube; neural</td>
-<td>Neural tube organoids self-organise via RA-driven cellular diversity and morphogen patterning.</td>
-<td>https://doi.org/10.64898/2026.06.06.730555</td>
-</tr>
-<tr class="odd">
-<td>The proteomic landscape and temporal dynamics of human and mouse gastruloid development</td>
-<td>Riddhiman K. Garge; Devin K. Schweppe</td>
-<td><a href="https://doi.org/10.1038/s41556-026-01937-5" class="external-link">10.1038/s41556-026-01937-5</a></td>
-<td style="text-align: right;">2026</td>
-<td>Nature Cell Biology</td>
-<td>Mouse + human</td>
-<td>primary</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>~4 stages (matched mouse/human gastruloid time course)</td>
-<td>Germ layers; axial development; global lineage-stage programmes</td>
-<td>Matched temporal proteome, phosphoproteome and transcriptome dynamics in mouse and human gastruloids.</td>
-<td>GEO GSE273813; ProteomeXchange/PRIDE</td>
-</tr>
-<tr class="even">
-<td>Using CRISPR barcoding as a molecular clock to capture dynamic processes at single-cell resolution</td>
-<td>Yolanda Andres-Lopez; Alice Santambrogio</td>
-<td><a href="https://doi.org/10.1101/gr.280915.125" class="external-link">10.1101/gr.280915.125</a></td>
-<td style="text-align: right;">2026</td>
-<td>Genome Research</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>See article (gastruloid state-transition time course)</td>
-<td>Mesoderm; neural; multipotent progenitors</td>
-<td>CRISPR barcoding with transcriptomics tracks cell-state transitions in mouse gastruloids.</td>
-<td>https://doi.org/10.1101/gr.280915.125</td>
-</tr>
-<tr class="odd">
-<td>An inducible model of human post-implantation development derived from primed and naive stem cells</td>
-<td>Seiya Oura; Leijie Li</td>
-<td><a href="https://doi.org/10.1016/j.stem.2025.08.005" class="external-link">10.1016/j.stem.2025.08.005</a></td>
-<td style="text-align: right;">2025</td>
-<td>Cell Stem Cell</td>
-<td>Human</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>Post-implantation to ~CS5–6 (see article)</td>
-<td>Epiblast; germ layers; post-implantation embryo model</td>
-<td>Inducible stem-cell embryo models recapitulate human post-implantation development to CS5–6.</td>
-<td>https://doi.org/10.1016/j.stem.2025.08.005</td>
-</tr>
-<tr class="even">
-<td>Barcoded monoclonal embryoids are a potential solution to confounding bottlenecks in mosaic organoid screens</td>
-<td>Samuel G. Regalado; Chengxiang Qiu</td>
-<td><a href="https://doi.org/10.1101/2025.05.23.655669" class="external-link">10.1101/2025.05.23.655669</a></td>
-<td style="text-align: right;">2025</td>
-<td>bioRxiv (preprint)</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>See preprint (mosaic embryoid screen)</td>
-<td>Embryoid body; multipotent / germ-layer progenitors</td>
-<td>CRISPR TF screen in mosaic embryoid bodies using scRNA-seq and barcoding.</td>
-<td>https://doi.org/10.1101/2025.05.23.655669</td>
-</tr>
-<tr class="odd">
-<td>Establishment of Human Gastrulating Stem Cells with the Capacity of Stable Differentiation into Multiple Gastrulating Cell Types</td>
-<td>Mingqian Huang; Jing Sha</td>
-<td><a href="https://doi.org/10.1038/s41422-025-01146-z" class="external-link">10.1038/s41422-025-01146-z</a></td>
-<td style="text-align: right;">2025</td>
-<td>Cell Research</td>
-<td>Human</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>Multiple (derivation and differentiation assays)</td>
-<td>Mesendoderm; ectoderm/neural; mesoderm; endoderm</td>
-<td>Stable human gastrulating stem cells differentiating into multiple gastrulation-like lineages.</td>
-<td>GEO/SRA in data availability</td>
-</tr>
-<tr class="even">
-<td>Extended culture of 2D gastruloids to model human mesoderm development</td>
-<td>Bohan Chen; Hina Khan</td>
-<td><a href="https://doi.org/10.1038/s41592-025-02669-4" class="external-link">10.1038/s41592-025-02669-4</a></td>
-<td style="text-align: right;">2025</td>
-<td>Nature Methods</td>
-<td>Human</td>
-<td>primary</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>0–10 (extended 2D culture to day 10)</td>
-<td>Mesoderm</td>
-<td>Extended 2D gastruloid culture protocol for reproducible human mesoderm modelling to day 10.</td>
-<td>https://doi.org/10.1038/s41592-025-02669-4</td>
-</tr>
-<tr class="odd">
-<td>Gastruloid patterning reflects division of labor among biased stem cell clones</td>
-<td>Vinay Ayyappan; Arjun Raj</td>
-<td><a href="https://doi.org/10.1101/2025.07.12.664536" class="external-link">10.1101/2025.07.12.664536</a></td>
-<td style="text-align: right;">2025</td>
-<td>bioRxiv / PMC preprint</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>~5 (main endpoint ~120 h)</td>
-<td>NMP/posterior; anterior/neural; mesoderm; endoderm</td>
-<td>Clonal bias and clone mixing in robust A–P patterning (seqFISH marker panel).</td>
-<td>Dropbox dataset; bioRxiv/PMC</td>
-</tr>
-<tr class="even">
-<td>Gastruloids enable modeling of the earliest stages of human cardiac and hepatic vascularization</td>
-<td>Oscar J. Abilez; Joseph C. Wu</td>
-<td><a href="https://doi.org/10.1126/science.adu9375" class="external-link">10.1126/science.adu9375</a></td>
-<td style="text-align: right;">2025</td>
-<td>Science</td>
-<td>Human</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>Multiple (gastruloid/vascular organoid induction time course)</td>
-<td>Cardiac; endothelium/vascular; hepatic/endoderm; mesoderm</td>
-<td>Models early human cardiac and hepatic vascularisation in gastruloid/vascular organoids.</td>
-<td>GEO/SRA in article data availability</td>
-</tr>
-<tr class="odd">
-<td>Glycolytic activity instructs germ layer proportions through regulation of Nodal and Wnt signaling</td>
-<td>Kristina S. Stapornwongkul; Vikas Trivedi</td>
-<td><a href="https://doi.org/10.1016/j.stem.2025.03.011" class="external-link">10.1016/j.stem.2025.03.011</a></td>
-<td style="text-align: right;">2025</td>
-<td>Cell Stem Cell</td>
-<td>Mouse + human</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>~2–5 (~4 time points)</td>
-<td>Primitive streak; mesoderm; endoderm; ectoderm</td>
-<td>Glycolysis as upstream regulator of Nodal/Wnt/Fgf signalling and germ-layer proportions.</td>
-<td>ENA PRJNA1186714; PMC12048219</td>
-</tr>
-<tr class="even">
-<td>Integrated molecular-phenotypic profiling reveals metabolic control of morphological variation in a stem-cell-based embryo model</td>
-<td>Alba Villaronga-Luque; Jesse V. Veenvliet</td>
-<td><a href="https://doi.org/10.1016/j.stem.2025.03.012" class="external-link">10.1016/j.stem.2025.03.012</a></td>
-<td style="text-align: right;">2025</td>
-<td>Cell Stem Cell</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>2–5 (48–120 h; TLS at 120 h)</td>
-<td>Mesoderm; trunk-like lineages; gastruloid/TLS cell states</td>
-<td>Links molecular, imaging and metabolic phenotypes to morphological variation in gastruloids/TLS.</td>
-<td>GEO GSE250136</td>
-</tr>
-<tr class="odd">
-<td>Lineage recording in monoclonal gastruloids reveals heritable modes of early development</td>
-<td>Samuel G. Regalado; Chengxiang Qiu</td>
-<td><a href="https://doi.org/10.1101/2025.05.23.655664" class="external-link">10.1101/2025.05.23.655664</a></td>
-<td style="text-align: right;">2025</td>
-<td>bioRxiv (preprint)</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>See preprint (monoclonal gastruloid + lineage recording)</td>
-<td>Mesoderm; neural; multipotent progenitors</td>
-<td>DNA Typewriter lineage recording in monoclonal gastruloids shows heritable founder mESC state biases.</td>
-<td>https://doi.org/10.1101/2025.05.23.655664; PMC12139830</td>
-</tr>
-<tr class="even">
-<td>Marangoni-like tissue flows enhance symmetry breaking of embryonic organoids</td>
-<td>Simon Gsell; Pierre-François Lenne</td>
-<td><a href="https://doi.org/10.1038/s41567-025-02802-2" class="external-link">10.1038/s41567-025-02802-2</a></td>
-<td style="text-align: right;">2025</td>
-<td>Nature Physics</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>~2–4 (live imaging across early symmetry-breaking)</td>
-<td>Posterior/symmetry-breaking domain; endoderm-like region</td>
-<td>Tissue-scale Marangoni-like flows promote symmetry breaking in gastruloids.</td>
-<td>Nature Physics supplementary movies/data</td>
-</tr>
-<tr class="odd">
-<td>Modelling co-development between the somites and neural tube in human trunk-like structures</td>
-<td>Komal Makwana; Louise Tilley</td>
-<td><a href="https://doi.org/10.1038/s41556-025-01813-8" class="external-link">10.1038/s41556-025-01813-8</a></td>
-<td style="text-align: right;">2025</td>
-<td>Nature Cell Biology</td>
-<td>Human</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>See article (TLS co-development time course)</td>
-<td>Somite; neural tube; mesoderm; neural</td>
-<td>Human trunk-like structures model somite–neural-tube co-development via self-organised signalling.</td>
-<td>https://doi.org/10.1038/s41556-025-01813-8</td>
-</tr>
-<tr class="even">
-<td>Morphogenetic constraints in the development of gastruloids: Implications for mouse gastrulation</td>
-<td>Ulla-Maj Fiuza; Sara Bonavia</td>
-<td><a href="https://doi.org/10.1016/j.cdev.2025.204043" class="external-link">10.1016/j.cdev.2025.204043</a></td>
-<td style="text-align: right;">2025</td>
-<td>Cells &amp; Development</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>See article (size and constraint regimes)</td>
-<td>Germ layers; polarity/elongation domains</td>
-<td>Morphogenetic constraints and size windows for robust gastruloid morphology vs transcription.</td>
-<td>https://doi.org/10.1016/j.cdev.2025.204043</td>
-</tr>
-<tr class="odd">
-<td>N2B27 media formulations influence gastruloid development</td>
-<td>Tina Balayo; Sharna Lunn</td>
-<td><a href="https://doi.org/10.1242/dev.204774" class="external-link">10.1242/dev.204774</a></td>
-<td style="text-align: right;">2025</td>
-<td>Development</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>✅</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>See article (N2B27 vs NDiff227 comparison)</td>
-<td>Anterior/neural; paraxial mesoderm</td>
-<td>Home-made N2B27 vs commercial NDiff227 media shift elongation timing and neural-vs-mesoderm bias.</td>
-<td>https://doi.org/10.1242/dev.204774</td>
-</tr>
-<tr class="even">
-<td>Non-cell-autonomous control of mouse gastruloid development by the ultra-conserved lncRNA T-UCstem1</td>
-<td>Arianna Coppola; Annalisa Fico</td>
-<td><a href="https://doi.org/10.1038/s44318-025-00558-2" class="external-link">10.1038/s44318-025-00558-2</a></td>
-<td style="text-align: right;">2025</td>
-<td>The EMBO Journal</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>✅</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>~2–4 (~2–3 time points)</td>
-<td>Pluripotent; mesoderm/posterior</td>
-<td>lncRNA T-UCstem1 controls A–P extension and differentiation non-cell-autonomously.</td>
-<td>GEO/SRA in article data availability</td>
-</tr>
-<tr class="odd">
-<td>Reconstructing signaling histories of single cells via perturbation screens and transfer learning</td>
-<td>Nicholas T. Hutchins; Miram Meziane</td>
-<td><a href="https://doi.org/10.1101/2025.03.16.643448" class="external-link">10.1101/2025.03.16.643448</a></td>
-<td style="text-align: right;">2025</td>
-<td>bioRxiv (preprint)</td>
-<td>Human + mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>Multi-day hESC combinatorial screens (d4–d8) + embryo atlas transfer</td>
-<td>Primitive streak; mesoderm; endoderm; pluripotent</td>
-<td>IRIS transfer-learning from combinatorial signalling screens to reconstruct single-cell signalling histories (hESC/mESC/embryo).</td>
-<td>https://doi.org/10.1101/2025.03.16.643448</td>
-</tr>
-<tr class="even">
-<td>Single-cell spatial mapping reveals reproducible cell type organization and spatially-dependent gene expression in gastruloids</td>
-<td>Catherine G. Triandafillou; Arjun Raj</td>
-<td><a href="https://doi.org/10.1101/2025.07.14.664617" class="external-link">10.1101/2025.07.14.664617</a></td>
-<td style="text-align: right;">2025</td>
-<td>bioRxiv / PMC preprint</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>~5 (main endpoint ~120 h)</td>
-<td>NMP; neural; mesoderm; somite; endoderm</td>
-<td>seqFISH spatial single-cell maps of cell-type organisation in individual gastruloids.</td>
-<td>bioRxiv/PMC; supplementary data</td>
-</tr>
-<tr class="odd">
-<td>Size-dependent temporal decoupling of morphogenesis and transcriptional programs in pseudoembryos</td>
-<td>Isma Bennabi; Thomas Gregor</td>
-<td><a href="https://doi.org/10.1126/sciadv.adv7790" class="external-link">10.1126/sciadv.adv7790</a></td>
-<td style="text-align: right;">2025</td>
-<td>Science Advances</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>✅</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>Multiple (size-series time courses)</td>
-<td>Epiblast; primitive streak; mesoderm</td>
-<td>Initial aggregate size decouples morphological vs transcriptional timing.</td>
-<td>GEO GSE286428; GSE286273; ENA PRJNA1209118/PRJNA1208511/PRJNA1208519</td>
-</tr>
-<tr class="even">
-<td>Stem cell culture conditions affect in vitro differentiation potential and mouse gastruloid formation</td>
-<td>Marloes Blotenburg; Lianne Suurenbroek</td>
-<td><a href="https://doi.org/10.1371/journal.pone.0317309" class="external-link">10.1371/journal.pone.0317309</a></td>
-<td style="text-align: right;">2025</td>
-<td>PLOS ONE</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>✅</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>See article (pre-culture ESLIF/2i schedules)</td>
-<td>Mesoderm; pluripotent; Brachyury timing</td>
-<td>mESC pre-culture pluripotency/epigenetic state affects gastruloid reproducibility and lineage composition.</td>
-<td>GEO GSE268783; GSE268814; GSE268816; https://doi.org/10.1371/journal.pone.0317309</td>
-</tr>
-<tr class="odd">
-<td>Cell-cell communication controls the timing of gastruloid symmetry-breaking</td>
-<td>David Oriola; Vikas Trivedi</td>
-<td><a href="https://doi.org/10.1101/2024.12.16.628776" class="external-link">10.1101/2024.12.16.628776</a></td>
-<td style="text-align: right;">2024</td>
-<td>bioRxiv</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>~0–2 (~3 early time points)</td>
-<td>Posterior/mesoderm (T+); pluripotent-like; anterior-like</td>
-<td>Cell–cell communication and feedback control timing of T/Brachyury symmetry breaking.</td>
-<td>ArrayExpress E-MTAB-12749; GitHub/DockerHub analysis resources</td>
-</tr>
-<tr class="even">
-<td>Coordination between endoderm progression and mouse gastruloid elongation controls endodermal morphotype choice</td>
-<td>Naama Farag; Iftach Nachman</td>
-<td><a href="https://doi.org/10.1016/j.devcel.2024.05.017" class="external-link">10.1016/j.devcel.2024.05.017</a></td>
-<td style="text-align: right;">2024</td>
-<td>Developmental Cell</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>2–4 (48–96 h live imaging)</td>
-<td>Endoderm; mesoderm</td>
-<td>Live imaging + ML to predict and steer definitive endoderm morphotype variability.</td>
-<td>Zenodo 10.5281/zenodo.13928013</td>
-</tr>
-<tr class="odd">
-<td>Deciphering lineage specification during early embryogenesis in mouse gastruloids using multilayered proteomics</td>
-<td>Suzan Stelloo; Michiel Vermeulen</td>
-<td><a href="https://doi.org/10.1016/j.stem.2024.04.017" class="external-link">10.1016/j.stem.2024.04.017</a></td>
-<td style="text-align: right;">2024</td>
-<td>Cell Stem Cell</td>
-<td>Mouse + human validation</td>
-<td>primary</td>
-<td>✅</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>~5 matched gastruloid (+ embryo) stages</td>
-<td>Mesoderm; PSM/somite; NMP; ectoderm; endoderm</td>
-<td>Proteome/phosphoproteome dynamics and regulators (e.g. ZEB2) of lineage specification.</td>
-<td>GEO GSE229029; PRIDE PXD041309/PXD041328/PXD048347</td>
-</tr>
-<tr class="even">
-<td>Early autonomous patterning of the anteroposterior axis in gastruloids</td>
-<td>Kerim Anlaş; Vikas Trivedi</td>
-<td><a href="https://doi.org/10.1242/dev.202171" class="external-link">10.1242/dev.202171</a></td>
-<td style="text-align: right;">2024</td>
-<td>Development</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>~0–2 (~4 early time points)</td>
-<td>Pluripotent; primitive streak; mesendoderm; anterior/posterior</td>
-<td>Early autonomous A–P patterning and cell-state emergence.</td>
-<td>ArrayExpress E-MTAB-12749</td>
-</tr>
-<tr class="odd">
-<td>Gastruloids are competent to specify both cardiac and skeletal muscle lineages</td>
-<td>Laurent Argiro; Fabienne Lescroart</td>
-<td><a href="https://doi.org/10.1038/s41467-024-54466-w" class="external-link">10.1038/s41467-024-54466-w</a></td>
-<td style="text-align: right;">2024</td>
-<td>Nature Communications</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>~0–11 (~6 sampled points to day 11)</td>
-<td>Cardiac; skeletal muscle; endothelium; endoderm; ectoderm; mesenchyme</td>
-<td>Cardiopharyngeal, cardiac, skeletal muscle and endothelial trajectories in gastruloids.</td>
-<td>GEO GSE232773; Zenodo 10.5281/zenodo.14188076</td>
-</tr>
-<tr class="even">
-<td>Mannose controls mesoderm specification and symmetry breaking in mouse gastruloids</td>
-<td>Chaitanya Dingare; Benjamin Steventon</td>
-<td><a href="https://doi.org/10.1016/j.devcel.2024.03.031" class="external-link">10.1016/j.devcel.2024.03.031</a></td>
-<td style="text-align: right;">2024</td>
-<td>Developmental Cell</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>~2–5 (~4 time points)</td>
-<td>Mesoderm; posterior elongation</td>
-<td>Mannose and 2-DG affect mesoderm specification, glycosylation and axial elongation.</td>
-<td>Metabolomics Workbench; Dev Cell supplementary data</td>
-</tr>
-<tr class="odd">
-<td>Reconstructing axial progenitor field dynamics in mouse stem cell-derived embryoids</td>
-<td>Adriano Bolondi; Michelle M. Chan</td>
-<td><a href="https://doi.org/10.1016/j.devcel.2024.03.024" class="external-link">10.1016/j.devcel.2024.03.024</a></td>
-<td style="text-align: right;">2024</td>
-<td>Developmental Cell</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>~4 (trunk embryoid time course)</td>
-<td>NMP; neural; somitic/axial progenitors</td>
-<td>Cas9 molecular recording of NMP fate dynamics in trunk embryoids.</td>
-<td>Dev Cell supplementary data</td>
-</tr>
-<tr class="even">
-<td>Recording morphogen signals reveals mechanisms underlying gastruloid symmetry breaking</td>
-<td>Harold M. McNamara; Jared E. Toettcher</td>
-<td><a href="https://doi.org/10.1038/s41556-024-01521-9" class="external-link">10.1038/s41556-024-01521-9</a></td>
-<td style="text-align: right;">2024</td>
-<td>Nature Cell Biology</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>~2–4 (~4 time points)</td>
-<td>Posterior/NMP-like; anterior; BMP/Nodal-recorded populations</td>
-<td>Synthetic recorders link early Nodal/BMP/Wnt histories to later A–P organisation.</td>
-<td>PMC/source supplementary data</td>
-</tr>
-<tr class="odd">
-<td>Control of gastruloid patterning and morphogenesis by the Erk and Akt signaling pathways</td>
-<td>Evan J. Underhill; Jared E. Toettcher</td>
-<td><a href="https://doi.org/10.1242/dev.201663" class="external-link">10.1242/dev.201663</a></td>
-<td style="text-align: right;">2023</td>
-<td>Development</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>~2–4 (~3 time points)</td>
-<td>Presomitic mesoderm; precardiac mesoderm; anterior/posterior mesoderm</td>
-<td>Erk and Akt gradients control morphogenesis, proliferation and mesodermal fate allocation.</td>
-<td>Addgene 207328–207329; Development supplementary data</td>
-</tr>
-<tr class="even">
-<td>Gastruloid optimization</td>
-<td>Lara Avni; Iftach Nachman</td>
-<td><a href="https://doi.org/10.1042/etls20230096" class="external-link">10.1042/etls20230096</a></td>
-<td style="text-align: right;">2023</td>
-<td>Emerging Topics in Life Sciences</td>
-<td>Mouse</td>
-<td>review</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>—</td>
-<td>Germ layers; endoderm morphotypes (conceptual)</td>
-<td>Review of gastruloid variability and strategies to reduce morphogenetic divergence.</td>
-<td>PMC10754328</td>
-</tr>
-<tr class="odd">
-<td>Multimodal characterization of murine gastruloid development</td>
-<td>Simon Suppinger; Prisca Liberali</td>
-<td><a href="https://doi.org/10.1016/j.stem.2023.04.018" class="external-link">10.1016/j.stem.2023.04.018</a></td>
-<td style="text-align: right;">2023</td>
-<td>Cell Stem Cell</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>✅</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>0–5 (~0–120 h; ~5 time points)</td>
-<td>Epiblast/pluripotent; primitive streak; mesoderm; neuroectoderm; endoderm</td>
-<td>Multimodal reference of gastruloid development and symmetry breaking.</td>
-<td>GEO GSE229513 / GSE229386; GitHub</td>
-</tr>
-<tr class="even">
-<td>Cell-state transitions and collective cell movement generate an endoderm-like region in gastruloids</td>
-<td>Ali Hashmi; Pierre-François Lenne</td>
-<td><a href="https://doi.org/10.7554/eLife.59371" class="external-link">10.7554/eLife.59371</a></td>
-<td style="text-align: right;">2022</td>
-<td>eLife</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>~2–4 (~3 time points)</td>
-<td>Endoderm-like; posterior/mesoderm-like</td>
-<td>Endoderm-like region emerges via cell-state transitions and collective movement.</td>
-<td>eLife figures/data; PMC</td>
-</tr>
-<tr class="odd">
-<td>Inter-gastruloid heterogeneity revealed by single cell transcriptomics time course: implications for organoid based perturbation studies</td>
-<td>Leah U. Rosen; L. Carine Stapel</td>
-<td><a href="https://doi.org/10.1101/2022.09.27.509783" class="external-link">10.1101/2022.09.27.509783</a></td>
-<td style="text-align: right;">2022</td>
-<td>bioRxiv (preprint)</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>3–5 (~half-day intervals)</td>
-<td>Mesoderm/somitic; neural/ectoderm</td>
-<td>Individual-gastruloid MULTI-seq scRNA-seq reveals early mesoderm-vs-neural inter-gastruloid bifurcation linked to Wnt activity.</td>
-<td>GEO GSE212050; PRJNA873702; https://doi.org/10.1101/2022.09.27.509783</td>
-</tr>
-<tr class="even">
-<td>Organoid-based single-cell spatiotemporal gene expression landscape of human embryonic development and hematopoiesis</td>
-<td>Yiming Chao; Yang Xiang</td>
-<td><a href="https://doi.org/10.1101/2022.09.02.505700" class="external-link">10.1101/2022.09.02.505700</a></td>
-<td style="text-align: right;">2022</td>
-<td>bioRxiv (preprint)</td>
-<td>Human</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>~8–18 (HEMO D8/D15/D18)</td>
-<td>Extraembryonic trophoblast-like; yolk sac; neural crest; cardiac mesoderm; haematopoietic</td>
-<td>Human embryonic organoid (HEMO) spatiotemporal scRNA-seq + Visium landscape of embryonic and haematopoietic lineages.</td>
-<td>https://doi.org/10.1101/2022.09.02.505700</td>
-</tr>
-<tr class="odd">
-<td>Capturing cardiogenesis in gastruloids</td>
-<td>Gioele Rossi; Matthias P. Lutolf</td>
-<td><a href="https://doi.org/10.1016/j.stem.2020.10.013" class="external-link">10.1016/j.stem.2020.10.013</a></td>
-<td style="text-align: right;">2021</td>
-<td>Cell Stem Cell</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>Multiple (cardiac gastruloid protocol time course)</td>
-<td>Cardiac; endothelium; mesoderm; neural-associated</td>
-<td>Modified gastruloid conditions to capture early cardiac specification and beating regions.</td>
-<td>GEO/SRA in data availability</td>
-</tr>
-<tr class="even">
-<td>Mouse embryonic stem cells self-organize into trunk-like structures with neural tube and somites</td>
-<td>Jesse V. Veenvliet; Bernhard G. Herrmann</td>
-<td><a href="https://doi.org/10.1126/science.aba4937" class="external-link">10.1126/science.aba4937</a></td>
-<td style="text-align: right;">2020</td>
-<td>Science</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>Multiple (~4–5 culture days for TLS induction)</td>
-<td>NMP; neural tube; somite; endoderm; trunk mesoderm</td>
-<td>TLS with neural tube and somite-like compartments from gastruloid-related aggregates.</td>
-<td>Science supplementary data; sequencing resources</td>
-</tr>
-<tr class="odd">
-<td>Multi-axial self-organization properties of mouse embryonic stem cells into gastruloids</td>
-<td>Leonardo Beccari; Alfonso Martinez Arias</td>
-<td><a href="https://doi.org/10.1038/s41586-018-0578-0" class="external-link">10.1038/s41586-018-0578-0</a></td>
-<td style="text-align: right;">2018</td>
-<td>Nature</td>
-<td>Mouse</td>
-<td>primary</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>Several (aggregation and CHIR-timed morphogenesis)</td>
-<td>Primitive streak-like; mesoderm; neural-like; somitic/axial</td>
-<td>Foundational demonstration of multi-axial self-organisation in mouse gastruloids.</td>
-<td>Nature supplementary data; GSE106227 (gastruloids); GSE113885 (embryo RNA-seq)</td>
-</tr>
-</tbody>
-</table>
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-tbl" id="tbl-gastruloid-datasets-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table 1: Published gastruloid and related embryo-model datasets
-</figcaption></figure>
-</div>
-</section><section class="section level2" data-number="1"><h2 data-number="1" id="sec-bifurcation">
-<span class="header-section-number">1</span> Morphotypes, phenotypic landscapes, and trajectory bifurcation<a class="anchor" aria-label="anchor" href="#sec-bifurcation"></a>
+    <section class="level2" data-number="1"><h2 data-number="1" id="executive-summary">
+<span class="header-section-number">1</span> Executive summary<a class="anchor" aria-label="anchor" href="#executive-summary"></a>
 </h2>
-<p>The narrative below synthesises variability and bifurcation studies that appear in <a href="#tbl-gastruloid-datasets" class="quarto-xref">Table 1</a>. Comparative summaries are in <a href="#tbl-core-bifurcation" class="quarto-xref">Table 2</a> and <strong>?@tbl-adjacent-bifurcation</strong>; the conceptual map is <a href="#eq-bifurcation-map" class="quarto-xref">Equation 1</a> and <a href="#fig-two-hypotheses" class="quarto-xref">Figure 1</a>.</p>
-<section class="level2" data-number="1.1"><h3 data-number="1.1" id="executive-summary">
-<span class="header-section-number">1.1</span> Executive summary<a class="anchor" aria-label="anchor" href="#executive-summary"></a>
-</h3>
 <p>The literature that directly targets <strong>divergent outcomes emerging from nominally similar gastruloid starts</strong> is still smaller than the broader gastruloid field, but it is now substantial enough to reveal a coherent picture. The strongest mouse study for this question is <strong>Villaronga-Luque et al.</strong> <span class="citation" data-cites="villaronga2025">(<a href="#ref-villaronga2025" role="doc-biblioref"><span class="nocase">Villaronga-Luque et al.</span> 2025</a>)</span>, because it links <strong>individual morphological histories</strong>, <strong>time-resolved single-cell transcriptomes</strong>, and <strong>metabolic state</strong> to later phenotypic divergence, and then tests causality by metabolic intervention. The key claim is that <strong>early oxidative phosphorylation–glycolysis imbalance precedes and drives later aberrant morphology with a neural lineage bias</strong>. Data are available at <strong>GEO GSE250136</strong>, with imaging and analysis deposits.</p>
-<p>Across the direct and adjacent literature, proposed drivers of bifurcation fall into four recurring classes (<a href="#tbl-core-bifurcation" class="quarto-xref">Table 2</a>; <strong>?@tbl-adjacent-bifurcation</strong>):</p>
+<p>Across the direct and adjacent literature, proposed drivers of bifurcation fall into four recurring classes (<a href="#tbl-core-bifurcation" class="quarto-xref">Table 1</a>; <a href="#tbl-adjacent-bifurcation" class="quarto-xref">Table 2</a>):</p>
 <ol type="1">
 <li>
 <strong>Metabolic state</strong> — Luque, Dingare, Stapornwongkul <span class="citation" data-cites="villaronga2025 dingare2024 stapornwongkul2025">(<a href="#ref-villaronga2025" role="doc-biblioref"><span class="nocase">Villaronga-Luque et al.</span> 2025</a>; <a href="#ref-dingare2024" role="doc-biblioref"><span class="nocase">Dingare et al.</span> 2024</a>; <a href="#ref-stapornwongkul2025" role="doc-biblioref"><span class="nocase">Stapornwongkul et al.</span> 2025</a>)</span>.</li>
@@ -1060,14 +116,14 @@ Table 1: Published gastruloid and related embryo-model datasets
 </ol>
 <p><strong>No single paper yet closes the full causal chain</strong> from founder-cell state, through live signalling and metabolism, to 3D morphogenetic divergence and terminal morphotype in the same individual gastruloids. <strong>Luque comes closest</strong>; Farag is strongest on <strong>explicit morphotype classification</strong>; Rufo on <strong>phenotypic morphospace</strong>; Regalado and Ayyappan on <strong>intrinsic, heritable bias</strong> <span class="citation" data-cites="villaronga2025 farag2024 rufo2026 regalado2025 ayyappan2025">(<a href="#ref-villaronga2025" role="doc-biblioref"><span class="nocase">Villaronga-Luque et al.</span> 2025</a>; <a href="#ref-farag2024" role="doc-biblioref">Farag et al. 2024</a>; <a href="#ref-rufo2026" role="doc-biblioref"><span class="nocase">Rufo et al.</span> 2026</a>; <a href="#ref-regalado2025" role="doc-biblioref"><span class="nocase">Regalado et al.</span> 2025</a>; <a href="#ref-ayyappan2025" role="doc-biblioref"><span class="nocase">Ayyappan et al.</span> 2025</a>)</span>.</p>
 <p>The highest-priority next step is a <strong>prospective, single-gastruloid, multimodal bifurcation experiment</strong> combining Luque-style paired morphology/molecular design with <strong>lineage recording</strong>, <strong>live Wnt/Nodal/ERK reporters</strong>, and systematic perturbation of <strong>metabolism, density and size</strong>, so relative causal weights and interactions can be estimated <strong>before</strong> visible divergence <span class="citation" data-cites="villaronga2025 regalado2025 rufo2026 bennabi2025">(<a href="#ref-villaronga2025" role="doc-biblioref"><span class="nocase">Villaronga-Luque et al.</span> 2025</a>; <a href="#ref-regalado2025" role="doc-biblioref"><span class="nocase">Regalado et al.</span> 2025</a>; <a href="#ref-rufo2026" role="doc-biblioref"><span class="nocase">Rufo et al.</span> 2026</a>; <a href="#ref-bennabi2025" role="doc-biblioref"><span class="nocase">Bennabi et al.</span> 2025</a>)</span>.</p>
-</section><section class="level2" data-number="1.2"><h3 data-number="1.2" id="scope-and-inclusion-logic">
-<span class="header-section-number">1.2</span> Scope and inclusion logic<a class="anchor" aria-label="anchor" href="#scope-and-inclusion-logic"></a>
-</h3>
+</section><section class="level2" data-number="2"><h2 data-number="2" id="scope-and-inclusion-logic">
+<span class="header-section-number">2</span> Scope and inclusion logic<a class="anchor" aria-label="anchor" href="#scope-and-inclusion-logic"></a>
+</h2>
 <p>Here <strong>“morphotype”</strong> includes discrete morphological classes, structured regions of a low-dimensional phenotypic morphospace, and reproducible bifurcating trajectory classes that later produce distinct spatial or morphological outcomes. Papers were prioritised when their <strong>main aim</strong> was identifying morphotypes, mapping phenotypic landscapes, quantifying inter-gastruloid variability, defining failure modes, or testing drivers of divergent trajectories, ranked by closeness to <strong>distinct outcomes from the same nominally naïve starting population</strong>. Mechanistically informative papers that alter the start more strongly, or focus on patterning rather than divergence, are treated as adjacent.</p>
 <p>The <strong>Luque Villaronga</strong> study remains the clearest attempt to join phenotype, dynamics, transcriptomics and metabolism in one framework <span class="citation" data-cites="villaronga2025">(<a href="#ref-villaronga2025" role="doc-biblioref"><span class="nocase">Villaronga-Luque et al.</span> 2025</a>)</span>. Rufo exposes a human <strong>12-cluster morphospace</strong>; Farag a <strong>decision-tree</strong> for endodermal morphotypes; Luque the most reusable multi-modal entry point for reanalysis <span class="citation" data-cites="rufo2026 farag2024 villaronga2025">(<a href="#ref-rufo2026" role="doc-biblioref"><span class="nocase">Rufo et al.</span> 2026</a>; <a href="#ref-farag2024" role="doc-biblioref">Farag et al. 2024</a>; <a href="#ref-villaronga2025" role="doc-biblioref"><span class="nocase">Villaronga-Luque et al.</span> 2025</a>)</span>.</p>
-</section><section class="level2" data-number="1.3"><h3 data-number="1.3" id="prioritised-literature">
-<span class="header-section-number">1.3</span> Prioritised literature<a class="anchor" aria-label="anchor" href="#prioritised-literature"></a>
-</h3>
+</section><section class="level2" data-number="3"><h2 data-number="3" id="prioritised-literature">
+<span class="header-section-number">3</span> Prioritised literature<a class="anchor" aria-label="anchor" href="#prioritised-literature"></a>
+</h2>
 <p>Read the field as a <strong>core set</strong> on divergence/morphotypes and a <strong>second ring</strong> of explanatory mechanism papers.</p>
 <p><strong>Villaronga-Luque et al., <em>Cell Stem Cell</em> 2025</strong> <span class="citation" data-cites="villaronga2025">(<a href="#ref-villaronga2025" role="doc-biblioref"><span class="nocase">Villaronga-Luque et al.</span> 2025</a>)</span>. Mouse stem-cell embryo / TLS-like system; paired imaging, time-resolved scRNA-seq, metabolic interventions (<strong>GSE250136</strong>). Driver: early <strong>OXPHOS–glycolysis imbalance</strong> in NMP-like states predicting later neural-biased aberrant morphology. Evidence: <strong>very strong</strong> (time order + causal rescue). Limitation: final morphotype taxonomy needs full-text/data reanalysis.</p>
 <p><strong>Farag et al., <em>Developmental Cell</em> 2024</strong> <span class="citation" data-cites="farag2024">(<a href="#ref-farag2024" role="doc-biblioref">Farag et al. 2024</a>)</span>. Mouse gastruloids; live imaging; <strong>500-tree</strong> ensemble. <strong>Four endodermal morphotypes</strong> at 96 h, controlled by <strong>coordination between endoderm progression and elongation</strong>. Evidence: <strong>very strong</strong> for this sub-problem; limited to the endodermal branch.</p>
@@ -1080,12 +136,10 @@ Table 1: Published gastruloid and related embryo-model datasets
 <p><strong>Fiuza et al., <em>Cells &amp; Development</em> 2025</strong> <span class="citation" data-cites="fiuza2025">(<a href="#ref-fiuza2025" role="doc-biblioref"><span class="nocase">Fiuza et al.</span> 2025</a>)</span>. <strong>Mechanical/geometric constraints</strong> and a robustness size window.</p>
 <p><strong>Balayo et al., <em>Development</em> 2025</strong> <span class="citation" data-cites="balayo2025">(<a href="#ref-balayo2025" role="doc-biblioref"><span class="nocase">Balayo et al.</span> 2025</a>)</span>. Medium formulation (N2B27 vs NDiff227) shifts elongation and neural-vs-mesoderm bias.</p>
 <p><strong>Blotenburg et al., <em>PLOS ONE</em> 2025</strong> <span class="citation" data-cites="blotenburg2025">(<a href="#ref-blotenburg2025" role="doc-biblioref"><span class="nocase">Blotenburg et al.</span> 2025</a>)</span>. Pre-culture pluripotency/epigenetic memory alters reproducibility and lineage composition.</p>
-<p><strong>Chao et al., bioRxiv 2022</strong> <span class="citation" data-cites="chao2022hemo">(<a href="#ref-chao2022hemo" role="doc-biblioref"><span class="nocase">Chao et al.</span> 2022</a>)</span>. Human embryonic organoid (<strong>HEMO</strong>) with time-series scRNA-seq and Visium; models embryonic plus extraembryonic/haematopoietic lineages (adjacent human 3D organoid atlas).</p>
-<p><strong>Hutchins et al., bioRxiv 2025</strong> <span class="citation" data-cites="hutchins2025iris">(<a href="#ref-hutchins2025iris" role="doc-biblioref">Hutchins et al. 2025</a>)</span>. <strong>IRIS</strong> transfer learning from combinatorial signalling screens on hESCs to infer signalling histories in embryo atlases (adjacent method for Wnt/Nodal/BMP-state inference).</p>
 <p><strong>Adjacent mechanisms.</strong> Dingare (mannose / Frzb glycosylation), Stapornwongkul (glycolysis → Nodal/Wnt), McNamara (Wnt recording and sorting), Underhill (ERK/Akt) <span class="citation" data-cites="dingare2024 stapornwongkul2025 mcnamara2024 underhill2023">(<a href="#ref-dingare2024" role="doc-biblioref"><span class="nocase">Dingare et al.</span> 2024</a>; <a href="#ref-stapornwongkul2025" role="doc-biblioref"><span class="nocase">Stapornwongkul et al.</span> 2025</a>; <a href="#ref-mcnamara2024" role="doc-biblioref"><span class="nocase">McNamara et al.</span> 2024</a>; <a href="#ref-underhill2023" role="doc-biblioref">Underhill and Toettcher 2023</a>)</span>.</p>
-</section><section class="level2" data-number="1.4"><h3 data-number="1.4" id="comparative-tables">
-<span class="header-section-number">1.4</span> Comparative tables<a class="anchor" aria-label="anchor" href="#comparative-tables"></a>
-</h3>
+</section><section class="level2" data-number="4"><h2 data-number="4" id="comparative-tables">
+<span class="header-section-number">4</span> Comparative tables<a class="anchor" aria-label="anchor" href="#comparative-tables"></a>
+</h2>
 <div id="tbl-core-bifurcation" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-tbl"><div aria-describedby="tbl-core-bifurcation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table style="width:100%;" class="table">
@@ -1224,9 +278,11 @@ Table 1: Published gastruloid and related embryo-model datasets
 </table>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-tbl" id="tbl-core-bifurcation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table 2: Core studies on gastruloid divergence, morphotype and morphospace
+Table 1: Core studies on gastruloid divergence, morphotype and morphospace
 </figcaption></figure>
 </div>
+<div id="tbl-adjacent-bifurcation" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-tbl"><div aria-describedby="tbl-adjacent-bifurcation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="table">
 <colgroup>
 <col style="width: 20%">
@@ -1293,18 +349,20 @@ Table 2: Core studies on gastruloid divergence, morphotype and morphospace
 </tr>
 </tbody>
 </table>
-<div class="line-block">Adjacent | Chao et al., 2022 | 10.1101/2022.09.02.505700 | HEMO human embryonic organoid sc + spatial landscape | Not classical gastruloid; human haematopoietic/extraembryonic focus <span class="citation" data-cites="chao2022hemo">(<a href="#ref-chao2022hemo" role="doc-biblioref"><span class="nocase">Chao et al.</span> 2022</a>)</span> |<br>
-Adjacent | Hutchins et al., 2025 | 10.1101/2025.03.16.643448 | IRIS signalling-history inference from perturbation atlases | Method paper; not morphotype classification <span class="citation" data-cites="hutchins2025iris">(<a href="#ref-hutchins2025iris" role="doc-biblioref">Hutchins et al. 2025</a>)</span> |</div>
-<p>: Adjacent or less-strict matches to the naïve-start bifurcation criterion {#tbl-adjacent-bifurcation}</p>
-</section><section class="level2" data-number="1.5"><h3 data-number="1.5" id="synthesis-of-drivers-and-disagreements">
-<span class="header-section-number">1.5</span> Synthesis of drivers and disagreements<a class="anchor" aria-label="anchor" href="#synthesis-of-drivers-and-disagreements"></a>
-</h3>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-tbl" id="tbl-adjacent-bifurcation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table 2: Adjacent or less-strict matches to the naïve-start bifurcation criterion
+</figcaption></figure>
+</div>
+</section><section class="level2" data-number="5"><h2 data-number="5" id="synthesis-of-drivers-and-disagreements">
+<span class="header-section-number">5</span> Synthesis of drivers and disagreements<a class="anchor" aria-label="anchor" href="#synthesis-of-drivers-and-disagreements"></a>
+</h2>
 <p>The field’s central disagreement is not whether divergence exists, but <strong>where the dominant variance enters</strong>. One group argues that the decisive step is <strong>upstream and intrinsic</strong>: Rosen (early Wnt-associated branch bias), Regalado (heritable founder states), Ayyappan (useful clonal propensities / division of labour) <span class="citation" data-cites="rosen2022 regalado2025 ayyappan2025">(<a href="#ref-rosen2022" role="doc-biblioref">Rosen et al. 2022</a>; <a href="#ref-regalado2025" role="doc-biblioref"><span class="nocase">Regalado et al.</span> 2025</a>; <a href="#ref-ayyappan2025" role="doc-biblioref"><span class="nocase">Ayyappan et al.</span> 2025</a>)</span>. A second group argues the decisive step is <strong>state-dependent but extrinsically tuneable</strong>: Luque (metabolism), Rufo (density/SOX2), Bennabi and Fiuza (size/constraint), Farag (elongation–lineage coordination) <span class="citation" data-cites="villaronga2025 rufo2026 bennabi2025 fiuza2025 farag2024">(<a href="#ref-villaronga2025" role="doc-biblioref"><span class="nocase">Villaronga-Luque et al.</span> 2025</a>; <a href="#ref-rufo2026" role="doc-biblioref"><span class="nocase">Rufo et al.</span> 2026</a>; <a href="#ref-bennabi2025" role="doc-biblioref"><span class="nocase">Bennabi et al.</span> 2025</a>; <a href="#ref-fiuza2025" role="doc-biblioref"><span class="nocase">Fiuza et al.</span> 2025</a>; <a href="#ref-farag2024" role="doc-biblioref">Farag et al. 2024</a>)</span>. These imply bifurcation through <strong>multiple control layers</strong>.</p>
 <p>Empirically, <strong>reproducibility versus heterogeneity</strong> depends on the level measured: broad tissue classes can look reproducible <span class="citation" data-cites="beccari2018 triandafillou2025">(<a href="#ref-beccari2018" role="doc-biblioref"><span class="nocase">Beccari et al.</span> 2018</a>; <a href="#ref-triandafillou2025" role="doc-biblioref"><span class="nocase">Triandafillou et al.</span> 2025</a>)</span> while lineage proportions, timing, polarity and terminal morphology still vary <span class="citation" data-cites="rosen2022 villaronga2025 regalado2025">(<a href="#ref-rosen2022" role="doc-biblioref">Rosen et al. 2022</a>; <a href="#ref-villaronga2025" role="doc-biblioref"><span class="nocase">Villaronga-Luque et al.</span> 2025</a>; <a href="#ref-regalado2025" role="doc-biblioref"><span class="nocase">Regalado et al.</span> 2025</a>)</span>. <strong>Metabolism-centric</strong> and <strong>signalling-centric</strong> accounts are best read as coupled: metabolism changes signalling competence, interpretation, or response thresholds <span class="citation" data-cites="villaronga2025 dingare2024 stapornwongkul2025 rufo2026 rosen2022 mcnamara2024 underhill2023">(<a href="#ref-villaronga2025" role="doc-biblioref"><span class="nocase">Villaronga-Luque et al.</span> 2025</a>; <a href="#ref-dingare2024" role="doc-biblioref"><span class="nocase">Dingare et al.</span> 2024</a>; <a href="#ref-stapornwongkul2025" role="doc-biblioref"><span class="nocase">Stapornwongkul et al.</span> 2025</a>; <a href="#ref-rufo2026" role="doc-biblioref"><span class="nocase">Rufo et al.</span> 2026</a>; <a href="#ref-rosen2022" role="doc-biblioref">Rosen et al. 2022</a>; <a href="#ref-mcnamara2024" role="doc-biblioref"><span class="nocase">McNamara et al.</span> 2024</a>; <a href="#ref-underhill2023" role="doc-biblioref">Underhill and Toettcher 2023</a>)</span>.</p>
 <p>A conspicuous gap remains in <strong>human 3D</strong> systems: Rufo/FATE-MAP is strong in 2D human morphospace, but Luque- or Farag-depth longitudinal 3D bifurcation maps are still largely mouse <span class="citation" data-cites="rufo2026 villaronga2025 farag2024">(<a href="#ref-rufo2026" role="doc-biblioref"><span class="nocase">Rufo et al.</span> 2026</a>; <a href="#ref-villaronga2025" role="doc-biblioref"><span class="nocase">Villaronga-Luque et al.</span> 2025</a>; <a href="#ref-farag2024" role="doc-biblioref">Farag et al. 2024</a>)</span>.</p>
-<section class="level3" data-number="1.5.1"><h4 data-number="1.5.1" id="two-working-hypotheses">
-<span class="header-section-number">1.5.1</span> Two working hypotheses<a class="anchor" aria-label="anchor" href="#two-working-hypotheses"></a>
-</h4>
+<section class="level3" data-number="5.1"><h3 data-number="5.1" id="two-working-hypotheses">
+<span class="header-section-number">5.1</span> Two working hypotheses<a class="anchor" aria-label="anchor" href="#two-working-hypotheses"></a>
+</h3>
 <p>Formally, let <span class="math inline">\(X_0\)</span> be the founder-pool state (genetic/epigenetic/clonal composition), <span class="math inline">\(\varepsilon_t\)</span> intrinsic developmental noise (as in embryos), and <span class="math inline">\(C_t\)</span> a vector of <strong>checkpoints</strong> (e.g. Wnt induction synchronised with elongation and spatial patterning). Then morphotype <span class="math inline">\(M\)</span> can be written schematically as</p>
 <p><span id="eq-bifurcation-map"><span class="math display">\[
 M = f\!\bigl(X_0,\; \varepsilon_{0:T},\; C_{0:T}\bigr)
@@ -1320,9 +378,9 @@ M = f\!\bigl(X_0,\; \varepsilon_{0:T},\; C_{0:T}\bigr)
 Figure 1: Two contradictory working hypotheses for gastruloid variability: intrinsic upstream founder bias versus ubiquitous stochasticity buffered except at intolerant checkpoints (e.g. Wnt–elongation synchrony).
 </figcaption></figure>
 </div>
-</section></section><section class="level2" data-number="1.6"><h3 data-number="1.6" id="recommended-next-experiments-and-analyses">
-<span class="header-section-number">1.6</span> Recommended next experiments and analyses<a class="anchor" aria-label="anchor" href="#recommended-next-experiments-and-analyses"></a>
-</h3>
+</section></section><section class="level2" data-number="6"><h2 data-number="6" id="recommended-next-experiments-and-analyses">
+<span class="header-section-number">6</span> Recommended next experiments and analyses<a class="anchor" aria-label="anchor" href="#recommended-next-experiments-and-analyses"></a>
+</h2>
 <ol type="1">
 <li>
 <strong>Luque-plus-lineage</strong> — pair morphology/molecular histories with Regalado-style lineage recording to test whether early metabolic predictors sit in founder lineages or arise post-aggregation <span class="citation" data-cites="villaronga2025 regalado2025">(<a href="#ref-villaronga2025" role="doc-biblioref"><span class="nocase">Villaronga-Luque et al.</span> 2025</a>; <a href="#ref-regalado2025" role="doc-biblioref"><span class="nocase">Regalado et al.</span> 2025</a>)</span>.</li>
@@ -1336,14 +394,13 @@ Figure 1: Two contradictory working hypotheses for gastruloid variability: intr
 <strong>Cross-dataset integration</strong> of Luque, Rosen and Triandafillou <span class="citation" data-cites="villaronga2025 rosen2022 triandafillou2025">(<a href="#ref-villaronga2025" role="doc-biblioref"><span class="nocase">Villaronga-Luque et al.</span> 2025</a>; <a href="#ref-rosen2022" role="doc-biblioref">Rosen et al. 2022</a>; <a href="#ref-triandafillou2025" role="doc-biblioref"><span class="nocase">Triandafillou et al.</span> 2025</a>)</span>.</li>
 <li>
 <strong>Bifurcation benchmarking standards</strong> (size/density distributions, pre-culture, CHIR timing, individual outcome frequencies) informed by Balayo and Blotenburg <span class="citation" data-cites="balayo2025 blotenburg2025">(<a href="#ref-balayo2025" role="doc-biblioref"><span class="nocase">Balayo et al.</span> 2025</a>; <a href="#ref-blotenburg2025" role="doc-biblioref"><span class="nocase">Blotenburg et al.</span> 2025</a>)</span>.</li>
-</ol></section><section class="level2" data-number="1.7"><h3 data-number="1.7" id="timeline-of-key-publications">
-<span class="header-section-number">1.7</span> Timeline of key publications<a class="anchor" aria-label="anchor" href="#timeline-of-key-publications"></a>
-</h3>
+</ol></section><section class="level2" data-number="7"><h2 data-number="7" id="timeline-of-key-publications">
+<span class="header-section-number">7</span> Timeline of key publications<a class="anchor" aria-label="anchor" href="#timeline-of-key-publications"></a>
+</h2>
 <pre class="mermaid"><code>timeline
     title Key publications on gastruloid variability, morphotypes and bifurcation
     2018 : Beccari et al. establish multi-axial mouse gastruloid self-organisation
     2022 : Rosen et al. preprint identifies mesoderm-vs-neural inter-gastruloid bifurcation
-         : Chao et al. HEMO human embryonic organoid spatiotemporal landscape
     2024 : Farag et al. classify four endodermal morphotypes and infer early predictors
          : Dingare et al. link mannose metabolism to mesoderm specification
          : McNamara et al. show cell sorting reorganises patchy Wnt into a single pole
@@ -1353,12 +410,11 @@ Figure 1: Two contradictory working hypotheses for gastruloid variability: intr
          : Bennabi / Fiuza: size and morphogenetic constraints
          : Regalado / Ayyappan: heritable founder and clonal bias
          : Triandafillou: spatial reproducibility benchmark
-         : Hutchins et al. IRIS signalling-history inference
     2026 : Rufo/FATE-MAP formalises human morphospace axes and failure-mode prediction</code></pre>
-<p>These prioritised studies are also rows in <a href="#tbl-gastruloid-datasets" class="quarto-xref">Table 1</a> above (including newly catalogued HEMO <span class="citation" data-cites="chao2022hemo">(<a href="#ref-chao2022hemo" role="doc-biblioref"><span class="nocase">Chao et al.</span> 2022</a>)</span> and IRIS signalling-history <span class="citation" data-cites="hutchins2025iris">(<a href="#ref-hutchins2025iris" role="doc-biblioref">Hutchins et al. 2025</a>)</span> resources). Public access points cited in the source list include GEO <strong>GSE250136</strong> / <strong>GSE212050</strong>, Farag/SUMO code (<a href="https://supervised-morphogenesis.eu/index.php/code/" class="external-link uri">https://supervised-morphogenesis.eu/index.php/code/</a>), FATE-MAP <span class="citation" data-cites="rufo2026">(<a href="#ref-rufo2026" role="doc-biblioref"><span class="nocase">Rufo et al.</span> 2026</a>)</span>, McNamara <span class="citation" data-cites="mcnamara2024">(<a href="#ref-mcnamara2024" role="doc-biblioref"><span class="nocase">McNamara et al.</span> 2024</a>)</span>, Raj lab spatial/clonal preprints <span class="citation" data-cites="ayyappan2025 triandafillou2025">(<a href="#ref-ayyappan2025" role="doc-biblioref"><span class="nocase">Ayyappan et al.</span> 2025</a>; <a href="#ref-triandafillou2025" role="doc-biblioref"><span class="nocase">Triandafillou et al.</span> 2025</a>)</span>, Bennabi <span class="citation" data-cites="bennabi2025">(<a href="#ref-bennabi2025" role="doc-biblioref"><span class="nocase">Bennabi et al.</span> 2025</a>)</span>, Balayo <span class="citation" data-cites="balayo2025">(<a href="#ref-balayo2025" role="doc-biblioref"><span class="nocase">Balayo et al.</span> 2025</a>)</span>, Underhill <span class="citation" data-cites="underhill2023">(<a href="#ref-underhill2023" role="doc-biblioref">Underhill and Toettcher 2023</a>)</span>, Blotenburg <span class="citation" data-cites="blotenburg2025">(<a href="#ref-blotenburg2025" role="doc-biblioref"><span class="nocase">Blotenburg et al.</span> 2025</a>)</span>, Dingare <span class="citation" data-cites="dingare2024">(<a href="#ref-dingare2024" role="doc-biblioref"><span class="nocase">Dingare et al.</span> 2024</a>)</span>, and Beccari embryo/gastruloid GEO accessions <strong>GSE113885</strong> / <strong>GSE106227</strong> <span class="citation" data-cites="beccari2018">(<a href="#ref-beccari2018" role="doc-biblioref"><span class="nocase">Beccari et al.</span> 2018</a>)</span>.</p>
-</section><section class="level2 unnumbered" data-number="1.8"><h3 class="unnumbered" data-number="1.8" id="references">
-<span class="header-section-number">1.8</span> References<a class="anchor" aria-label="anchor" href="#references"></a>
-</h3>
+<p>Dataset catalogue context for these and related studies is maintained in <code>vignettes/gastruloid_datasets.qmd</code> (<strong>?@tbl-gastruloid-datasets</strong> there).</p>
+</section><section class="level2 unnumbered" data-number="8"><h2 class="unnumbered" data-number="8" id="references">
+<span class="header-section-number">8</span> References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-ayyappan2025" class="csl-entry" role="listitem">
 <span class="nocase">Ayyappan, Vinay, Arjun Raj, et al.</span> 2025. <span>‘Gastruloid Patterning Reflects Division of Labor Among Biased Stem Cell Clones’</span>. <em>bioRxiv</em>, ahead of print. <a href="https://doi.org/10.1101/2025.07.12.664536" class="external-link">https://doi.org/10.1101/2025.07.12.664536</a>.
@@ -1375,9 +431,6 @@ Figure 1: Two contradictory working hypotheses for gastruloid variability: intr
 <div id="ref-blotenburg2025" class="csl-entry" role="listitem">
 <span class="nocase">Blotenburg, Marloes, Lianne Suurenbroek, et al.</span> 2025. <span>‘Stem Cell Culture Conditions Affect in Vitro Differentiation Potential and Mouse Gastruloid Formation’</span>. <em>PLOS ONE</em>, ahead of print. <a href="https://doi.org/10.1371/journal.pone.0317309" class="external-link">https://doi.org/10.1371/journal.pone.0317309</a>.
 </div>
-<div id="ref-chao2022hemo" class="csl-entry" role="listitem">
-<span class="nocase">Chao, Yiming, Yang Xiang, others, and Ryohichi Sugimura</span>. 2022. <span>‘Organoid-Based Single-Cell Spatiotemporal Gene Expression Landscape of Human Embryonic Development and Hematopoiesis’</span>. <em>bioRxiv</em>, ahead of print. <a href="https://doi.org/10.1101/2022.09.02.505700" class="external-link">https://doi.org/10.1101/2022.09.02.505700</a>.
-</div>
 <div id="ref-dingare2024" class="csl-entry" role="listitem">
 <span class="nocase">Dingare, Chaitanya, Benjamin Steventon, et al.</span> 2024. <span>‘Mannose Controls Mesoderm Specification and Symmetry Breaking in Mouse Gastruloids’</span>. <em>Developmental Cell</em>, ahead of print. <a href="https://doi.org/10.1016/j.devcel.2024.03.031" class="external-link">https://doi.org/10.1016/j.devcel.2024.03.031</a>.
 </div>
@@ -1386,9 +439,6 @@ Farag, Naama, Chen Sacharen, Lara Avni, and Iftach Nachman. 2024. <span>‘Coord
 </div>
 <div id="ref-fiuza2025" class="csl-entry" role="listitem">
 <span class="nocase">Fiuza, Ulla-Maj, Sara Bonavia, et al.</span> 2025. <span>‘Morphogenetic Constraints in the Development of Gastruloids: Implications for Mouse Gastrulation’</span>. <em>Cells &amp; Development</em>, ahead of print. <a href="https://doi.org/10.1016/j.cdev.2025.204043" class="external-link">https://doi.org/10.1016/j.cdev.2025.204043</a>.
-</div>
-<div id="ref-hutchins2025iris" class="csl-entry" role="listitem">
-Hutchins, Nicholas T., Miram Meziane, Claire Lu, Maisam Mitalipova, David Fischer, and Pulin Li. 2025. <span>‘Reconstructing Signaling Histories of Single Cells via Perturbation Screens and Transfer Learning’</span>. <em>bioRxiv</em>, ahead of print. <a href="https://doi.org/10.1101/2025.03.16.643448" class="external-link">https://doi.org/10.1101/2025.03.16.643448</a>.
 </div>
 <div id="ref-mcnamara2024" class="csl-entry" role="listitem">
 <span class="nocase">McNamara, Harold M., Jared E. Toettcher, et al.</span> 2024. <span>‘Recording Morphogen Signals Reveals Mechanisms Underlying Gastruloid Symmetry Breaking’</span>. <em>Nature Cell Biology</em>, ahead of print. <a href="https://doi.org/10.1038/s41556-024-01521-9" class="external-link">https://doi.org/10.1038/s41556-024-01521-9</a>.
@@ -1418,7 +468,7 @@ Underhill, Evan J., and Jared E. Toettcher. 2023. <span>‘Control of Gastruloid
 <span class="nocase">Villaronga-Luque, Alba, Rosie Savill, others, and Jesse V. Veenvliet</span>. 2025. <span>‘Integrated Molecular-Phenotypic Profiling Reveals Metabolic Control of Morphological Variation in a Stem-Cell-Based Embryo Model’</span>. <em>Cell Stem Cell</em>, ahead of print. <a href="https://doi.org/10.1016/j.stem.2025.03.012" class="external-link">https://doi.org/10.1016/j.stem.2025.03.012</a>.
 </div>
 </div>
-</section></section><script id="quarto-html-after-body" type="application/javascript">
+</section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);

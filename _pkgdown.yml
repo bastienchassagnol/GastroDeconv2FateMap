@@ -92,7 +92,7 @@ navbar:
           href: articles/atlas_construction.html
         - text: Gastruloid bifurcation hypothesis
           icon: fa-code-branch
-          href: articles/gastruloid-bifuration-hypothesis.html
+          href: articles/gastruloid-bifuration-methods.html
         - text: -------
         - text: Methods and interpretation
         - text: Clustering longitudinal trajectories
@@ -163,7 +163,7 @@ articles:
     contents:
       - gastruloid_datasets
       - atlas_construction
-      - gastruloid-bifuration-hypothesis
+      - gastruloid-bifuration-methods
   - title: Methods and interpretation
     contents:
       - clustering-longitudinal-techniques

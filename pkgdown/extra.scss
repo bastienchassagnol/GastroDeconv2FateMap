@@ -1,0 +1,51 @@
+// Adapted from stan-dev/pkgdown-config / DeCovarT pkgdown/extra.scss.
+// Shared visual language for GastroDeconv2FateMap.
+
+html[data-bs-theme="light"] {
+
+  div.sourceCode > pre,
+  pre.sourceCode,
+  pre.downlit,
+  pre {
+    background-color: $code-bg !important;
+  }
+
+  #search-input {
+    &::placeholder {
+      color: var(--body-secondary-color) !important;
+    }
+  }
+
+  .navbar {
+    --bs-secondary-color: #ece5cf;
+  }
+}
+
+html[data-bs-theme="dark"] {
+
+  div.sourceCode > pre,
+  pre.sourceCode,
+  pre.downlit,
+  pre {
+    background-color: $code-bg-dark !important;
+  }
+}
+
+pre {
+  color: var(--bs-body-color);
+}
+
+.navbar .nav-text.text-danger {
+  color: var(--bs-navbar-color) !important;
+}
+
+.navbar .nav-text.text-danger::after {
+  content: "DEV";
+  display: inline-block;
+  border: 2px solid var(--bs-navbar-color);
+  border-radius: 999px;
+  padding: 0.05rem 0.4rem;
+  margin-left: 0.4rem;
+  line-height: 1;
+  font-weight: 800;
+}

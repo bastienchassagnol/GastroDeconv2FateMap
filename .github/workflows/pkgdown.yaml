@@ -1,4 +1,6 @@
-# Builds and deploys the pkgdown site (Quarto articles) to GitHub Pages.
+# Workflow adapted from DeCovarT / r-lib/actions examples.
+# Builds Quarto articles via pkgdown and deploys to GitHub Pages.
+# No test-coverage job (deferred).
 on:
   push:
     branches: [main, master]
@@ -14,13 +16,16 @@ permissions: read-all
 jobs:
   pkgdown:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     concurrency:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
       cancel-in-progress: false
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      # Quarto articles live under vignettes/; renv is used locally but CI
+      # installs via setup-r-dependencies (RSPM), not renv::restore().
+      RENV_CONFIG_AUTOLOADER_ENABLED: "false"
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v7
 
@@ -41,13 +46,10 @@ jobs:
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 
-      - name: Configure Git for deployment
-        if: github.event_name != 'pull_request'
-        run: |
-          git config --local user.name "${{ github.actor }}"
-          git config --local user.email "${{ github.actor }}@users.noreply.github.com"
-
       - name: Deploy to GitHub pages
         if: github.event_name != 'pull_request'
-        run: pkgdown::deploy_to_branch(new_process = FALSE)
-        shell: Rscript {0}
+        uses: JamesIves/github-pages-deploy-action@v4.9.0
+        with:
+          clean: false
+          branch: gh-pages
+          folder: docs

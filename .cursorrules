@@ -1,234 +1,254 @@
-You are an R and Python programming assistant. Follow the practices below for each language.
+You are an R and Python programming assistant for **GastroDeconv2FateMap**.
+Follow the practices below. Prefer British English in prose and documentation.
 
-**Scope:** Do not add tasks (tests, docs, commits, refactors) unless requested; ask first.
+**Scope:** Do not add tasks (tests, docs, commits, refactors, or
+enforcement of these rules in the codebase) unless requested; ask first.
+Minimise scope: do not change unrelated code.
 
 ---
 
-# R
+# Language-agnostic project structure and data
 
-## Project structure and file organisation
+Inspired by
+[Data Science Team Training — Data Organisation](https://dstt.stephenturner.us/dataorg.html#additional-best-practices)
+and tailored from the DeCovarT package rules for this dual R/Python repo.
 
-- Analysis scripts live in `scripts/`; reusable functions belong in `R/` (especially for packages).
-- Use clear directories: `data/` (raw and processed), `outputs/` (figures and tables), `docs/` (reports). For R packages, put external files in `inst/`.
-- Use an `.Rproj` file per project for working directory and editor settings.
-- Keep raw data immutable; work in `data/processed/` or `data/intermediate/`.
-- Manage dependencies with `renv`; install, synchronise, and lock all packages.
-- Version-control scripts, data manifests, and results; write clear commit messages.
-- Use short, descriptive `snake_case` file names.
+## Directory layout (this repository)
+
+```
+GastroDeconv2FateMap/
+├── R/                 # package functions (reusable API)
+├── scripts/           # R analysis / pipeline scripts (extensive use)
+├── Python/            # Python analysis scripts (mirror numeric prefixes)
+├── vignettes/         # Quarto vignettes → pkgdown articles
+├── data/              # raw (immutable), intermediate, processed
+│   ├── raw/
+│   ├── intermediate/
+│   └── processed/
+├── outputs/           # figures, tables, rendered artefacts
+├── article/           # manuscript materials (if any)
+├── inst/              # package assets
+├── man/               # roxygen-generated help
+├── docs/              # pkgdown site build (GitHub Pages)
+├── renv/ + renv.lock  # R dependency lock (always sync after installs)
+├── pyproject.toml + uv.lock  # Python deps via uv (not Poetry/pip ad hoc)
+└── _pkgdown.yml       # pkgdown navbar + articles index
+```
+
+- One project = one directory; use the `.Rproj` for the working directory.
+- **Raw data is sacred:** never edit or overwrite `data/raw/`.
+- All cleaning and derivation is scripted; intermediates are regenerated.
+- Prefer plain-text analysis-ready tables (CSV/TSV/Parquet) over `.xlsx`.
+- Version-control **code and small text**; do not commit large or binary
+  raw data. Use a strict `.gitignore`.
+- Track large raw files with **[DVC](https://dvc.org/)**; commit `.dvc`
+  pointers, not blobs.
+- Avoid `"final"` / `"FINAL_v3"` in file names; use Git history instead.
 - Prefer Quarto for reproducible reports when available.
-- Avoid unnecessary dependencies; use base R when it is clearly simpler. Check existing project helpers and base R before adding code.
-- Minimise scope: do not change unrelated code.
 
-## Package structure (R packages only)
+## File naming
 
-- Declare dependencies with versions in `DESCRIPTION` (e.g. `R6 (>= 2.6.1)`).
-- Include `LICENSE` and `NEWS.md`.
-- Store external files in `inst/`; read them with `system.file()`.
+- Short, descriptive **`snake_case`** (or `kebab-case` for dated outputs).
+- No spaces or special characters (`@`, `#`, `%`, parentheses).
+- Dated artefacts: `YYYY-MM-DD-descriptive-slug.ext`.
+- Ordered scripts: zero-padded prefixes (`01_import_data.R`,
+  `Python/06_01_….py` ↔ `scripts/06_01_….R` when mirrored).
+
+## Diagrams and documentation visuals
+
+- **Pipelines / architecture:** Mermaid (preferred in README / Quarto) or
+  Excalidraw for free-form sketches.
+- README badges: only stacks actually used (R, renv, uv, scanpy/Seurat,
+  Quarto, pkgdown)—do not invent unused stacks.
+
+---
+
+# R — package, scripts, and renv
+
+## Project roles
+
+- Reusable package code lives in `R/`.
+- Analysis / simulation scripts live in `scripts/` (this project uses
+  scripts heavily; keep one-off logic there until reused twice).
+- Vignettes live in `vignettes/` (Quarto).
+- External package files live in `inst/`; read with `system.file()`.
+- Manage R deps with **`renv`**: `renv::install()`, `renv::snapshot()`,
+  commit `renv.lock`. Do not rely on ad-hoc library installs in CI;
+  GitHub Actions currently use `setup-r-dependencies` with
+  `RENV_CONFIG_AUTOLOADER_ENABLED=false`.
+
+## Package structure
+
+- Declare dependencies with versions in `DESCRIPTION`
+  (e.g. `dplyr (>= 1.1.0)`).
+- Keep `LICENSE` / `LICENSE.md` and `NEWS.md` up to date.
 - Document with **roxygen2**; run `devtools::document()`.
-- Test with `devtools::load_all()`; validate with `devtools::check()` (notes are fine; avoid warnings and errors).
+- Before interactive testing: `devtools::load_all()`.
+- Validate with `devtools::check()` when asked (notes OK; avoid
+  warnings/errors). **Do not add or expand test suites / coverage
+  unless the user asks.**
 
 ## Naming conventions
 
-- `snake_case` for variables and functions (e.g. `total_sales`, `clean_data()`).
+- `snake_case` for variables and functions.
 - `UpperCamelCase` for R6, S3, S4, and S7 class names.
 - `SCREAMING_SNAKE_CASE` for constants and global options.
 - Prefix data-frame objects with `df_` when it aids clarity.
 - Use verbs for functions; avoid ambiguous names (`customer_id`, not `id`).
 - Do not shadow R builtins (`sd`, `data`, etc.).
-- R6 private methods and fields start with `.` (e.g. `.get_data()`).
-- Avoid one-off helper functions unless they improve readability.
+- R6 private methods and fields start with `.`.
 
 ## Coding style
 
 - Follow the [tidyverse style guide](https://style.tidyverse.org/).
-- Prefer `dplyr::mutate(..., .keep = "none")` over superseded `transmute()`.
+- Prefer `dplyr::mutate(..., .keep = "none")` over superseded
+  `transmute()`.
 - Use the native pipe `|>`.
-- Use `package::function()` for non-base functions (e.g. `dplyr::select()`).
+- Use `package::function()` for non-base functions.
 - Use `glue::glue()` for string interpolation.
-- Use 2-space indentation; keep lines ≤ 80 characters.
+- 2-space indentation; keep lines ≤ 80 characters.
 - Assign with `<-`; use `=` only inside R6 methods.
 - Handle missing values explicitly (`na.rm = TRUE`, `is.na()`).
-- Preallocate vectors when filling in loops.
-- Comment non-obvious logic only (complex transforms, exotic plots, formulas).
+- Comment non-obvious logic only.
 - Prefer modular, reusable functions over long scripts.
+- Save ggplot2 figures with `ggplot2::ggsave()`, not base `grDevices`,
+  unless TikZ/LaTeX export is required.
 
-**Tidyverse preferences:**
+### dplyr programming (indirection)
 
-- `lubridate` for dates
-- `stringr` for text
-- `forcats` for factors
-- `dplyr` or `data.table` for in-memory tabular work (match the script’s existing style)
+- Data-masking from the caller: embrace with `{{ var }}`.
+- Character names: `.data[[var]]` / `.data[["column"]]`.
+- Tidy-select with characters: `dplyr::all_of()` / `any_of()`.
 
-## Performance and optimisation
+**Tidyverse preferences:** `lubridate`, `stringr`, `forcats`,
+`dplyr` / `data.table` (match the script’s existing style).
 
-- Profile bottlenecks with `profvis` before optimising.
-- Prefer vectorised code, the apply family, or `purrr` over explicit loops.
-- Use `data.table` for large in-memory tables when speed matters.
-- Use `duckdb` for out-of-memory or SQL-style queries.
-- CSV/TSV: `readr::read_csv()` / `readr::read_tsv()` in tidyverse workflows; `data.table::fread()` otherwise. Set `show_col_types = FALSE` by default when reading.
-- Avoid copying large objects unnecessarily.
+## Performance
 
-## Testing, reproducibility, and documentation
-
-- Use `testthat` for unit tests; cover edge cases and missing values.
-- Set seeds with `set.seed()` for stochastic steps.
-- Capture environment with `sessioninfo::session_info()`.
-- Maintain a clear `README`; document analysis steps in reports.
-- Use roxygen2 docstrings for package functions.
-
-## Shiny
-
-- Use modules (`moduleServer`, `NS()`) for encapsulation.
-- Separate UI, server, and data logic; keep UI declarative.
-- Store session state in `reactiveValues` or `session$userData`, not globals.
-- Put static assets in `www/`.
-- Avoid `renderUI` / `UIOutput` unless necessary.
-
-## Advanced practices
-
-- Prefer **R6** for complex objects when appropriate; S3/S4/S7 when idiomatic.
-- Automate pipelines with `targets`.
-- Use Docker and CI/CD (GitHub Actions, GitLab CI) for deployment and checks.
+- Profile with `profvis` before optimising.
+- Prefer vectorised code, apply family, or `purrr` over loops.
+- `data.table` for large in-memory tables; `duckdb` for out-of-memory.
+- CSV/TSV: `readr` with `show_col_types = FALSE`, or `data.table::fread()`.
 
 ## Preferred R dependencies
 
 | Task | Package |
 |------|---------|
 | Lists / functional code | `purrr` |
-| Paths | `here`, `fs` (not `normalizePath()` ad hoc) |
+| Paths | `here`, `fs` |
 | Tabular data | `dplyr`, `data.table` |
 | Out-of-memory data | `duckdb` |
 | Plotting | `ggplot2`; interactive: `ggiraph` |
-| ggplot discrete scales | Named vectors via `stats::setNames()` |
 | Input checks | `checkmate` |
 | Messages | `cli` |
 | Strings | `glue` |
-| Parallelism | `mirai` |
-| JSON | `jsonlite`; large JSON: `yyjsonr` |
-| C++ integration | `Rcpp` |
-| Web apps | `shiny` |
+| Parallelism | `mirai` / existing `furrr` patterns |
 | Reproducibility | `renv`, Quarto |
+| Package workflow | `devtools`, `usethis`, `roxygen2` |
+| Website | `pkgdown` |
 
 ---
 
-To save graphs, prefer using the ggplot2::ggsave function, rather than grDevices
+# pkgdown and Quarto vignettes (mandatory)
+
+Site config: `_pkgdown.yml`. Theme assets: `pkgdown/extra.scss`.
+CI: `.github/workflows/pkgdown.yaml` (Quarto + pkgdown → `gh-pages`).
+
+**Whenever you create or rename a Quarto vignette under `vignettes/`:**
+
+1. Add the stem (filename without `.qmd`) to the `articles:` contents
+   lists in `_pkgdown.yml`.
+2. Add a navbar entry under `navbar.components.articles.menu` with a
+   human title and `href: articles/<stem>.html`.
+3. Place it in the appropriate articles group (Getting started /
+   Literature and datasets / Methods and interpretation), or create a
+   new titled group if needed.
+4. Prefer British English titles; keep icons optional but consistent.
+5. Do **not** leave orphan `.qmd` files that are absent from
+   `_pkgdown.yml`.
+
+Example (after adding `vignettes/atlas_construction.qmd`):
+
+```yaml
+articles:
+  - title: Literature and datasets
+    contents:
+      - gastruloid_datasets
+      - atlas_construction   # ← stem of atlas_construction.qmd
+```
+
+and a matching navbar `href: articles/atlas_construction.html`.
+
+Build locally when asked: `pkgdown::build_site()` or
+`pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)`.
+
+---
+
+# Scientific writing (`article/` and `vignettes/`)
+
+Apply careful methods-reviewer discipline to vignettes and manuscripts.
+
+### Anti-slop and wording
+
+- Prefer concrete nouns and verbs; name estimators, datasets, baselines.
+- Avoid AI filler (“delve”, “leverage”, “robust framework”, empty
+  “novel” / “seamless”).
+- Prefer short sentences; one claim per sentence when arguing.
+- Define symbols on first use; do not anthropomorphise methods.
+- **Never invent papers, DOIs, or quotes.** Flag uncertain citations.
+
+### Vignettes
+
+- Prefer Quarto; British English; precise, cited scientific prose.
+- Document pre-processing and non-obvious numerical devices when they
+  matter.
+- Keep vignettes reproducible; cross-link package help pages.
+
+---
 
 # Python
 
-## Project structure and file organisation
+## Project structure
 
-- Analysis scripts live in `Python/` (R scripts live in `scripts/`). Mirror workflows with matching numeric prefixes (e.g. `Python/06_01_...py` ↔ `scripts/06_01_...R`).
-- Extract reusable logic into `Python/` modules only when used more than once.
-- Keep raw data immutable in `data/raw/`; write processed objects to `data/intermediate/`; save figures and tables to `outputs/`.
-- Use project-root paths (`pathlib.Path`) so scripts run from Cursor, the terminal, and CI.
-- Use short, descriptive `snake_case` file names.
-- Do not install this repo as a package (`[tool.uv] package = false` in `pyproject.toml`).
-- Avoid unnecessary dependencies; prefer the scverse stack already in use.
+- Analysis scripts live in `Python/` (R scripts in `scripts/`). Mirror
+  workflows with matching numeric prefixes when both exist.
+- Extract reusable logic into modules only when used more than once.
+- Keep raw data immutable in `data/raw/`; write processed objects to
+  `data/intermediate/`; save figures/tables to `outputs/`.
+- Use project-root `pathlib.Path` paths.
+- Do not install this repo as a package
+  (`[tool.uv] package = false` in `pyproject.toml`).
+- Prefer the scverse stack already in use.
 
 ## Modern engineering stack
 
-Prefer this toolchain over older equivalents (Poetry, pip, flake8, isort, mypy, pre-commit):
-
 | Tool | Role |
 |------|------|
-| [uv](https://docs.astral.sh/uv/) | Package and project manager; fast installs and lockfiles |
-| [Ruff](https://docs.astral.sh/ruff/) | Linter and formatter (replaces flake8, isort, etc.) |
-| [Pyrefly](https://pyrefly.org/) | Static type checker; prefer over mypy/pyright for speed |
-| [prek](https://github.com/j178/prek) | Git hooks (lint, format, type-check); prefer over pre-commit |
-| [just](https://just.systems/) | `justfile` command runner for repeatable project tasks |
+| [uv](https://docs.astral.sh/uv/) | Package manager (counterpart of `renv`) |
+| [Ruff](https://docs.astral.sh/ruff/) | Lint + format |
+| [Pyrefly](https://pyrefly.org/) | Type check |
+| [prek](https://github.com/j178/prek) | Git hooks (prefer over pre-commit) |
+| [just](https://just.systems/) | Task runner |
 
-**Workflow defaults:**
+- `uv sync` → `just check` (or `uv run ruff` / `pyrefly`) before commit.
+- Run scripts with `uv run Python/<script>.py`, not system `python3`.
 
-- `uv sync` → `just check` (or `uv run ruff check`, `uv run ruff format --check`, `uv run pyrefly check`) before committing.
-- Define common tasks in `justfile` (e.g. `sync`, `lint`, `format`, `typecheck`, `test`, `run SCRIPT=...`) instead of long shell one-liners.
-- Configure **prek** to run Ruff and Pyrefly on commit; keep hooks fast.
-- Use **Commitizen** (`cz commit`) when the project adopts Conventional Commits.
-- Generate docs with **pdoc** only for importable modules under `Python/`, not one-off scripts.
+## Naming and style
 
-## Dependency management (uv)
-
-- Manage Python with **uv** at the project root (counterpart of `renv`).
-- Track `pyproject.toml`, `uv.lock`, and `.python-version`; never commit `.venv/`.
-- Add runtime packages with `uv add <package>`; add dev tools with `uv add --dev ruff pyrefly pytest` (and `prek`, `commitizen` when adopted).
-- Sync with `uv sync`; run scripts with `uv run Python/<script>.py`.
-- Add pertpy extras explicitly when needed: `uv add 'pertpy[de]'`, `uv add 'pertpy[tcoda]'`.
-- Include `ipykernel` for the Interactive Window and `# %%` cells.
-- Do not use `pip install` or Poetry in instructions when `uv` is available.
-
-## Naming conventions
-
-- `snake_case` for variables, functions, modules, and files.
+- `snake_case` for variables, functions, modules, files.
 - `UpperCamelCase` for classes only.
-- `SCREAMING_SNAKE_CASE` for module-level constants.
-- Avoid shadowing builtins (`id`, `type`, `list`, `dict`).
-- Align names with single-cell metadata (`timepoint`, `sample_barcode`, `luque_cluster_annotation`).
-
-## Coding style and static analysis
-
-- Follow [PEP 8](https://peps.python.org/pep-0008/) and modern typing (`list[str]`, `X | None`, `Path`).
-- 4-space indentation; lines ≤ 88 characters (Ruff default).
-- Type-hint all public functions in reusable modules; keep annotations practical, not exhaustive.
-- Run **Pyrefly** (`uv run pyrefly check`) on `Python/` modules; fix type errors before merging.
-- Prefer `pathlib.Path` over `os.path`; prefer f-strings for interpolation.
-- One statement per line; use `# %%` cells for interactive work in Cursor.
-- Guard executable scripts with `if __name__ == "__main__":`.
-- Format and lint with **Ruff**: `uv run ruff format`, `uv run ruff check` (configure rules in `pyproject.toml`).
-- Document reusable public APIs with concise docstrings (Google or NumPy style) so **pdoc** can render them.
+- PEP 8 + modern typing (`list[str]`, `X | None`, `Path`).
+- 4-space indent; lines ≤ 88 (Ruff default).
+- Type-hint public functions in reusable modules.
+- Guard scripts with `if __name__ == "__main__":`.
 
 ## Single-cell omics (scverse)
 
 - Central object: `anndata.AnnData`.
-- `scanpy` for QC, neighbours, embeddings, and standard plots.
-- `pertpy` for perturbation, differential abundance, and compositional analyses (e.g. scCODA, milo, tascCODA).
-- `mudata` for multimodal objects.
-- Treat `AnnData` as the source of truth:
-  - Counts in `.layers["counts"]` or `.raw`; normalised data in `.X` or named layers.
-  - Cell metadata in `.obs`; gene metadata in `.var`.
-  - Subset with `adata[cells, genes].copy()` only when needed.
-- Standard order when applicable: QC → filter → normalise → HVGs → scale/PCA → neighbours → UMAP.
-- Set seeds (`np.random.seed`, `sc.settings.set_figure_params`, `random_state`) for reproducibility.
-- Prefer pertpy loaders and tools (`pt.dt.*`, `pt.tl.*`, `pt.pp.*`) when they cover the analysis.
-- For compositional analyses, prefer pertpy scCODA/tascCODA over ad hoc proportion transforms.
-- Save reusable intermediates to `data/intermediate/` as `.h5ad`.
-- Align naming and outputs with matching R workflows where both languages analyse the same dataset.
-
-## Performance and memory
-
-- Prefer vectorised NumPy, SciPy, and scanpy operations over Python loops.
-- Keep count matrices sparse (`scipy.sparse`); never densify large matrices without cause.
-- **Tabular summaries outside AnnData:** prefer `polars` or `duckdb` over row-wise `pandas` loops; use `pandas` for small `obs`/`var` tables and scverse-native workflows.
-- **I/O:** prefer `pyarrow` / Parquet for large tables; `h5py` / `.h5ad` for AnnData.
-- Profile before optimising (`%timeit`, `scalene`, or `cProfile`).
-- Release large objects when done (`del adata`); avoid silent copies in loops.
-- Use `joblib` only for embarrassingly parallel steps not covered by scanpy/pertpy.
-
-## Plotting and visualisation
-
-- Default: `matplotlib` + `scanpy` plotting (`sc.pl.*`).
-- **Statistical summaries on tables:** `seaborn` (box/violin/heatmap) or `matplotlib` for full control.
-- **ggplot-like parity with R workflows:** consider `plotnine` when mirroring existing `ggplot2` logic.
-- Set figure parameters once per script; save to `outputs/` with descriptive `snake_case` names.
-- Use explicit colour palettes; store label-to-colour maps as named dicts.
-- Publication PDFs: `matplotlib.savefig(..., bbox_inches="tight")` or `cairo` backend when needed.
-- Forest plots, mosaic/Marimekko layouts, and combined plot+table figures: prefer `matplotlib`/`seaborn` composition (`matplotlib.gridspec`, `patchwork`-style layout) or export tables separately when R handles layout (e.g. `flextable` + `patchwork`).
-
-## Testing and validation
-
-- Use `pytest` under `tests/` for reusable functions.
-- Fix random seeds in tests.
-- Cover edge cases: empty AnnData subsets, missing metadata, NaN proportions, single-cell-type samples.
-- Smoke-test the environment (`import pertpy as pt`, minimal dataload).
-
-## Reproducibility, Git, and Cursor workflow
-
-- Pin dependencies via `uv.lock`; recreate with `uv sync`.
-- Record environment with `session-info2` in reports.
-- Store scripts and lock files in Git; keep large data on DVC remotes.
-- Prefer **Commitizen** for commit messages when the project uses Conventional Commits.
-- Enforce quality with **prek** hooks (Ruff + Pyrefly + pytest smoke) rather than ad hoc pre-commit scripts.
-- Interpreter: `.venv` via `python.defaultInterpreterPath` in `.vscode/settings.json`.
-- Run scripts via `just run …`, `uv run Python/<script>.py`, or **Run Python File** with `.venv` — not system `python3`.
-- Interactive exploration: `# %%` cells + Interactive Window (Shift+Enter).
+- `scanpy` for QC / neighbours / embeddings; `pertpy` for perturbation
+  and compositional analyses; `mudata` for multimodal.
+- Counts in `.layers["counts"]` or `.raw`; metadata in `.obs` / `.var`.
+- Save reusable intermediates as `.h5ad` under `data/intermediate/`.
 
 ## Preferred Python dependencies
 
@@ -236,19 +256,16 @@ Prefer this toolchain over older equivalents (Poetry, pip, flake8, isort, mypy, 
 |------|----------------|
 | Single-cell core | `scanpy`, `anndata` |
 | Perturbation / composition | `pertpy` |
-| Multimodal | `mudata` |
-| Numerics / ML | `numpy`, `scipy`, `scikit-learn` |
 | Fast tabular (non-AnnData) | `polars`, `duckdb` |
-| Fast I/O | `pyarrow` |
 | Plotting | `matplotlib`, `seaborn`, `scanpy` |
-| ggplot-like (optional) | `plotnine` |
-| Interactive dev | `ipykernel` |
 | Project / env | `uv` |
-| Lint / format | `ruff` |
-| Type checking | `pyrefly` |
-| API docs | `pdoc` |
-| Testing | `pytest` |
-| Git hooks | `prek` |
-| Commits / changelog | `commitizen` |
-| Task runner | `just` |
-| Reproducibility | `session-info2` |
+| Lint / format / types | `ruff`, `pyrefly` |
+
+---
+
+# GitHub Actions (this repo)
+
+- `pkgdown.yaml` — Quarto + pkgdown → `gh-pages` (no network-script step).
+- `R-CMD-check.yaml` — Ubuntu release check only for now.
+- **No `test-coverage` workflow** until the user requests it.
+- CI disables the renv autoloader; installs via `setup-r-dependencies`.

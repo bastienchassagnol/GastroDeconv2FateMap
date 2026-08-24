@@ -1,0 +1,161 @@
+---
+title: "Semantic clustering of gastruloid publications"
+from: markdown+emoji
+bibliography: gastruloid_paper_clustering.bib
+cite-method: citeproc
+format:
+  html:
+    toc: true
+    code-fold: true
+    embed-resources: true
+    html-math-method: mathjax
+execute:
+  echo: false
+tbl-cap-location: bottom
+fig-cap-location: bottom
+number-sections: true
+---
+
+# Overview
+
+For \~30 gastruloid papers, citation graphs alone poorly separate **experimental protocol** from **biological findings**. Free browsers (@tbl-nocode-tools) help exploration; a **section-aware dual-view** pipeline (@fig-pipeline) is better for a review-quality taxonomy [@singh2023scirepeval; @specter2].
+
+Represent each paper with two views (protocol vs insight), not one fused embedding early on:
+
+$$\mathbf{z}_i^{\mathrm{prot}},\;
+\mathbf{z}_i^{\mathrm{ins}}
+\in \mathbb{R}^{d}$$ {#eq-dual-views}
+
+Similarity is cosine on each view separately:
+
+$$S_{ij}^{(v)}
+=
+\frac{
+\langle \mathbf{z}_i^{(v)}, \mathbf{z}_j^{(v)} \rangle
+}{
+\|\mathbf{z}_i^{(v)}\|_2\,\|\mathbf{z}_j^{(v)}\|_2
+}
+,\qquad
+v \in \{\mathrm{prot},\mathrm{ins}\}$$ {#eq-cosine}
+
+# Decision: no-code vs full pipeline
+
+```{mermaid}
+%%| label: fig-pipeline
+%%| fig-cap: "Decision flowchart for gastruloid paper clustering (~30 papers)."
+flowchart TD
+  Start([Corpus of ~30 gastruloid PDFs]) --> Q{Need protocol-aware<br/>clusters for a review?}
+  Q -->|No / quick map| NC[No-code path]
+  NC --> Citrus[Citrus Search<br/>content similarity]
+  NC --> Incite[Inciteful<br/>citation + influence]
+  Citrus --> Explore[Explore clusters / missing papers]
+  Incite --> Explore
+
+  Q -->|Yes| Full[Full open pipeline]
+  Full --> A[a. GROBID PDF → TEI sections]
+  A --> B[b. Feature engineering:<br/>Methods = protocol<br/>Results/Discussion = insights]
+  B --> C[c. scispaCy / PubTator3<br/>→ MeSH + GO]
+  C --> D[d. Free scientific embeddings<br/>SciBERT / SPECTER2]
+  D --> E[e. Cosine similarity matrices]
+  E --> F[f. Hierarchical / modular clustering<br/>HDBSCAN or Leiden]
+  F --> H[h. BERTopic cluster labels]
+  H --> I[i. NetworkX or Neo4j graphs]
+  I --> J[j. Intrinsic validation<br/>silhouette / DB / CH]
+  Explore --> Out([Literature map])
+  J --> Out
+```
+
+## No-code path
+
+| Tool | Free | Signal | Role here |
+|------------------|------------------|------------------|------------------|
+| Citrus Search [@citrussearch] | ✓ | Content embeddings | Best no-code match for protocol/content grouping |
+| Inciteful [@inciteful] | ✓ | Citations + similarity | Landmark neighbourhoods; missing papers |
+| Connected Papers [@connectedpapers] | Limited | Citation graph | Visual splits (species, tissue, signalling) |
+
+: Free no-code tools for a small gastruloid corpus
+
+Prefer **Citrus** for content/protocol likeness and **Inciteful** for citation neighbourhoods; treat Connected Papers as an optional visual check [@citrussearch; @inciteful; @connectedpapers].
+
+## Full pipeline (summarised)
+
+### a. Paper extraction — GROBID
+
+Parse PDFs to scholarly TEI/XML (title, abstract, sections, references) [@grobid]. Normalise headings to `methods`, `results`, `discussion`, `captions`; exclude the reference list from clustering features.
+
+### b. Feature engineering — protocol vs insights
+
+Do **not** fuse views yet. Build:
+
+- **Protocol text** — methods (+ captions / supplementary methods when present)
+- **Insight text** — results + discussion (+ abstract/conclusion)
+
+Optionally fill a short schema (species, aggregate size, CHIR/RA timing, assays, main phenotype) to support later filtering; classic gastruloid axes include mESC aggregates and WNT/CHIR timing [@vandenbrink2014].
+
+### c. Ontology matching — scispaCy
+
+Run biomedical NER (scispaCy; optionally PubTator3) and map entities to **MeSH** / **GO** [@scispacy; @pubtator3; @mesh; @geneontology]. Store as sparse flags or TF–IDF over ontology IDs to stabilise synonym variants (e.g. CHIR / CHIR99021).
+
+### d. Embeddings — free scientific models
+
+Use non-commercial scientific encoders: **SPECTER2** (title+abstract paper anchor) and/or **SciBERT** (section/chunk encoding) [@specter2; @beltagy2019scibert; @singh2023scirepeval]. Pool chunk embeddings into $\mathbf{z}^{\mathrm{prot}}$ and $\mathbf{z}^{\mathrm{ins}}$ (@eq-dual-views); L2-normalise for cosine (@eq-cosine).
+
+### e. Similarity matrices
+
+Compute exact cosine matrices $S^{(\mathrm{prot})}$ and $S^{(\mathrm{ins})}$ (@eq-cosine). With \~30 papers, ANN indices are unnecessary.
+
+### f. Clustering — hierarchical or modular
+
+Prefer **hierarchical** structure or **module-based** partitions:
+
+- agglomerative clustering (average linkage on cosine) + dendrogram; or
+- **HDBSCAN** for hierarchical density clusters with outliers [@mcinnes2017hdbscan]; or
+- **Leiden** on a $k$-NN similarity graph for modular communities [@traag2019leiden].
+
+Run protocol and insight spaces **separately**, then cross-tabulate cluster memberships (@tbl-outputs).
+
+### h. Cluster labelling — BERTopic
+
+Label clusters with BERTopic / c-TF-IDF terms grounded in member sections [@grootendorst2022bertopic], e.g. `mouse mESC · CHIR-pulse · axial organisation`.
+
+### i. Visualisation — NetworkX or Neo4j
+
+Export papers as nodes and high-similarity edges as a graph in NetworkX (local) or Neo4j (queryable) [@networkx; @neo4j]. Optionally project embeddings with UMAP for a 2D map [@mcinnes2018umap] — plots support interpretation, they are not the clustering itself.
+
+### j. Mathematical validation
+
+Report intrinsic metrics (silhouette, Davies–Bouldin, Calinski–Harabasz) on each view [@rousseeuw1987silhouette]. With a small expert-labelled pair set, add ARI/NMI and Precision\@k for nearest neighbours. Case-check that known families (mouse/CHIR/axial; human RA/Matrigel posterior; tissue-specialised outputs) reappear [@vandenbrink2014].
+
+| Output | Content |
+|------------------------------------|------------------------------------|
+| Protocol clusters | Families of induction / culture / perturbation pipelines |
+| Insight clusters | Families of biological claims and phenotypes |
+| Protocol × insight cross-tab | Same method, different claims (or the reverse) |
+
+: Linked outputs from the dual-view clustering design
+
+# Python modules (pipeline roles)
+
+| Module / tool | Role in the pipeline |
+|------------------------------------|------------------------------------|
+| `grobid` (service) | PDF → structured TEI sections [@grobid] |
+| `scispacy` | Biomedical NER / sentence processing [@scispacy] |
+| PubTator3 API | Concept annotation & relations [@pubtator3] |
+| `transformers` + SciBERT / SPECTER2 | Free scientific embeddings [@beltagy2019scibert; @specter2] |
+| `sentence-transformers` | Convenient pooling / cosine helpers [@reimers2019sbert] |
+| `numpy` / `scipy` | Similarity matrices (@eq-cosine) |
+| `hdbscan` | Hierarchical density clustering [@mcinnes2017hdbscan] |
+| `leidenalg` / `igraph` | Modular graph clustering [@traag2019leiden] |
+| `bertopic` | Cluster topic labels [@grootendorst2022bertopic] |
+| `networkx` | Local similarity graphs [@networkx] |
+| `neo4j` (optional) | Persist/query paper networks [@neo4j] |
+| `umap-learn` | 2D visualisation of embeddings [@mcinnes2018umap] |
+| `scikit-learn` | Agglomerative clustering; silhouette & related metrics [@rousseeuw1987silhouette] |
+
+: Python and related tooling mentioned in the full pipeline
+
+# Recommendation
+
+Start with @tbl-nocode-tools if the goal is orientation. For a publication-quality gastruloid map, follow @fig-pipeline (full branch): GROBID → dual protocol/insight features → ontology terms → SciBERT/SPECTER2 → cosine $S$ → hierarchical/modular clustering → BERTopic labels → NetworkX/Neo4j → intrinsic validation (@eq-dual-views; @eq-cosine; @tbl-outputs; @tbl-python-modules).
+
+## References

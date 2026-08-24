@@ -27,3 +27,4 @@
 ^R/vscdebugger_r46_patch\.R$
 ^man/patch_vscdebugger_promises_r46\.Rd$
 ^pkgdown$
+^inst/logo/subplot_

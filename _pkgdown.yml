@@ -95,6 +95,9 @@ navbar:
           href: articles/gastruloid-bifuration-methods.html
         - text: -------
         - text: Methods and interpretation
+        - text: Gastruloid paper clustering
+          icon: fa-project-diagram
+          href: articles/gastruloid_paper_clustering.html
         - text: Clustering longitudinal trajectories
           icon: fa-project-diagram
           href: articles/clustering-longitudinal-techniques.html
@@ -166,6 +169,7 @@ articles:
       - gastruloid-bifuration-methods
   - title: Methods and interpretation
     contents:
+      - gastruloid_paper_clustering
       - clustering-longitudinal-techniques
       - differential_analyses
       - enrichment_techniques

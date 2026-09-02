@@ -239,6 +239,108 @@ eval_MAE <- function(p_obs, p_estimated, trim_shared_zeros = TRUE) {
   mean(abs(p_obs - p_estimated), na.rm = TRUE)
 }
 
+#' Total variation (normalised MAE) between two compositions
+#'
+#' \deqn{d_{\mathrm{TV}} = \tfrac12 \sum_j |p_j-\hat p_j|.}
+#'
+#' @inheritParams .validate_compositions
+#' @return A numeric scalar in \eqn{[0, 1]}.
+#' @export
+eval_TV <- function(p_obs, p_estimated, trim_shared_zeros = TRUE) {
+  validated <- .validate_compositions(
+    p_obs = p_obs,
+    p_estimated = p_estimated,
+    trim_shared_zeros = trim_shared_zeros
+  )
+  0.5 * sum(abs(validated$p_obs - validated$p_estimated))
+}
+
+#' \eqn{L_\infty} absolute error between two compositions
+#'
+#' @inheritParams .validate_compositions
+#' @return A numeric scalar in \eqn{[0, 1]}.
+#' @export
+eval_MaxAE <- function(p_obs, p_estimated, trim_shared_zeros = TRUE) {
+  validated <- .validate_compositions(
+    p_obs = p_obs,
+    p_estimated = p_estimated,
+    trim_shared_zeros = trim_shared_zeros
+  )
+  max(abs(validated$p_obs - validated$p_estimated))
+}
+
+#' Normalised angular distance between two compositions
+#'
+#' \deqn{
+#' d_\theta = \frac{2}{\pi}
+#' \arccos\bigl(
+#'   p^{\mathsf{T}}\hat p / (\|p\|_2\|\hat p\|_2)
+#' \bigr).
+#' }
+#'
+#' @inheritParams .validate_compositions
+#' @return A numeric scalar in \eqn{[0, 1]}.
+#' @export
+eval_angular_distance <- function(
+    p_obs,
+    p_estimated,
+    trim_shared_zeros = TRUE
+) {
+  validated <- .validate_compositions(
+    p_obs = p_obs,
+    p_estimated = p_estimated,
+    trim_shared_zeros = trim_shared_zeros
+  )
+  p_obs <- validated$p_obs
+  p_estimated <- validated$p_estimated
+  denom <- sqrt(sum(p_obs^2)) * sqrt(sum(p_estimated^2))
+  if (!is.finite(denom) || denom <= 0) {
+    return(NA_real_)
+  }
+  cos_angle <- min(1, max(-1, sum(p_obs * p_estimated) / denom))
+  (2 / pi) * acos(cos_angle)
+}
+
+#' Presence F1 for spillover / missing cell types
+#'
+#' Compares \eqn{1\{p_j > \varepsilon\}} with
+#' \eqn{1\{\hat p_j > \varepsilon\}}.
+#'
+#' @inheritParams .validate_compositions
+#' @param threshold Presence threshold \eqn{\varepsilon}.
+#' @return A numeric scalar F1 score in \eqn{[0, 1]}.
+#' @export
+eval_presence_F1 <- function(
+    p_obs,
+    p_estimated,
+    threshold = 1e-4,
+    trim_shared_zeros = TRUE
+) {
+  validated <- .validate_compositions(
+    p_obs = p_obs,
+    p_estimated = p_estimated,
+    trim_shared_zeros = trim_shared_zeros
+  )
+  present_true <- validated$p_obs > threshold
+  present_hat <- validated$p_estimated > threshold
+  tp <- sum(present_true & present_hat)
+  fp <- sum(!present_true & present_hat)
+  fn <- sum(present_true & !present_hat)
+  if ((tp + fp + fn) == 0) {
+    return(NA_real_)
+  }
+  precision <- if ((tp + fp) == 0) NA_real_ else tp / (tp + fp)
+  recall <- if ((tp + fn) == 0) NA_real_ else tp / (tp + fn)
+  if (
+    !is.finite(precision) ||
+      !is.finite(recall) ||
+      (precision + recall) == 0
+  ) {
+    return(0)
+  }
+  2 * precision * recall / (precision + recall)
+}
+
 #' Hierarchical relative RMSE against a shared compositional reference
 #'
 #' @description

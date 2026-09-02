@@ -249,7 +249,7 @@ Table 1: Second-generation bulk RNA-seq deconvolution algorithms
 </div>
 <section class="level2"><h3 id="benchmarking-metrics">Benchmarking metrics<a class="anchor" aria-label="anchor" href="#benchmarking-metrics"></a>
 </h3>
-<p>We compare in <a href="#tbl-metrics-for-deconvolution" class="quarto-xref">Table 2</a> the following metrics for <strong>cellular composition deconvolution</strong>, where the true composition is <span class="math inline">\(p=(p_1,\dots,p_J)\)</span> and the estimated composition is <span class="math inline">\(\hat p=(\hat p_1,\dots,\hat p_J)\)</span>, with <span class="math inline">\(p_j,\hat p_j\in[0,1]\)</span> and <span class="math inline">\(\sum_j p_j=\sum_j \hat p_j=1\)</span>. Note that the Aitchison distance, and the Jensen Shannon divergence are grounded in <strong>compositional-data geometry</strong>, while the RMSE, MAE, and Pearson correlation are commonly used in most regression frameworks.</p>
+<p>We compare in <a href="#tbl-metrics-for-deconvolution" class="quarto-xref">Table 2</a> the <strong>headline</strong> scores for cellular composition deconvolution, where <span class="math inline">\(p=(p_1,\dots,p_J)\)</span> and <span class="math inline">\(\hat p=(\hat p_1,\dots,\hat p_J)\)</span> lie on the unit simplex. Aitchison distance and Jensen–Shannon divergence remain useful compositional geometry scores, but they are not the primary panel: Aitchison is undefined at exact zeros, and JSD is close in spirit to the bounded <span class="math inline">\(L_2\)</span> / Hellinger family. RMSE and MAE are the usual regression scores; on the simplex, MAE is equivalent to total variation after the factor <span class="math inline">\(J/2\)</span>. Pearson correlation is reported <strong>cell-type-wise across samples</strong>, not as a <span class="math inline">\(J\)</span>-vector correlation within one mixture.</p>
 <div class="metrics-table">
 <div id="tbl-metrics-for-deconvolution" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-tbl"><div aria-describedby="tbl-metrics-for-deconvolution-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -268,34 +268,11 @@ Table 1: Second-generation bulk RNA-seq deconvolution algorithms
 </tr></thead>
 <tbody>
 <tr class="odd">
+<td><strong>Total variation / nMAE</strong></td>
+<td><span class="math inline">\(d_{\mathrm{TV}}=\frac12\sum_j \lvert p_j-\hat p_j\rvert=\frac J2\mathrm{MAE}\)</span></td>
 <td>
-<strong>Aitchison distance</strong> <span class="emoji" data-emoji="triangular_ruler">📐</span>
-</td>
-<td>
-<span class="math inline">\(\mathrm{clr}(p)_j=\log(p_j)-\frac{1}{J}\sum_{k=1}^{J}\log(p_k)\)</span>. Then <span class="math inline">\(d_A(p,\hat p)=\|\mathrm{clr}(p)-\mathrm{clr}(\hat p)\|_2\)</span>: RMSE after centred log-ratio (CLR) transformation.</td>
-<td>
-<strong>Lower:</strong> <span class="math inline">\(0\)</span> when <span class="math inline">\(p=\hat p\)</span>. <strong>Upper:</strong> unbounded; diverges to <span class="math inline">\(+\infty\)</span> as any component approaches <span class="math inline">\(0\)</span>. Requires strictly positive values, so zeros need a pseudocount or zero-replacement strategy.</td>
-<td>
-<strong>Best compositional metric</strong> when relative cell-type ratios matter (<strong>log-ratios</strong>), not raw differences. A two-fold error on a rare type weighs similarly to a two-fold error on an abundant type. Very sensitive to rare cell types and to zero handling.</td>
-</tr>
-<tr class="even">
-<td>
-<strong>Jensen–Shannon divergence</strong> <span class="emoji" data-emoji="information_source">ℹ️</span>
-</td>
-<td>Let <span class="math inline">\(m_j=\frac{1}{2}(p_j+\hat p_j)\)</span>. Then <span class="math inline">\(\mathrm{JSD}(p,\hat p)=\frac{1}{2}\sum_j p_j\log\frac{p_j}{m_j}+\frac{1}{2}\sum_j \hat p_j\log\frac{\hat p_j}{m_j}\)</span>: a symmetrised Kullback–Leibler divergence.</td>
-<td>
-<strong>Lower:</strong> <span class="math inline">\(0\)</span> when <span class="math inline">\(p=\hat p\)</span>. <strong>Upper:</strong> <span class="math inline">\(\log(2)\)</span> with natural log, or <span class="math inline">\(1\)</span> with <span class="math inline">\(\log_2\)</span>. Symmetric and finite even when one vector contains zeros (with appropriate pseudocounts).</td>
-<td>Measures <strong>distributional disagreement</strong> between two composition profiles. More stable than KL divergence. Good global score for whole-profile comparison, but may under-emphasise biologically meaningful fold-changes in rare cell types.</td>
-</tr>
-<tr class="odd">
-<td>
-<strong>SDID</strong> (Sine-Diagonal ID) <span class="emoji" data-emoji="large_blue_diamond">🔷</span>
-</td>
-<td>
-<span class="math inline">\(\mathrm{SDID}(p,\hat p)=\sin\theta\)</span>, where <span class="math inline">\(\theta=\arccos\left(\frac{p^\top \hat p}{\|p\|_2\|\hat p\|_2}\right)\)</span>. This project uses <span class="math inline">\(\mathrm{SDID}=\sqrt{\sqrt{1-\min(1,\cos^2\theta)}}\)</span>.</td>
-<td>
-<strong>Lower:</strong> <span class="math inline">\(0\)</span> when <span class="math inline">\(p\)</span> and <span class="math inline">\(\hat p\)</span> are perfectly aligned. <strong>Upper:</strong> <span class="math inline">\(1\)</span> for orthogonal compositions. Bounded on <span class="math inline">\([0,1]\)</span> in the convention used here.</td>
-<td>Similar to angular distance: captures deviation in the <strong>direction</strong> between predicted and observed cellular ratios. Insensitive to <strong>linear scaling</strong> because scaling does not change the angle. Still reflects vector geometry more than rank-only scores.</td>
+<strong>Lower:</strong> <span class="math inline">\(0\)</span>. <strong>Upper:</strong> <span class="math inline">\(1\)</span> (all mass moved to a different vertex).</td>
+<td>Primary global composition error. Linear in percentage points; rare-type relative errors stay small.</td>
 </tr>
 <tr class="even">
 <td>
@@ -303,28 +280,71 @@ Table 1: Second-generation bulk RNA-seq deconvolution algorithms
 </td>
 <td>
 <span class="math inline">\(\mathrm{RMSE}(p,\hat p)=\sqrt{\frac{1}{J}\sum_{j=1}^{J}(p_j-\hat p_j)^2}\)</span>.</td>
-<td>With <span class="math inline">\(p_j,\hat p_j\in[0,1]\)</span>: <strong>Lower:</strong> <span class="math inline">\(0\)</span>. <strong>Upper:</strong> at most <span class="math inline">\(1\)</span> component-wise; for valid compositions summing to <span class="math inline">\(1\)</span>, the sharper maximum is <span class="math inline">\(\sqrt{2/J}\)</span>, when all mass sits on one cell type in <span class="math inline">\(p\)</span> and on a different one in <span class="math inline">\(\hat p\)</span>.</td>
-<td>Due to squaring, large absolute errors on abundant populations dominate the score. Can underweight rare cell types: predicting <span class="math inline">\(0.001\)</span> instead of <span class="math inline">\(0.01\)</span> contributes little, despite a ten-fold relative error.</td>
+<td>
+<strong>Lower:</strong> <span class="math inline">\(0\)</span>. <strong>Upper:</strong> <span class="math inline">\(\sqrt{2/J}\)</span> on the simplex.</td>
+<td>Squares large misses on abundant types. Can underweight rare cell types.</td>
+</tr>
+<tr class="odd">
+<td><strong>MaxAE (<span class="math inline">\(L_\infty\)</span>)</strong></td>
+<td><span class="math inline">\(\max_j \lvert p_j-\hat p_j\rvert\)</span></td>
+<td>
+<strong>Lower:</strong> <span class="math inline">\(0\)</span>. <strong>Upper:</strong> <span class="math inline">\(1\)</span>.</td>
+<td>Worst single cell-type error; catches catastrophic misses hidden by averages.</td>
+</tr>
+<tr class="even">
+<td><strong>Angular distance</strong></td>
+<td><span class="math inline">\(d_\theta=\frac{2}{\pi}\arccos\bigl(p^\top\hat p/(\|p\|_2\|\hat p\|_2)\bigr)\)</span></td>
+<td>
+<strong>Lower:</strong> <span class="math inline">\(0\)</span>. <strong>Upper:</strong> <span class="math inline">\(1\)</span>.</td>
+<td>Direction of the two composition vectors. Same <span class="math inline">\(\theta\)</span> as SDID.</td>
 </tr>
 <tr class="odd">
 <td>
-<strong>MAE</strong> <span class="emoji" data-emoji="abacus">🧮</span>
+<strong>SDID</strong> <span class="emoji" data-emoji="large_blue_diamond">🔷</span>
 </td>
 <td>
-<span class="math inline">\(\mathrm{MAE}(p,\hat p)=\frac{1}{J}\sum_{j=1}^{J}\left|p_j-\hat p_j\right|\)</span>.</td>
+<span class="math inline">\(\mathrm{SDID}=\sqrt{\sin\theta}=(1-\cos^2\theta)^{1/4}\)</span> in this project.</td>
 <td>
-<strong>Lower:</strong> <span class="math inline">\(0\)</span>. <strong>Upper:</strong> at most <span class="math inline">\(1\)</span> component-wise; for valid compositions summing to <span class="math inline">\(1\)</span>, the sharper maximum is <span class="math inline">\(2/J\)</span>, again when all mass is assigned to different single cell types.</td>
-<td>Simple and interpretable average absolute percentage-point error per cell type. Less sensitive to outliers than RMSE (L1 rather than L2), but still measures absolute rather than relative error and can underweight rare populations.</td>
+<strong>Lower:</strong> <span class="math inline">\(0\)</span>. <strong>Upper:</strong> <span class="math inline">\(1\)</span>.</td>
+<td>HADACA angular companion; ranks identically to <span class="math inline">\(d_\theta\)</span>.</td>
 </tr>
 <tr class="even">
 <td>
-<strong>Pearson correlation</strong> <span class="emoji" data-emoji="chart_with_upwards_trend">📈</span>
+<strong>Pearson <span class="math inline">\(r\)</span> (cell type)</strong> <span class="emoji" data-emoji="chart_with_upwards_trend">📈</span>
 </td>
 <td>
-<span class="math inline">\(r(p,\hat p)=\frac{\sum_j(p_j-\bar p)(\hat p_j-\bar{\hat p})}{\sqrt{\sum_j(p_j-\bar p)^2}\sqrt{\sum_j(\hat p_j-\bar{\hat p})^2}}\)</span>, computed across cell types within a sample.</td>
+<span class="math inline">\(r_j=\mathrm{cor}(\{p_{ij}\}_i,\{\hat p_{ij}\}_i)\)</span> across samples.</td>
 <td>
-<strong>Lower:</strong> <span class="math inline">\(-1\)</span>. <strong>Upper:</strong> <span class="math inline">\(1\)</span>. Often converted to an error score: <span class="math inline">\(1-r\in[0,2]\)</span>, or <span class="math inline">\(\frac{1-r}{2}\in[0,1]\)</span>.</td>
-<td>Captures whether abundant types are ranked high and rare types low. Invariant to affine transformations, so it can remain high when predicted proportions are systematically biased. Poor standalone calibration metric: high correlation does not imply correct absolute fractions.</td>
+<strong>Lower:</strong> <span class="math inline">\(-1\)</span>. <strong>Upper:</strong> <span class="math inline">\(1\)</span>.</td>
+<td>Ranking / calibration-free agreement per type. Poor standalone calibration metric.</td>
+</tr>
+<tr class="odd">
+<td><strong>Presence F1</strong></td>
+<td>
+<span class="math inline">\(F_1=2PR/(P+R)\)</span> from <span class="math inline">\(1\{p_j&gt;\varepsilon\}\)</span> vs <span class="math inline">\(1\{\hat p_j&gt;\varepsilon\}\)</span>.</td>
+<td>
+<strong>Lower:</strong> <span class="math inline">\(0\)</span>. <strong>Upper:</strong> <span class="math inline">\(1\)</span> (best).</td>
+<td>Detects missing or extra populations (spillover). Precision and recall are not reported separately.</td>
+</tr>
+<tr class="even">
+<td>
+<strong>Aitchison distance</strong> <span class="emoji" data-emoji="triangular_ruler">📐</span>
+</td>
+<td><span class="math inline">\(d_A=\|\mathrm{clr}(p)-\mathrm{clr}(\hat p)\|_2\)</span></td>
+<td>
+<strong>Lower:</strong> <span class="math inline">\(0\)</span>. <strong>Upper:</strong> unbounded; undefined at zeros.</td>
+<td>Log-ratio geometry; not a headline score when exact zeros occur.</td>
+</tr>
+<tr class="odd">
+<td>
+<strong>Jensen–Shannon divergence</strong> <span class="emoji" data-emoji="information_source">ℹ️</span>
+</td>
+<td>
+<span class="math inline">\(\mathrm{JSD}=\frac12\mathrm{KL}(p\|m)+\frac12\mathrm{KL}(\hat p\|m)\)</span>, <span class="math inline">\(m=(p+\hat p)/2\)</span>
+</td>
+<td>
+<strong>Lower:</strong> <span class="math inline">\(0\)</span>. <strong>Upper:</strong> <span class="math inline">\(\log 2\)</span>. Finite at zeros with <span class="math inline">\(0\log 0:=0\)</span>.</td>
+<td>Distributional disagreement; not in the headline <span class="math inline">\(L_p\)</span> panel.</td>
 </tr>
 </tbody>
 </table>

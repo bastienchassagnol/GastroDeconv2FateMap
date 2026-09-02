@@ -46,10 +46,14 @@
 <url><loc>https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/eval_Aitchison.html</loc></url>
 <url><loc>https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/eval_JSD.html</loc></url>
 <url><loc>https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/eval_MAE.html</loc></url>
+<url><loc>https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/eval_MaxAE.html</loc></url>
 <url><loc>https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/eval_Pearson.html</loc></url>
 <url><loc>https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/eval_RMSE.html</loc></url>
 <url><loc>https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/eval_SDID.html</loc></url>
+<url><loc>https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/eval_TV.html</loc></url>
+<url><loc>https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/eval_angular_distance.html</loc></url>
 <url><loc>https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/eval_hrRMSE.html</loc></url>
+<url><loc>https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/eval_presence_F1.html</loc></url>
 <url><loc>https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/filter_deseq2_unexpressed_genes.html</loc></url>
 <url><loc>https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/filter_mast_unexpressed_genes.html</loc></url>
 <url><loc>https://bastienchassagnol.github.io/GastroDeconv2FateMap/reference/index.html</loc></url>
